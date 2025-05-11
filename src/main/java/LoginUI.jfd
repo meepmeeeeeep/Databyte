@@ -1,0 +1,90 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.5" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq t {space :0:950:x, comp exitButton:::p:50:p}, seq l {space :p:96:p, par l {comp loginButton:::p:145:p, comp passwordLabel:::p::p, comp passwordField:::p:280:p, comp usernameLabel:::p::p, comp welcomeLabel:::p::p, comp scapeLabel:::p::p, comp usernameField::l:p:280:p, comp errorLabel::l:p::p}, space ::624:x}}"
+			"$verticalGroup": "par l {seq {comp exitButton:::p:50:p, space :p:124:p, comp welcomeLabel:::p::p, space :0:0:p, comp scapeLabel:::p::p, space :p:47:p, comp usernameLabel:::p::p, space :0:0:p, comp usernameField:::p:30:p, space s:::p, comp passwordLabel:::p::p, space :0:0:p, comp passwordField:::p:30:p, space :::p, comp errorLabel:::p::p, space :p:12:p, comp loginButton:::p:40:p, space ::167:x}}"
+		} ) {
+			name: "this"
+			"background": new java.awt.Color( 252, 248, 255, 255 )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "welcomeLabel"
+				"text": "Welcome to"
+				"font": new java.awt.Font( "Segoe UI", 1, 16 )
+				"foreground": &Color0 new java.awt.Color( 137, 124, 206, 255 )
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "scapeLabel"
+				"text": "SCAPE"
+				"font": new java.awt.Font( "Segoe UI", 1, 36 )
+				"foreground": new java.awt.Color( 37, 23, 121, 255 )
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "usernameLabel"
+				"text": "Username"
+				"font": &Font0 new java.awt.Font( "Segoe UI", 1, 14 )
+				"foreground": #Color0
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+			} )
+			add( new FormComponent( "javax.swing.JTextField" ) {
+				name: "usernameField"
+				"foreground": &Color1 new java.awt.Color( 37, 23, 121, 255 )
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				"border": &MatteBorder0 new javax.swing.border.MatteBorder( 0, 0, 1, 0, new java.awt.Color( 37, 23, 121, 255 ) )
+				"font": new java.awt.Font( "Segoe UI", 0, 14 )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "passwordLabel"
+				"text": "Password"
+				"font": #Font0
+				"foreground": #Color0
+				"background": &Color2 new java.awt.Color( 252, 248, 255, 255 )
+			} )
+			add( new FormComponent( "javax.swing.JPasswordField" ) {
+				name: "passwordField"
+				"foreground": #Color1
+				"background": #Color2
+				"border": #MatteBorder0
+				"font": new java.awt.Font( "Segoe UI", 0, 14 )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "loginButton"
+				"text": "LOGIN"
+				"foreground": new java.awt.Color( 252, 248, 255, 255 )
+				"font": new java.awt.Font( "Segoe UI Semibold", 1, 14 )
+				"background": new java.awt.Color( 175, 83, 196, 255 )
+				"borderPainted": false
+				"focusable": false
+				"cursor": new java.awt.Cursor( 12 )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "loginButtonMouseEntered", true ) )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "loginButtonMouseExited", true ) )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "login", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "exitButton"
+				"text": "X"
+				"foreground": new java.awt.Color( 37, 23, 121, 255 )
+				"font": new java.awt.Font( "Segoe UI Semibold", 1, 16 )
+				"borderPainted": false
+				"contentAreaFilled": false
+				"focusable": false
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "exitWindow", true ) )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "exitButtonMouseEntered", true ) )
+				addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "exitButtonMouseExited", true ) )
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "errorLabel"
+				"text": "Error Label Placeholder"
+				"foreground": new java.awt.Color( 204, 0, 51, 255 )
+				"font": new java.awt.Font( "Segoe UI Semibold", 1, 12 )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 20, 25 )
+			"size": new java.awt.Dimension( 1000, 650 )
+		} )
+	}
+}

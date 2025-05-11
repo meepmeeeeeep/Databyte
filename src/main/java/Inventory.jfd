@@ -1,0 +1,188 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.5" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, comp controlsPanel:::::x, seq {space s:::p, comp scrollPane1::::1102:x, space :p:20:p}}}}"
+			"$verticalGroup": "par l {comp sidePanel::::800:x, seq l {comp windowTitleContainer:::p::p, space :0:0:p, comp controlsPanel:::p:58:p, space s:::p, comp scrollPane1::::645:x, space :p:20:p}}"
+		} ) {
+			name: "this"
+			"background": new java.awt.Color( 232, 231, 244, 255 )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq {space ::19:x, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp financialsButton::t:p:222:p, comp resupplyButton::t:p:222:p}, space ::19:x}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space ::366:x, comp exitButton:::p:45:p, space :p:20:p}}"
+			} ) {
+				name: "sidePanel"
+				"background": new java.awt.Color( 108, 57, 193, 255 )
+				"maximumSize": new java.awt.Dimension( 260, 32823 )
+				"minimumSize": new java.awt.Dimension( 260, 62 )
+				"preferredSize": new java.awt.Dimension( 260, 820 )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "appNameLabel"
+					"text": "SCAPE Project"
+					"font": new java.awt.Font( "Segoe UI Black", 2, 30 )
+					"foreground": &Color0 new java.awt.Color( 255, 255, 255, 255 )
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "appNameSubLabel"
+					"text": "by group 2"
+					"font": new java.awt.Font( "Segoe UI Semibold", 0, 12 )
+					"foreground": #Color0
+					"horizontalAlignment": 4
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "dashboardButton"
+					"font": &Font0 new java.awt.Font( "Segoe UI Semibold", 0, 16 )
+					"foreground": &Color1 new java.awt.Color( 108, 57, 193, 255 )
+					"background": &Color2 new java.awt.Color( 108, 57, 193, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": new java.awt.Cursor( 12 )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "dashboardButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "dashboardButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "dashboardButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "dashboard", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "inventoryButton"
+					"font": #Font0
+					"foreground": #Color1
+					"background": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "inventoryButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "inventoryButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "inventoryButtonMousePressed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "salesButton"
+					"font": #Font0
+					"foreground": #Color1
+					"background": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": &Cursor0 new java.awt.Cursor( 12 )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "salesButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "salesButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "salesButtonMousePressed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "financialsButton"
+					"font": #Font0
+					"foreground": #Color1
+					"background": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": #Cursor0
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "financialsButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "financialsButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "financialsButtonMousePressed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "resupplyButton"
+					"font": #Font0
+					"foreground": #Color1
+					"background": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": #Cursor0
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "resupplyButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "resupplyButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "resupplyButtonMousePressed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "exitButton"
+					"font": #Font0
+					"foreground": #Color1
+					"background": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": #Cursor0
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "exitButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "exitButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "exitButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "exit", true ) )
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::1036:x}}"
+				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
+			} ) {
+				name: "windowTitleContainer"
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "dashboardLabel"
+					"text": "Inventory"
+					"font": new java.awt.Font( "Segoe UI", 1, 18 )
+					"background": new java.awt.Color( 252, 248, 255, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq l {space :p:18:p, comp searchField:::p:350:p, space s:::p, comp categoryFilter:::p:200:p, space ::180:x, comp addButton:::p:100:p, space :::p, comp deleteButton:::p:100:p, space :::p, comp editButton:::p:100:p, space :::p, comp refreshButton:::p:50:p, space :::p}}"
+				"$verticalGroup": "par l {seq {par l {seq l {space :p:16:p, par b {comp searchField::b:p:34:p, comp categoryFilter::b:p:34:p}, space :0:0:x}, seq t {space :p:10:p, par t {comp deleteButton:::::x, comp editButton::t:::x}}, seq {space :p:10:p, comp addButton:::::x}, seq l {space :p:10:p, comp refreshButton:::::x}}, space :p:10:p}}"
+			} ) {
+				name: "controlsPanel"
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "searchField"
+					"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
+					"font": &Font1 new java.awt.Font( "Segoe UI", 0, 14 )
+				} )
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "categoryFilter"
+					"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
+					"font": #Font1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "refreshButton"
+					"text": "R"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "editButton"
+					"text": "Edit"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "deleteButton"
+					"text": "Delete"
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "addButton"
+					"text": "Add"
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "add", true ) )
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				"horizontalScrollBarPolicy": 31
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "inventoryTable"
+					"rowHeight": 30
+					"font": new java.awt.Font( "Segoe UI", 0, 14 )
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 10, 5 )
+			"size": new java.awt.Dimension( 1400, 800 )
+		} )
+	}
+}
