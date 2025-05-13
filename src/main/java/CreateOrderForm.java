@@ -10,7 +10,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class CreateOrderForm extends JPanel {
-    public CreateOrderForm() {
+    private final Sales sales;
+    public CreateOrderForm(Sales sales) {
+        this.sales = sales;
+
         typingTimer = new Timer(); // Initialize typingTimer
 
         initComponents();
@@ -57,7 +60,7 @@ public class CreateOrderForm extends JPanel {
     }
 
     private void cancel(ActionEvent e) {
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Add Item Form
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Create Order Form
     }
 
     private void confirm(ActionEvent e) {
@@ -140,8 +143,8 @@ public class CreateOrderForm extends JPanel {
         // Create the PaymentConfirmationForm and pass data
         return new PaymentConfirmationForm(
                 customerName, customerAddress,  customerEmail, customerPhone,
-                itemID, itemName, category, price, quantity, totalAmount
-                );
+                itemID, itemName, category, price, quantity, totalAmount,
+                sales);
     }
 
     // Check available stock in Inventory

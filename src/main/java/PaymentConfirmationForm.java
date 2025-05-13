@@ -12,10 +12,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PaymentConfirmationForm extends JPanel {
+    private final Sales sales;
     public PaymentConfirmationForm(
             String customerName, String customerAddress, String customerEmail, String customerPhone,
-            String itemID, String itemName, String category, double price, int quantity, double totalAmount
-            ) {
+            String itemID, String itemName, String category, double price, int quantity, double totalAmount,
+            Sales sales) {
+        this.sales = sales;
         initComponents();
 
         // Add Left-Padding to Text Fields
@@ -84,7 +86,7 @@ public class PaymentConfirmationForm extends JPanel {
     }
 
     private void cancel(ActionEvent e) {
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Add Item Form
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Payment Confirmation Form
     }
 
     private void confirm(ActionEvent e) {
@@ -151,7 +153,7 @@ public class PaymentConfirmationForm extends JPanel {
             String paymentAmount = paymentAmountField.getText();
             String paymentChoice = (String) paymentMethodField.getSelectedItem();
 
-            PaymentDetails paymentDetails = new PaymentDetails(totalAmount, paymentAmount, paymentChoice, change);
+            PaymentDetails paymentDetails = new PaymentDetails(totalAmount, paymentAmount, paymentChoice, change, sales);
 
             // Open PaymentConfirmationForm
             JFrame frame = new JFrame("Payment Details");

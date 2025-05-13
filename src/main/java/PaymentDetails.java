@@ -6,7 +6,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class PaymentDetails extends JPanel {
-    public PaymentDetails(String totalAmount, String paymentAmount, String paymentMethod, double change) {
+    private final Sales sales;
+
+    public PaymentDetails(String totalAmount, String paymentAmount, String paymentMethod, double change, Sales sales) {
+        this.sales = sales;
+
         initComponents();
 
         // Add Left-Padding to Text Fields
@@ -36,11 +40,13 @@ public class PaymentDetails extends JPanel {
     }
 
     private void cancel(ActionEvent e) {
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Add Item Form
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Payment Details Form
     }
 
     private void confirm(ActionEvent e) {
-        SwingUtilities.getWindowAncestor(this).dispose();
+        sales.populateTableSales();
+
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Payment Details Form
     }
 
     private void initComponents() {

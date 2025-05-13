@@ -18,7 +18,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class Sales extends JPanel {
-    private DefaultTableModel tableModel;
     public Sales() {
         // Use Custom Background Images for Side Panel Buttons
         //---- dashboardButton ----
@@ -48,12 +47,12 @@ public class Sales extends JPanel {
         initComponents();
 
         String[] columns = {"Sale ID", "Date", "Customer Name", "Item ID", "Item Name", "Quantity", "Unit Price", "Total Price"};
-        tableModel = new DefaultTableModel(columns, 0);
+        DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
         transactionHistoryTable.setModel(tableModel);
 
         setTableTheme();
 
-        populateTable(); // Load the table data
+        populateTableSales(); // Load the table data
         searchListenerHandler(); // Initialize Search Listener Handler
     }
 
@@ -213,7 +212,7 @@ public class Sales extends JPanel {
     // Action Listener Method
     private void createOrder(ActionEvent e) {
         JFrame frame = new JFrame("Create Order");
-        frame.setContentPane(new CreateOrderForm());
+        frame.setContentPane(new CreateOrderForm(this));
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);          // Disable window resizing
@@ -505,6 +504,9 @@ public class Sales extends JPanel {
             //---- createOrderButton ----
             createOrderButton.setText("Create Order");
             createOrderButton.setFocusable(false);
+            createOrderButton.setBackground(new Color(0x6c39c1));
+            createOrderButton.setForeground(Color.white);
+            createOrderButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
             createOrderButton.addActionListener(e -> createOrder(e));
 
             //---- searchField ----
@@ -686,11 +688,11 @@ public class Sales extends JPanel {
     //
     // SQL Functionalities Section
     //
-    void populateTable() {
-        populateTable("");
+    void populateTableSales() {
+        populateTableSales("");
     }
 
-    void populateTable(String searchQuery) {
+    void populateTableSales(String searchQuery) {
         String sql = "SELECT transaction_id, date, customer_name, item_id, item_name, quantity, price, total_price " +
                 "FROM transaction_history " +
                 "WHERE transaction_id LIKE ? OR customer_name LIKE ? OR item_id LIKE ? OR item_name LIKE ?";
@@ -758,7 +760,7 @@ public class Sales extends JPanel {
                     public void run() {
                         SwingUtilities.invokeLater(() -> {
                             String query = searchField.getText().trim();
-                            populateTable(query);
+                            populateTableSales(query);
                         });
                     }
                 }, SEARCH_DELAY);
