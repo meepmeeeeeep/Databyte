@@ -172,12 +172,6 @@ public class Dashboard extends JPanel {
         sidePanel = new JPanel();
         appNameLabel = new JLabel();
         appNameSubLabel = new JLabel();
-        dashboardButton = new JButton();
-        inventoryButton = new JButton();
-        salesButton = new JButton();
-        financialsButton = new JButton();
-        resupplyButton = new JButton();
-        exitButton = new JButton();
         windowTitleContainer = new JPanel();
         dashboardLabel = new JTextField();
         dashboardPanel1 = new JPanel();

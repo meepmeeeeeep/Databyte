@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, comp controlsPanel:::::x, seq {space s:::p, comp scrollPane1::::1102:x, space :p:20:p}}}}"
-			"$verticalGroup": "par l {comp sidePanel::::800:x, seq l {comp windowTitleContainer:::p::p, space :0:0:p, comp controlsPanel:::p:58:p, space s:::p, comp scrollPane1::::645:x, space :p:20:p}}"
+			"$verticalGroup": "par l {comp sidePanel::::800:x, seq l {comp windowTitleContainer:::p::p, space :0:0:p, comp controlsPanel:::p::p, space s:::p, comp scrollPane1::::645:x, space :p:20:p}}"
 		} ) {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
@@ -136,37 +136,47 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:18:p, comp searchField:::p:350:p, space s:::p, comp categoryFilter:::p:200:p, space ::180:x, comp addButton:::p:100:p, space :::p, comp deleteButton:::p:100:p, space :::p, comp editButton:::p:100:p, space :::p, comp refreshButton:::p:50:p, space :::p}}"
-				"$verticalGroup": "par l {seq {par l {seq l {space :p:16:p, par b {comp searchField::b:p:34:p, comp categoryFilter::b:p:34:p}, space :0:0:x}, seq t {space :p:10:p, par t {comp deleteButton:::::x, comp editButton::t:::x}}, seq {space :p:10:p, comp addButton:::::x}, seq l {space :p:10:p, comp refreshButton:::::x}}, space :p:10:p}}"
+				"$horizontalGroup": "par l {seq l {space :p:18:p, comp searchField:::p:400:p, space ::315:x, comp addButton:::p:115:p, space :::p, comp deleteButton:::p:115:p, space :::p, comp editButton:::p:115:p, space :::p, comp refreshButton:::p:38:p, space :::p}}"
+				"$verticalGroup": "par l {seq {space :10:10:p, par l {comp refreshButton::l:::x, comp editButton::l::38:x, comp deleteButton::l::38:x, comp addButton::l::38:x}, space :p:10:p}, seq l {space :p:16:p, comp searchField:::p:34:p, space ::8:x}}"
 			} ) {
 				name: "controlsPanel"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "searchField"
 					"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
-					"font": &Font1 new java.awt.Font( "Segoe UI", 0, 14 )
-				} )
-				add( new FormComponent( "javax.swing.JComboBox" ) {
-					name: "categoryFilter"
-					"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
-					"font": #Font1
+					"font": new java.awt.Font( "Segoe UI", 0, 14 )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "refreshButton"
-					"text": "R"
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "refresh", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "refreshButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "refreshButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "refreshButtonMousePressed", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "editButton"
-					"text": "Edit"
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "edit", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "editButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "editButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "editButtonMousePressed", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "deleteButton"
-					"text": "Delete"
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "delete", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "deleteButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "deleteButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "deleteButtonMousePressed", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "addButton"
-					"text": "Add"
+					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "add", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "addButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "addButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "addButtonMousePressed", true ) )
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -176,7 +186,7 @@ new FormModel {
 				"horizontalScrollBarPolicy": 31
 				add( new FormComponent( "javax.swing.JTable" ) {
 					name: "inventoryTable"
-					"rowHeight": 30
+					"rowHeight": 40
 					"font": new java.awt.Font( "Segoe UI", 0, 14 )
 				} )
 			} )

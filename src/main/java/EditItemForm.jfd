@@ -28,7 +28,7 @@ new FormModel {
 				"background": new java.awt.Color( 252, 248, 255, 255 )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel"
-					"text": "Add Item"
+					"text": "Edit Item"
 					"font": new java.awt.Font( "Segoe UI", 1, 18 )
 					"background": &Color0 new java.awt.Color( 252, 248, 255, 255 )
 					"foreground": new java.awt.Color( 37, 23, 121, 255 )
@@ -105,12 +105,12 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "addButton"
-					"text": "ADD"
+					"text": "Confirm"
 					"background": &Color3 new java.awt.Color( 108, 57, 193, 255 )
 					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 14 )
 					"foreground": &Color4 new java.awt.Color( 252, 248, 255, 255 )
 					"focusable": false
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "add", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "edit", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "cancelButton"
