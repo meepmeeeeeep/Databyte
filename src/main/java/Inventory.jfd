@@ -140,7 +140,7 @@ new FormModel {
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 				"$horizontalGroup": "par l {seq l {space :p:18:p, comp searchField:::p:400:p, space ::315:x, comp addButton:::p:115:p, space :::p, comp deleteButton:::p:115:p, space :::p, comp editButton:::p:115:p, space :::p, comp refreshButton:::p:38:p, space :::p}}"
-				"$verticalGroup": "par l {seq {space :10:10:p, par l {comp refreshButton::l:::x, comp editButton::l::38:x, comp deleteButton::l::38:x, comp addButton::l::38:x}, space :p:10:p}, seq l {space :p:16:p, comp searchField:::p:34:p, space ::8:x}}"
+				"$verticalGroup": "par l {seq {space :10:10:p, par l {comp refreshButton::l:::x, comp editButton::l::38:x, comp deleteButton::l::38:x, comp addButton::l::38:x}, space :p:10:p}, seq l {space :p:12:p, comp searchField:::p:34:p, space ::12:x}}"
 			} ) {
 				name: "controlsPanel"
 				"background": new java.awt.Color( 252, 248, 255, 255 )

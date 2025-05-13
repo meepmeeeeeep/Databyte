@@ -57,6 +57,9 @@ new FormModel {
 					name: "itemNameField"
 					"border": &MatteBorder0 new javax.swing.border.MatteBorder( 0, 0, 1, 0, sfield java.awt.Color black )
 					"background": &Color2 new java.awt.Color( 232, 231, 244, 255 )
+					"font": &Font1 new java.awt.Font( "Segoe UI", 0, 14 )
+					addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "itemNameFieldKeyReleased", true ) )
+					addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "itemNameFieldFocusLost", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemIDLabel"
@@ -72,6 +75,9 @@ new FormModel {
 					name: "itemIDField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
+					addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "itemIDFieldKeyReleased", true ) )
+					addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "itemIDFieldFocusLost", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceField"
@@ -79,6 +85,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceLabel"
@@ -94,6 +101,7 @@ new FormModel {
 					name: "quantityField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "quantityLabel"
@@ -109,7 +117,7 @@ new FormModel {
 					name: "confirmButton"
 					"text": "CONFIRM"
 					"background": &Color3 new java.awt.Color( 108, 57, 193, 255 )
-					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 14 )
+					"font": &Font2 new java.awt.Font( "Segoe UI", 1, 14 )
 					"foreground": &Color4 new java.awt.Color( 252, 248, 255, 255 )
 					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "confirm", true ) )
@@ -118,7 +126,7 @@ new FormModel {
 					name: "cancelButton"
 					"text": "CANCEL"
 					"background": #Color3
-					"font": #Font1
+					"font": #Font2
 					"foreground": #Color4
 					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancel", true ) )
@@ -137,11 +145,14 @@ new FormModel {
 					name: "categoryField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
+					addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "categoryFieldFocusLost", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerNameField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customeNameLabel"
@@ -167,6 +178,7 @@ new FormModel {
 					name: "customerAddressField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerEmailLabel"
@@ -182,11 +194,13 @@ new FormModel {
 					name: "customerEmailField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerPhoneField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerPhoneLabel"
@@ -201,7 +215,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerInformationLabel"
 					"text": "Customer Information"
-					"font": &Font2 new java.awt.Font( "Segoe UI Semibold", 1, 22 )
+					"font": &Font3 new java.awt.Font( "Segoe UI Semibold", 1, 22 )
 					"background": #Color0
 					"foreground": &Color5 new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
@@ -211,7 +225,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "productInformationLabel"
 					"text": "Product Information"
-					"font": #Font2
+					"font": #Font3
 					"background": #Color0
 					"foreground": #Color5
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE

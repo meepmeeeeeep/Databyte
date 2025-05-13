@@ -5,12 +5,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.sql.*;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.swing.border.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -51,6 +52,9 @@ public class Sales extends JPanel {
         transactionHistoryTable.setModel(tableModel);
 
         setTableTheme();
+
+        populateTable(); // Load the table data
+        searchListenerHandler(); // Initialize Search Listener Handler
     }
 
     //
@@ -203,6 +207,19 @@ public class Sales extends JPanel {
         // TODO add your code here
     }
 
+    //
+    // Create Order Button Event Listener Methods
+    //
+    // Action Listener Method
+    private void createOrder(ActionEvent e) {
+        JFrame frame = new JFrame("Create Order");
+        frame.setContentPane(new CreateOrderForm());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);          // Disable window resizing
+        frame.setVisible(true);
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -215,6 +232,7 @@ public class Sales extends JPanel {
         controlsPanel = new JPanel();
         transactionHistoryLabel = new JTextField();
         createOrderButton = new JButton();
+        searchField = new JTextField();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -260,7 +278,7 @@ public class Sales extends JPanel {
                     dashboardButtonMousePressed(e);
                 }
             });
-            dashboardButton.addActionListener(this::dashboard);
+            dashboardButton.addActionListener(e -> dashboard(e));
 
             //---- inventoryButton ----
             inventoryButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -285,7 +303,7 @@ public class Sales extends JPanel {
                     inventoryButtonMousePressed(e);
                 }
             });
-            inventoryButton.addActionListener(this::inventory);
+            inventoryButton.addActionListener(e -> inventory(e));
 
             //---- salesButton ----
             salesButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -334,7 +352,7 @@ public class Sales extends JPanel {
                     financialsButtonMousePressed(e);
                 }
             });
-            financialsButton.addActionListener(this::financials);
+            financialsButton.addActionListener(e -> financials(e));
 
             //---- resupplyButton ----
             resupplyButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -359,7 +377,7 @@ public class Sales extends JPanel {
                     resupplyButtonMousePressed(e);
                 }
             });
-            resupplyButton.addActionListener(this::resupply);
+            resupplyButton.addActionListener(e -> resupply(e));
 
             //---- exitButton ----
             exitButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -384,7 +402,7 @@ public class Sales extends JPanel {
                     exitButtonMousePressed(e);
                 }
             });
-            exitButton.addActionListener(this::exit);
+            exitButton.addActionListener(e -> exit(e));
 
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
@@ -487,6 +505,11 @@ public class Sales extends JPanel {
             //---- createOrderButton ----
             createOrderButton.setText("Create Order");
             createOrderButton.setFocusable(false);
+            createOrderButton.addActionListener(e -> createOrder(e));
+
+            //---- searchField ----
+            searchField.setBorder(LineBorder.createBlackLineBorder());
+            searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             GroupLayout controlsPanelLayout = new GroupLayout(controlsPanel);
             controlsPanel.setLayout(controlsPanelLayout);
@@ -495,16 +518,20 @@ public class Sales extends JPanel {
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(transactionHistoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 807, Short.MAX_VALUE)
+                        .addGap(25, 25, 25)
+                        .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 382, Short.MAX_VALUE)
                         .addComponent(createOrderButton, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
             controlsPanelLayout.setVerticalGroup(
                 controlsPanelLayout.createParallelGroup()
                     .addGroup(controlsPanelLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(transactionHistoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(16, Short.MAX_VALUE))
+                        .addGap(12, 12, 12)
+                        .addGroup(controlsPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(transactionHistoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(12, Short.MAX_VALUE))
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(createOrderButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
@@ -557,6 +584,7 @@ public class Sales extends JPanel {
     private JPanel controlsPanel;
     private JTextField transactionHistoryLabel;
     private JButton createOrderButton;
+    private JTextField searchField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     //
@@ -618,18 +646,18 @@ public class Sales extends JPanel {
         // Set Table Column Size
         // First Column
         TableColumn firstColumn = transactionHistoryTable.getColumnModel().getColumn(0);
-        firstColumn.setPreferredWidth(60);
-        firstColumn.setMinWidth(60);
-        firstColumn.setMaxWidth(60);
+        firstColumn.setPreferredWidth(110);
+        firstColumn.setMinWidth(110);
+        firstColumn.setMaxWidth(110);
         firstColumn.setResizable(false);
         // Second Column
         TableColumn secondColumn = transactionHistoryTable.getColumnModel().getColumn(1);
-        secondColumn.setPreferredWidth(60);
-        secondColumn.setMinWidth(60);
+        secondColumn.setPreferredWidth(70);
+        secondColumn.setMinWidth(70);
         // Third Column
         TableColumn thirdColumn = transactionHistoryTable.getColumnModel().getColumn(2);
-        thirdColumn.setPreferredWidth(150);
-        thirdColumn.setMinWidth(150);
+        thirdColumn.setPreferredWidth(100);
+        thirdColumn.setMinWidth(100);
         // Fourth Column
         TableColumn fourthColumn = transactionHistoryTable.getColumnModel().getColumn(3);
         fourthColumn.setPreferredWidth(60);
@@ -658,33 +686,84 @@ public class Sales extends JPanel {
     //
     // SQL Functionalities Section
     //
-    // Load Transaction Data
-    public void loadTransactionData(Connection conn) {
-        try {
-            String sql = "SELECT SaleID, Date, CustomerName, ItemID, ItemName, Quantity, UnitPrice, TotalPrice FROM transaction_history ORDER BY Date DESC";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
+    void populateTable() {
+        populateTable("");
+    }
 
-            SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy - HH:mm:ss");
+    void populateTable(String searchQuery) {
+        String sql = "SELECT transaction_id, date, customer_name, item_id, item_name, quantity, price, total_price " +
+                "FROM transaction_history " +
+                "WHERE transaction_id LIKE ? OR customer_name LIKE ? OR item_id LIKE ? OR item_name LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            String wildcardQuery = "%" + searchQuery + "%";
+            pst.setString(1, wildcardQuery);
+            pst.setString(2, wildcardQuery);
+            pst.setString(3, wildcardQuery);
+            pst.setString(4, wildcardQuery);
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.setColumnIdentifiers(new String[]{"Sale ID", "Date", "Customer Name", "Item ID", "Item Name", "Quantity", "Unit Price", "Total Price"});
 
             while (rs.next()) {
-                String saleID = rs.getString("SaleID");
-                Timestamp timestamp = rs.getTimestamp("Date");
-                String date = formatter.format(timestamp);
-                String customerName = rs.getString("CustomerName");
-                String itemID = rs.getString("ItemID");
-                String itemName = rs.getString("ItemName");
-                int qty = rs.getInt("Quantity");
-                double price = rs.getDouble("UnitPrice");
-                double total = rs.getDouble("TotalPrice");
-
-                tableModel.addRow(new Object[]{saleID, date, customerName, itemID, itemName, qty, price, total});
+                model.addRow(new Object[]{
+                        rs.getString("transaction_id"),
+                        rs.getTimestamp("date"),
+                        rs.getString("customer_name"),
+                        rs.getString("item_id"),
+                        rs.getString("item_name"),
+                        rs.getInt("quantity"),
+                        rs.getDouble("price"),
+                        rs.getDouble("total_price")
+                });
             }
 
-            rs.close();
-            stmt.close();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            transactionHistoryTable.setModel(model);
+            setTableTheme();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading transaction history: " + ex.getMessage());
         }
     }
+
+    // Search Query
+    private java.util.Timer searchTimer;
+    private static final int SEARCH_DELAY = 300; // milliseconds
+
+    private void searchListenerHandler() {
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                searchDatabase();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchDatabase();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchDatabase();
+            }
+
+            private void searchDatabase() {
+                if (searchTimer != null) {
+                    searchTimer.cancel(); // Cancel the previous timer
+                }
+
+                searchTimer = new Timer();
+                searchTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        SwingUtilities.invokeLater(() -> {
+                            String query = searchField.getText().trim();
+                            populateTable(query);
+                        });
+                    }
+                }, SEARCH_DELAY);
+            }
+        });
+    }
+
 }

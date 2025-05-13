@@ -151,8 +151,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp transactionHistoryLabel:::p::p, space ::807:x, comp createOrderButton:::p:125:p, space :p:20:p}}"
-				"$verticalGroup": "par l {seq l {space :p:17:p, comp transactionHistoryLabel:::p::p, space ::16:x}, seq {space :p:10:p, comp createOrderButton::::38:x, space :p:10:p}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp transactionHistoryLabel:::p::p, space :p:25:p, comp searchField:::p:400:p, space ::382:x, comp createOrderButton:::p:125:p, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:12:p, par b {comp transactionHistoryLabel::b:p::p, comp searchField::b:p:34:p}, space ::12:x}, seq {space :p:10:p, comp createOrderButton::::38:x, space :p:10:p}}"
 			} ) {
 				name: "controlsPanel"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -170,6 +170,12 @@ new FormModel {
 					name: "createOrderButton"
 					"text": "Create Order"
 					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "createOrder", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "searchField"
+					"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
+					"font": new java.awt.Font( "Segoe UI", 0, 14 )
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {

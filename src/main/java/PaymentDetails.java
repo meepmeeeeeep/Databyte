@@ -4,13 +4,9 @@ import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class PaymentDetails extends JPanel {
-    public PaymentDetails() {
+    public PaymentDetails(String totalAmount, String paymentAmount, String paymentMethod, double change) {
         initComponents();
 
         // Add Left-Padding to Text Fields
@@ -23,6 +19,20 @@ public class PaymentDetails extends JPanel {
                 paymentAmountField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+        changeField.setBorder(BorderFactory.createCompoundBorder(
+                changeField.getBorder(),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
+        ));
+        paymentMethodField.setBorder(BorderFactory.createCompoundBorder(
+                paymentMethodField.getBorder(),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
+        ));
+
+        // Set Text Fields Values
+        totalAmountField.setText(totalAmount);
+        paymentAmountField.setText(paymentAmount);
+        paymentMethodField.setText(paymentMethod);
+        changeField.setText(String.valueOf(change));
     }
 
     private void cancel(ActionEvent e) {
@@ -30,7 +40,7 @@ public class PaymentDetails extends JPanel {
     }
 
     private void confirm(ActionEvent e) {
-        // TODO add your code here
+        SwingUtilities.getWindowAncestor(this).dispose();
     }
 
     private void initComponents() {
@@ -138,7 +148,7 @@ public class PaymentDetails extends JPanel {
             totalAmountLabel.setText("Total Amount:");
             totalAmountLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             totalAmountLabel.setBackground(new Color(0xfcf8ff));
-            totalAmountLabel.setForeground(new Color(0x251779));
+            totalAmountLabel.setForeground(new Color(0x897cce));
             totalAmountLabel.setBorder(null);
             totalAmountLabel.setFocusable(false);
             totalAmountLabel.setEditable(false);

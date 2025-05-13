@@ -38,8 +38,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {seq {par l {comp customerInformationLabel:::p::p, comp customerAddressLabel::l:p::p, comp customeNameLabel:::p::p, comp customerNameField::l:p:720:p, comp customerAddressField::l:p:720:p, seq {par l {comp totalAmountLabel:::p::p, comp totalAmountField:::p:450:p, comp paymentAmountLabel:::p::p, comp paymentAmountField:::p:450:p}, space :p:50:p, par l {comp paymentMethodField::t:::x, seq {par l {seq {comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}, comp paymentMethodLabel::l:p::p}, space :0:0:x}}}}, space :230::x}, seq {par l {seq {par l {comp customerEmailLabel::l:p::p, comp customerEmailField::l:p:345:p}, space :p:30:p, par l {comp customerPhoneLabel:::p::p, comp customerPhoneField:::p:345:p}}, comp paymentDetailsLabel:::p::p, comp productInformationLabel:::p::p, seq l {par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p}, space :p:50:p, par l:::p {comp quantityLabel:::p::p, comp priceLabel:::p::p, comp priceField::l::220:x, comp quantityField::l::220:x}}}, space :0:0:x}}}}"
-				"$verticalGroup": "par l {seq t {space :p:21:p, comp customerInformationLabel:::p::p, space u:::p, comp customeNameLabel:::p::p, space :::p, comp customerNameField:::p:35:p, space s:::p, comp customerAddressLabel:::p::p, space u:::p, comp customerAddressField:::p:105:p, space :p:18:p, par l {seq l {comp customerEmailLabel:::p::p, space :::p, comp customerEmailField:::p:35:p}, seq l {comp customerPhoneLabel:::p::p, space :6:6:p, comp customerPhoneField:::p:35:p}}, space s:::p, comp productInformationLabel:::p::p, space u:::p, par t {seq t {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq t {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space s:::p, par l {seq l {comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p}, seq l {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, par l {seq l {space s:::p, comp categoryLabel:::p::p, space :3:3:p, comp categoryField:::p:35:p, space s:::p, comp paymentDetailsLabel:::p::p, space u:::p, comp totalAmountLabel:::p::p, space :6:6:p, comp totalAmountField:::p:35:p, space s:::p, comp paymentAmountLabel:::p::p, space :6:6:p, comp paymentAmountField:::p:35:p, space ::21:x}, seq l {space ::138:x, comp paymentMethodLabel:::p::p, space :::p, comp paymentMethodField:::p:35:p, space :p:50:p, par b {comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p}, space :p:14:p}}}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {seq {par l {comp totalAmountLabel:::p::p, comp totalAmountField:::p:450:p, comp paymentAmountLabel:::p::p, comp paymentAmountField:::p:450:p}, space :p:50:p, par l {seq l {comp paymentMethodLabel:::p::p, space ::119:x}, seq l {par l {comp paymentMethodField:::p:220:p, seq {comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}}, space :0:30:x}}}, seq {par l {comp customerInformationLabel:::p::p, comp customerAddressLabel::l:p::p, comp customeNameLabel:::p::p, comp customerNameField::l:p:720:p, comp customerAddressField::l:p:720:p}, space :230::x}, seq {par l {seq {par l {comp customerEmailLabel::l:p::p, comp customerEmailField::l:p:345:p}, space :p:30:p, par l {comp customerPhoneLabel:::p::p, comp customerPhoneField:::p:345:p}}, comp paymentDetailsLabel:::p::p, comp productInformationLabel:::p::p, seq l {par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p}, space :p:50:p, par l:::p {comp quantityLabel:::p::p, comp priceLabel:::p::p, comp priceField::l::220:x, comp quantityField::l::220:x}}}, space :0:0:x}}}}"
+				"$verticalGroup": "par l {seq t {space :p:21:p, comp customerInformationLabel:::p::p, space u:::p, comp customeNameLabel:::p::p, space :::p, comp customerNameField:::p:35:p, space s:::p, comp customerAddressLabel:::p::p, space u:::p, comp customerAddressField:::p:105:p, space :p:18:p, par l {seq l {comp customerEmailLabel:::p::p, space :::p, comp customerEmailField:::p:35:p}, seq l {comp customerPhoneLabel:::p::p, space :6:6:p, comp customerPhoneField:::p:35:p}}, space s:::p, comp productInformationLabel:::p::p, space u:::p, par t {seq t {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq t {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space s:::p, par l {seq l {comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p}, seq l {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, space s:::p, comp categoryLabel:::p::p, space :3:3:p, comp categoryField:::p:35:p, space s:::p, comp paymentDetailsLabel:::p::p, space u:::p, par b {comp totalAmountLabel::b:p::p, comp paymentMethodLabel::b:p::p}, space :6:6:p, par b {comp totalAmountField::b:p:35:p, comp paymentMethodField::b:p:35:p}, space s:::p, comp paymentAmountLabel:::p::p, space :4:4:p, par b {comp paymentAmountField::b:p:35:p, comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p}, space ::20:x}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -59,6 +59,7 @@ new FormModel {
 					"background": &Color2 new java.awt.Color( 232, 231, 244, 255 )
 					"editable": false
 					"focusable": false
+					"font": &Font1 new java.awt.Font( "Segoe UI", 0, 14 )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemIDLabel"
@@ -76,6 +77,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceField"
@@ -83,6 +85,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceLabel"
@@ -100,6 +103,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "quantityLabel"
@@ -115,7 +119,7 @@ new FormModel {
 					name: "confirmButton"
 					"text": "CONFIRM"
 					"background": &Color3 new java.awt.Color( 108, 57, 193, 255 )
-					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 14 )
+					"font": &Font2 new java.awt.Font( "Segoe UI", 1, 14 )
 					"foreground": &Color4 new java.awt.Color( 252, 248, 255, 255 )
 					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "confirm", true ) )
@@ -124,7 +128,7 @@ new FormModel {
 					name: "cancelButton"
 					"text": "CANCEL"
 					"background": #Color3
-					"font": #Font1
+					"font": #Font2
 					"foreground": #Color4
 					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancel", true ) )
@@ -145,6 +149,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerNameField"
@@ -152,6 +157,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customeNameLabel"
@@ -179,6 +185,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerEmailLabel"
@@ -196,6 +203,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerPhoneField"
@@ -203,6 +211,7 @@ new FormModel {
 					"background": #Color2
 					"editable": false
 					"focusable": false
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerPhoneLabel"
@@ -217,7 +226,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerInformationLabel"
 					"text": "Customer Information"
-					"font": &Font2 new java.awt.Font( "Segoe UI Semibold", 1, 22 )
+					"font": &Font3 new java.awt.Font( "Segoe UI Semibold", 1, 22 )
 					"background": #Color0
 					"foreground": &Color5 new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
@@ -227,7 +236,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "productInformationLabel"
 					"text": "Product Information"
-					"font": #Font2
+					"font": #Font3
 					"background": #Color0
 					"foreground": #Color5
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
@@ -237,7 +246,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "paymentDetailsLabel"
 					"text": "Payment Details"
-					"font": #Font2
+					"font": #Font3
 					"background": #Color0
 					"foreground": #Color5
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
@@ -257,9 +266,10 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "totalAmountField"
 					"border": #MatteBorder0
-					"background": #Color2
 					"editable": false
 					"focusable": false
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "paymentAmountLabel"
@@ -275,6 +285,7 @@ new FormModel {
 					name: "paymentAmountField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "paymentMethodLabel"
@@ -292,6 +303,10 @@ new FormModel {
 						selectedItem: "Cash"
 						addElement( "Cash" )
 					}
+					"focusable": false
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+					"font": #Font1
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {

@@ -7,6 +7,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 import javax.swing.border.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -695,9 +697,9 @@ public class Inventory extends JPanel {
                             .addComponent(addButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                         .addGap(10, 10, 10))
                     .addGroup(controlsPanelLayout.createSequentialGroup()
-                        .addGap(16, 16, 16)
+                        .addGap(12, 12, 12)
                         .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(8, Short.MAX_VALUE))
+                        .addContainerGap(12, Short.MAX_VALUE))
             );
         }
 
@@ -860,10 +862,11 @@ public class Inventory extends JPanel {
     }
 
     void populateTable(String searchQuery) {
-        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)){
-            String sql = "SELECT item_no, item_id, item_name, category, quantity, price FROM inventory " +
-                    "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ?";
-            PreparedStatement pst = conn.prepareStatement(sql);
+        String sql = "SELECT item_no, item_id, item_name, category, quantity, price FROM inventory " +
+                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)){
             String wildcardQuery = "%" + searchQuery + "%";
             pst.setString(1, wildcardQuery);
             pst.setString(2, wildcardQuery);
@@ -901,7 +904,7 @@ public class Inventory extends JPanel {
             return;
         }
 
-        // Get the item_id from the selected row (assuming it's in the first column)
+        // Get the item_id from the selected row
         String itemId = inventoryTable.getValueAt(selectedRow, 1).toString();
 
         int confirm = JOptionPane.showConfirmDialog(this,
@@ -910,9 +913,10 @@ public class Inventory extends JPanel {
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-                String sql = "DELETE FROM inventory WHERE item_id = ?";
-                PreparedStatement pstmt = conn.prepareStatement(sql);
+            String sql = "DELETE FROM inventory WHERE item_id = ?";
+
+            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, itemId);
                 int affectedRows = pstmt.executeUpdate();
 
@@ -927,6 +931,10 @@ public class Inventory extends JPanel {
             }
         }
     }
+
+    // Search Query
+    private Timer searchTimer;
+    private static final int SEARCH_DELAY = 300; // milliseconds
 
     private void searchListenerHandler() {
         searchField.getDocument().addDocumentListener(new DocumentListener() {
@@ -943,8 +951,20 @@ public class Inventory extends JPanel {
             }
 
             private void searchDatabase() {
-                String query = searchField.getText().trim();
-                populateTable(query);
+                if (searchTimer != null) {
+                    searchTimer.cancel(); // Cancel the previous timer
+                }
+
+                searchTimer = new Timer();
+                searchTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        SwingUtilities.invokeLater(() -> {
+                            String query = searchField.getText().trim();
+                            populateTable(query);
+                        });
+                    }
+                }, SEARCH_DELAY);
             }
         });
     }

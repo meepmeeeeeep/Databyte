@@ -1,16 +1,18 @@
 // AddItemForm.java
 
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CreateOrderForm extends JPanel {
     public CreateOrderForm() {
+        typingTimer = new Timer(); // Initialize typingTimer
+
         initComponents();
 
         // Add Left-Padding to Text Fields
@@ -59,7 +61,158 @@ public class CreateOrderForm extends JPanel {
     }
 
     private void confirm(ActionEvent e) {
+        fieldsValidation();
+    }
 
+    private void fieldsValidation() {
+        String itemID = itemIDField.getText().trim();
+        String itemName = itemNameField.getText().trim();
+        String category = categoryField.getText().trim();
+        String priceText = priceField.getText().trim();
+        String quantityText = quantityField.getText().trim();
+        String customerName = customerNameField.getText().trim();
+
+        // Check required fields
+        if (itemID.isEmpty() || itemName.isEmpty() || category.isEmpty() || priceText.isEmpty() || quantityText.isEmpty() || customerName.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields.", "Missing Data", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check quantity is a number
+        int quantity;
+        try {
+            quantity = Integer.parseInt(quantityText);
+            if (quantity <= 0) {
+                JOptionPane.showMessageDialog(this, "Quantity must be greater than 0.", "Invalid Quantity", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Quantity must be a valid number.", "Invalid Quantity", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check price is a number
+        double price;
+        try {
+            price = Double.parseDouble(priceText);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Price must be a valid number.", "Invalid Price", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check available stock in database
+        int availableStock = getAvailableStock(itemID);
+        if (quantity > availableStock) {
+            JOptionPane.showMessageDialog(this, "Insufficient stock. Available: " + availableStock, "Stock Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        PaymentConfirmationForm paymentForm = getPaymentConfirmationForm();
+
+        // Open PaymentConfirmationForm
+        JFrame frame = new JFrame("Payment Confirmation");
+        frame.setContentPane(paymentForm);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);          // Disable window resizing
+        frame.setVisible(true);
+
+        SwingUtilities.getWindowAncestor(this).dispose();
+    }
+
+    private PaymentConfirmationForm getPaymentConfirmationForm() {
+        // Collecting data from fields
+        // ---- Customer Information ----
+        String customerName = customerNameField.getText();
+        String customerAddress = customerAddressField.getText();
+        String customerPhone = customerPhoneField.getText();
+        String customerEmail = customerEmailField.getText();
+        // ---- Product Information ----
+        String itemID = itemIDField.getText();
+        String itemName = itemNameField.getText();
+        String category = categoryField.getText();
+        double price = Double.parseDouble(priceField.getText());
+        int quantity = Integer.parseInt(quantityField.getText());
+
+        // Calculate totalAmount
+        double totalAmount = price * quantity;
+
+        // Create the PaymentConfirmationForm and pass data
+        return new PaymentConfirmationForm(
+                customerName, customerAddress,  customerEmail, customerPhone,
+                itemID, itemName, category, price, quantity, totalAmount
+                );
+    }
+
+    // Check available stock in Inventory
+    private int getAvailableStock(String itemID) {
+        int available = 0;
+
+        String sql = "SELECT quantity FROM inventory WHERE item_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, itemID);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                available = rs.getInt("quantity");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error checking stock: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return available;
+    }
+
+    private Timer typingTimer; // Create Timer Object
+    private static final int TYPING_DELAY = 300; // in milliseconds
+
+    private void itemIDFieldKeyReleased(KeyEvent e) {
+        String input = itemIDField.getText();
+        if (!input.isEmpty()) {
+            typingTimer.cancel(); // Cancel any previous timer
+            typingTimer = new Timer(); // Reset the timer
+            // Schedule the query after a delay
+            typingTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    showSuggestions(input, itemIDField);
+                }
+            }, TYPING_DELAY);
+        } else {
+            priceField.setText("");
+        }
+    }
+
+    private void itemIDFieldFocusLost(FocusEvent e) {
+        suggestionMenu.setVisible(false);
+    }
+
+    private void itemNameFieldKeyReleased(KeyEvent e) {
+        String input = itemNameField.getText();
+        if (!input.isEmpty()) {
+            typingTimer.cancel(); // Cancel any previous timer
+            typingTimer = new Timer(); // Reset the timer
+            // Schedule the query after a delay
+            typingTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    showSuggestions(input, itemNameField);
+                }
+            }, TYPING_DELAY);
+        } else {
+            priceField.setText("");
+        }
+    }
+
+    private void itemNameFieldFocusLost(FocusEvent e) {
+        suggestionMenu.setVisible(false);
+    }
+
+    private void categoryFieldFocusLost(FocusEvent e) {
+        if (itemNameField.getText().isEmpty() || itemIDField.getText().isEmpty()) {
+            priceField.setText("");
+        }
     }
 
     private void initComponents() {
@@ -161,6 +314,19 @@ public class CreateOrderForm extends JPanel {
             //---- itemNameField ----
             itemNameField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             itemNameField.setBackground(new Color(0xe8e7f4));
+            itemNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            itemNameField.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    itemNameFieldKeyReleased(e);
+                }
+            });
+            itemNameField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    itemNameFieldFocusLost(e);
+                }
+            });
 
             //---- itemIDLabel ----
             itemIDLabel.setText("Item ID:");
@@ -174,12 +340,26 @@ public class CreateOrderForm extends JPanel {
             //---- itemIDField ----
             itemIDField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             itemIDField.setBackground(new Color(0xe8e7f4));
+            itemIDField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            itemIDField.addKeyListener(new KeyAdapter() {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    itemIDFieldKeyReleased(e);
+                }
+            });
+            itemIDField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    itemIDFieldFocusLost(e);
+                }
+            });
 
             //---- priceField ----
             priceField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             priceField.setBackground(new Color(0xe8e7f4));
             priceField.setEditable(false);
             priceField.setFocusable(false);
+            priceField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- priceLabel ----
             priceLabel.setText("Price:");
@@ -193,6 +373,7 @@ public class CreateOrderForm extends JPanel {
             //---- quantityField ----
             quantityField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             quantityField.setBackground(new Color(0xe8e7f4));
+            quantityField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- quantityLabel ----
             quantityLabel.setText("Quantity:");
@@ -231,10 +412,18 @@ public class CreateOrderForm extends JPanel {
             //---- categoryField ----
             categoryField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             categoryField.setBackground(new Color(0xe8e7f4));
+            categoryField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            categoryField.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusLost(FocusEvent e) {
+                    categoryFieldFocusLost(e);
+                }
+            });
 
             //---- customerNameField ----
             customerNameField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             customerNameField.setBackground(new Color(0xe8e7f4));
+            customerNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- customeNameLabel ----
             customeNameLabel.setText("Customer Name:");
@@ -257,6 +446,7 @@ public class CreateOrderForm extends JPanel {
             //---- customerAddressField ----
             customerAddressField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             customerAddressField.setBackground(new Color(0xe8e7f4));
+            customerAddressField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- customerEmailLabel ----
             customerEmailLabel.setText("Customer Email: (Optional)");
@@ -270,10 +460,12 @@ public class CreateOrderForm extends JPanel {
             //---- customerEmailField ----
             customerEmailField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             customerEmailField.setBackground(new Color(0xe8e7f4));
+            customerEmailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- customerPhoneField ----
             customerPhoneField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             customerPhoneField.setBackground(new Color(0xe8e7f4));
+            customerPhoneField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- customerPhoneLabel ----
             customerPhoneLabel.setText("Customer Phone Number: (Optional)");
@@ -454,4 +646,128 @@ public class CreateOrderForm extends JPanel {
     private JTextField customerInformationLabel;
     private JTextField productInformationLabel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    //
+    // SQL Functionalities Section
+    //
+    // Create Pop-up Menu Object First
+    JPopupMenu suggestionMenu = new JPopupMenu() {
+        @Override
+        public boolean isFocusable() {
+            return false;
+        }
+    };
+
+    // Show Suggestions on target text field based on input
+    private void showSuggestions(String input, JTextField targetField) {
+        suggestionMenu.removeAll();
+
+        String sql = "SELECT item_id, item_name FROM inventory WHERE item_id LIKE ? OR item_name LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, input + "%");
+            stmt.setString(2, input + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            boolean foundAny = false;
+
+            while (rs.next()) {
+                foundAny = true;
+                String itemId = rs.getString("item_id");
+                String itemName = rs.getString("item_name");
+
+                JMenuItem suggestion = new JMenuItem(itemId + " - " + itemName);
+                suggestion.addActionListener(e -> {
+                    targetField.setText(itemId);
+                    fillItemDetails(itemId);
+                    suggestionMenu.setVisible(false);
+                });
+
+                suggestionMenu.add(suggestion);
+            }
+
+            rs.close();
+
+            if (foundAny) {
+                suggestionMenu.show(targetField, 0, targetField.getHeight());
+                suggestionMenu.revalidate();
+                suggestionMenu.repaint();
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Suggestion Error: " + e.getMessage());
+        }
+    }
+
+    // Fill text fields with the matching data from the DB (using item_id as reference)
+    private void fillItemDetails(String itemId) {
+        String sql = "SELECT * FROM inventory WHERE item_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, itemId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                itemIDField.setText(rs.getString("item_id"));
+                itemNameField.setText(rs.getString("item_name"));
+                categoryField.setText(rs.getString("category"));
+                priceField.setText(String.valueOf(rs.getDouble("price")));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Fetch by Item ID (Search by ID)
+    public void fetchItemByID(String itemID) {
+        String sql = "SELECT item_id, item_name, category, price FROM inventory WHERE item_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, itemID);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                itemIDField.setText(rs.getString("item_id"));
+                itemNameField.setText(rs.getString("item_name"));
+                categoryField.setText(rs.getString("category"));
+                priceField.setText(rs.getString("price"));
+            } else {
+                JOptionPane.showMessageDialog(null, "Item ID not found.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // Fetch by Item Name (Search by Name)
+    public void fetchItemByName(String itemName) {
+        String sql = "SELECT item_id, item_name, category, price FROM inventory WHERE item_name = ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, itemName);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                itemIDField.setText(rs.getString("item_id"));
+                itemNameField.setText(rs.getString("item_name"));
+                categoryField.setText(rs.getString("category"));
+                priceField.setText(rs.getString("price"));
+            } else {
+                JOptionPane.showMessageDialog(null, "Item Name not found.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
 }
