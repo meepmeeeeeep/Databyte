@@ -73,6 +73,7 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "salesButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "salesButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "salesButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "sales", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "financialsButton"
@@ -87,6 +88,7 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "financialsButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "financialsButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "financialsButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "financials", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "resupplyButton"
@@ -101,6 +103,7 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "resupplyButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "resupplyButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "resupplyButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "resupply", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "exitButton"

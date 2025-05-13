@@ -127,6 +127,18 @@ public class Dashboard extends JPanel {
         Image salesBg = new ImageIcon(getClass().getResource("/assets/images/salesButtonPressed.png")).getImage();
         ((ImageButton) salesButton).setBackgroundImage(salesBg);
     }
+    // Action Listener Method
+    private void sales(ActionEvent e) {
+        // Open Sales
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
+
+        JFrame frame = new JFrame("Sales");
+        frame.setContentPane(new Sales());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
 
 
     //
@@ -147,6 +159,10 @@ public class Dashboard extends JPanel {
         Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonPressed.png")).getImage();
         ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
     }
+    // Action Listener Method
+    private void financials(ActionEvent e) {
+        // TODO add your code here
+    }
 
     //
     // Resupply Button Event Listener Methods
@@ -166,6 +182,12 @@ public class Dashboard extends JPanel {
         Image resupplyBg = new ImageIcon(getClass().getResource("/assets/images/resupplyButtonPressed.png")).getImage();
         ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
+    // Action Listener Method
+    private void resupply(ActionEvent e) {
+        // TODO add your code here
+    }
+
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
@@ -279,6 +301,7 @@ public class Dashboard extends JPanel {
                     salesButtonMousePressed(e);
                 }
             });
+            salesButton.addActionListener(e -> sales(e));
 
             //---- financialsButton ----
             financialsButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -303,6 +326,7 @@ public class Dashboard extends JPanel {
                     financialsButtonMousePressed(e);
                 }
             });
+            financialsButton.addActionListener(e -> financials(e));
 
             //---- resupplyButton ----
             resupplyButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -327,6 +351,7 @@ public class Dashboard extends JPanel {
                     resupplyButtonMousePressed(e);
                 }
             });
+            resupplyButton.addActionListener(e -> resupply(e));
 
             //---- exitButton ----
             exitButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));

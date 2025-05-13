@@ -1,0 +1,146 @@
+JFDML JFormDesigner: "8.2.4.0.393" Java: "21.0.5" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :p:25:p, comp panel1:::::x, space :p:25:p}}}}"
+			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::420:x}"
+		} ) {
+			name: "this"
+			"background": new java.awt.Color( 232, 231, 244, 255 )
+			"minimumSize": new java.awt.Dimension( 850, 380 )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {space :0:30:x}"
+				"$verticalGroup": "par l {space :0:0:x}"
+			} ) {
+				name: "sidePanel"
+				"background": new java.awt.Color( 108, 57, 193, 255 )
+				"maximumSize": new java.awt.Dimension( 30, 32823 )
+				"minimumSize": new java.awt.Dimension( 30, 62 )
+				"preferredSize": new java.awt.Dimension( 30, 820 )
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::607:x}}"
+				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
+			} ) {
+				name: "windowTitleContainer"
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "dashboardLabel"
+					"text": "Payment Confirmation"
+					"font": new java.awt.Font( "Segoe UI", 1, 18 )
+					"background": &Color0 new java.awt.Color( 252, 248, 255, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq l {space :p:19:p, par l {comp totalAmountLabel:::p::p, comp totalAmountField:::p:450:p, comp paymentAmountLabel:::p::p, comp paymentAmountField:::p:450:p, comp paymentDetailsLabel::l:p::p, comp changeLabel:::p::p, comp changeField:::p:450:p}, space :p:50:p, par l {comp paymentMethodLabel:::p::p, comp paymentMethodField:::p:220:p, seq l {comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}}, space ::31:x}}"
+				"$verticalGroup": "par l {seq l {space :p:20:p, par l {seq l {comp paymentDetailsLabel:::p::p, space u:::p, comp totalAmountLabel:::p::p, space :6:6:p, comp totalAmountField:::p:35:p, space s:::p, comp paymentAmountLabel:::p::p, space :6:6:p, comp paymentAmountField:::p:35:p}, seq l {space :p:42:p, comp paymentMethodLabel:::p::p, space :::p, comp paymentMethodField:::p:35:p}}, space s:::p, comp changeLabel:::p::p, space :3:3:p, par b {comp changeField::b:p:35:p, comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p}, space :::x}}"
+			} ) {
+				name: "panel1"
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "confirmButton"
+					"text": "CONFIRM"
+					"background": &Color1 new java.awt.Color( 108, 57, 193, 255 )
+					"font": &Font0 new java.awt.Font( "Segoe UI", 1, 14 )
+					"foreground": &Color2 new java.awt.Color( 252, 248, 255, 255 )
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "confirm", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "cancelButton"
+					"text": "CANCEL"
+					"background": #Color1
+					"font": #Font0
+					"foreground": #Color2
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancel", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "paymentDetailsLabel"
+					"text": "Payment Details"
+					"font": new java.awt.Font( "Segoe UI Semibold", 1, 22 )
+					"background": #Color0
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "totalAmountLabel"
+					"text": "Total Amount:"
+					"font": &Font1 new java.awt.Font( "Segoe UI Semibold", 1, 16 )
+					"background": #Color0
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "totalAmountField"
+					"border": &MatteBorder0 new javax.swing.border.MatteBorder( 0, 0, 1, 0, sfield java.awt.Color black )
+					"background": &Color3 new java.awt.Color( 232, 231, 244, 255 )
+					"editable": false
+					"focusable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "paymentAmountLabel"
+					"text": "Payment Amount:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "paymentAmountField"
+					"border": #MatteBorder0
+					"background": #Color3
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "paymentMethodLabel"
+					"text": "Payment Method:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "paymentMethodField"
+					"border": #MatteBorder0
+					"background": #Color3
+					"editable": false
+					"focusable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "changeLabel"
+					"text": "Change:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "changeField"
+					"border": #MatteBorder0
+					"background": #Color3
+					"editable": false
+				} )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 10, 5 )
+			"size": new java.awt.Dimension( 850, 420 )
+		} )
+	}
+}

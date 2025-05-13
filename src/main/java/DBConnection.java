@@ -3,25 +3,18 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class DBConnection {
     public static final String DB_URL = "jdbc:mysql://sql12.freesqldatabase.com/sql12778158"; // DB URL
     public static final String DB_USER = "sql12778158"; // DB username
     public static final String DB_PASSWORD = "bggRtELWar"; // DB password
-    private Connection connection;
 
     public DBConnection() {
-        try {
-            connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-            createUsersTable(); // Ensure users table exists at startup
-            createInventoryTable(); // Ensure inventory table exists at startup
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public Connection getConnection() {
-        return connection;
+        // createUsersTable(); // Ensure users table exists at startup
+        // createInventoryTable(); // Ensure inventory table exists at startup
+        // createTransactionTable(); // Ensure sales table exists at startup
     }
 
     private void createUsersTable() {
@@ -32,8 +25,9 @@ public class DBConnection {
                 + "role ENUM('Admin', 'Customer', 'View-Only') NOT NULL"
                 + ")";
 
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(createTableSQL);
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createTableSQL);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -51,10 +45,35 @@ public class DBConnection {
                 + "UNIQUE (item_no)"
                 + ")";
 
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate(createTableSQL);
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createTableSQL);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+        }
+    }
+
+    private void createTransactionTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS transaction_history ("
+                + "transaction_id VARCHAR(20) PRIMARY KEY, "
+                + "item_id VARCHAR(100) NOT NULL, "
+                + "item_name VARCHAR(100) NOT NULL, "
+                + "category VARCHAR(50) NOT NULL, "
+                + "quantity INT NOT NULL, "
+                + "price DECIMAL(10,2) NOT NULL, "
+                + "total_price DECIMAL(10,2) NOT NULL, "
+                + "date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, "
+                + "customer_name VARCHAR(100), "
+                + "customer_address VARCHAR(255), "
+                + "customer_email VARCHAR(100), "
+                + "customer_phone VARCHAR(20)"
+                + ")";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            System.out.println("Error creating transaction table: " + e.getMessage());
         }
     }
 
@@ -91,7 +110,8 @@ public class DBConnection {
 
         String query = "SELECT * FROM inventory";
 
-        try (PreparedStatement stmt = connection.prepareStatement(query);
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(query);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -111,5 +131,29 @@ public class DBConnection {
         }
 
         return items;
+    }
+
+    // Generate Transaction ID
+    public String generateTransactionID() {
+        String datePrefix = new SimpleDateFormat("MMddyyyy").format(new Date()); // e.g., 05132025
+        int nextNumber = 1;
+
+        String sql = "SELECT transaction_id FROM transaction_history WHERE transaction_id LIKE ? ORDER BY transaction_id DESC LIMIT 1";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, datePrefix + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String lastID = rs.getString("transaction_id");
+                String numberPart = lastID.substring(8); // After MMDDYYYY
+                nextNumber = Integer.parseInt(numberPart) + 1;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error generating transaction ID: " + e.getMessage());
+        }
+
+        return datePrefix + String.format("%04d", nextNumber); // e.g., 051320250001
     }
 }

@@ -4,14 +4,14 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq l {space :18:18:p, par l {comp dashboardPanel1::::1102:x, seq {comp salesExpensesPanel:::::x, space s:::p, comp stockAlertPanel:::p::p}}, space :20:20:p}}}}"
-			"$verticalGroup": "par l {comp sidePanel::::800:x, seq l {comp windowTitleContainer:::p::p, space s:::p, comp dashboardPanel1:::p::p, space s:::p, par l {comp stockAlertPanel:::::x, comp salesExpensesPanel:::::x}, space :p:20:p}}"
+			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, comp controlsPanel::t:::x, seq {space :p:18:p, comp scrollPane1::::1102:x, space :p:20:p}}}}"
+			"$verticalGroup": "par l {comp sidePanel::::800:x, seq l {comp windowTitleContainer:::p::p, space :0:0:p, comp controlsPanel:::p::p, space u:::p, comp scrollPane1::::651:x, space :p:20:p}}"
 		} ) {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 				"$horizontalGroup": "par l {seq {space ::19:x, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp financialsButton::t:p:222:p, comp resupplyButton::t:p:222:p}, space ::19:x}}"
-				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space ::366:x, comp exitButton:::p:45:p, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::x, comp exitButton:::p:45:p, space :p:20:p}}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -44,6 +44,7 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "dashboardButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "dashboardButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "dashboardButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "dashboard", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "inventoryButton"
@@ -73,7 +74,6 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "salesButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "salesButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "salesButtonMousePressed", true ) )
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "sales", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "financialsButton"
@@ -122,100 +122,55 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::942:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::1056:x}}"
 				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
 			} ) {
 				name: "windowTitleContainer"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel"
-					"text": "Dashboard Overview"
-					"font": new java.awt.Font( "Segoe UI", 1, 18 )
-					"background": new java.awt.Color( 252, 248, 255, 255 )
-					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"text": "Sales"
+					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 18 )
+					"background": &Color3 new java.awt.Color( 252, 248, 255, 255 )
+					"foreground": &Color4 new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
 				} )
 			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
-				name: "dashboardPanel1"
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 				"background": new java.awt.Color( 252, 248, 255, 255 )
-				"focusable": false
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq l {space :p:20:p, comp totalSalesPanel:::::x, space :p:10:p}}"
-					"$verticalGroup": "par l {seq t {space :p:20:p, comp totalSalesPanel:::::x, space :p:20:p}}"
-				} ) {
-					name: "dashboardPanel1Container1"
-					"preferredSize": new java.awt.Dimension( 274, 238 )
-					"background": &Color3 new java.awt.Color( 252, 248, 255, 255 )
-					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {space :0:0:x}"
-						"$verticalGroup": "par l {space :0:0:x}"
-					} ) {
-						name: "totalSalesPanel"
-						"background": &Color4 new java.awt.Color( 232, 231, 244, 255 )
-					} )
-				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq {space :p:10:p, comp totalExpensesPanel:::::x, space :p:10:p}}"
-					"$verticalGroup": "par l {seq {space :p:20:p, comp totalExpensesPanel:::::x, space :p:20:p}}"
-				} ) {
-					name: "dashboardPanel1Container2"
-					"background": #Color3
-					"preferredSize": new java.awt.Dimension( 274, 238 )
-					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {space :0:0:x}"
-						"$verticalGroup": "par l {space :0:0:x}"
-					} ) {
-						name: "totalExpensesPanel"
-						"background": #Color4
-					} )
-				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq {space :p:10:p, comp totalOrdersPanel:::::x, space :p:10:p}}"
-					"$verticalGroup": "par l {seq {space :p:20:p, comp totalOrdersPanel:::::x, space :p:20:p}}"
-				} ) {
-					name: "dashboardPanel1Container3"
-					"preferredSize": new java.awt.Dimension( 274, 238 )
-					"background": #Color3
-					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {space :0:0:x}"
-						"$verticalGroup": "par l {space :0:0:x}"
-					} ) {
-						name: "totalOrdersPanel"
-						"background": #Color4
-					} )
-				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-					"$horizontalGroup": "par l {seq {space :p:10:p, comp totalProductsPanel:::::x, space :p:20:p}}"
-					"$verticalGroup": "par l {seq {space :p:20:p, comp totalProductsPanel:::::x, space :p:20:p}}"
-				} ) {
-					name: "dashboardPanel1Container4"
-					"background": #Color3
-					"preferredSize": new java.awt.Dimension( 274, 238 )
-					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-						"$horizontalGroup": "par l {space :0:0:x}"
-						"$verticalGroup": "par l {space :0:0:x}"
-					} ) {
-						name: "totalProductsPanel"
-						"background": #Color4
-					} )
+				"horizontalScrollBarPolicy": 31
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "transactionHistoryTable"
+					"rowHeight": 40
+					"font": new java.awt.Font( "Segoe UI", 0, 14 )
+					"focusable": false
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {space :0:734:x}"
-				"$verticalGroup": "par l {space :0:447:x}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp transactionHistoryLabel:::p::p, space ::807:x, comp createOrderButton:::p:125:p, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:17:p, comp transactionHistoryLabel:::p::p, space ::16:x}, seq {space :p:10:p, comp createOrderButton::::38:x, space :p:10:p}}"
 			} ) {
-				name: "salesExpensesPanel"
-				"background": &Color5 new java.awt.Color( 252, 248, 255, 255 )
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {space :0:350:x}"
-				"$verticalGroup": "par l {space :0:447:x}"
-			} ) {
-				name: "stockAlertPanel"
-				"background": #Color5
+				name: "controlsPanel"
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "transactionHistoryLabel"
+					"text": "Transaction History"
+					"font": #Font1
+					"background": #Color3
+					"foreground": #Color4
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "createOrderButton"
+					"text": "Create Order"
+					"focusable": false
+				} )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 10, 5 )

@@ -8,9 +8,6 @@ public class Main {
         // Initialize the DB connection
         DBConnection dbConnection = new DBConnection();
 
-        // Get the connection
-        Connection connection = dbConnection.getConnection();
-
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Login Form");
             frame.setUndecorated(true);         // Removes the title bar
