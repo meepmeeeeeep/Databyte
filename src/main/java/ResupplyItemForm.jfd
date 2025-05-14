@@ -108,7 +108,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "addButton"
-					"text": "Confirm"
+					"text": "CONFIRM"
 					"background": &Color3 new java.awt.Color( 108, 57, 193, 255 )
 					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 14 )
 					"foreground": &Color4 new java.awt.Color( 252, 248, 255, 255 )

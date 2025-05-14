@@ -70,7 +70,7 @@ public class ResupplyItemForm extends JPanel {
                 return;
             }
 
-            String sql = "UPDATE inventory SET item_id = ?, item_name = ?, category = ?, quantity = ?, price = ? WHERE item_id = ?";
+            String sql = "UPDATE inventory SET item_id = ?, item_name = ?, category = ?, quantity = quantity + ?, price = ? WHERE item_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, updatedItemID);
             pstmt.setString(2, updatedItemName);
@@ -230,7 +230,7 @@ public class ResupplyItemForm extends JPanel {
             quantityLabel.setEditable(false);
 
             //---- addButton ----
-            addButton.setText("Confirm");
+            addButton.setText("CONFIRM");
             addButton.setBackground(new Color(0x6c39c1));
             addButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
             addButton.setForeground(new Color(0xfcf8ff));

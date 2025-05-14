@@ -186,7 +186,7 @@ public class Sales extends JPanel {
     }
     // Action Listener Method
     private void financials(ActionEvent e) {
-        // TODO add your code here
+        // TODO
     }
 
     //
@@ -607,7 +607,7 @@ public class Sales extends JPanel {
     // Set Table Theme/Layout
     //
     private void setTableTheme() {
-        // Use Custom Theme for Inventory Table
+        // Use Custom Theme for Sales Table
         transactionHistoryTable.setShowGrid(false);
         DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() {
             @Override
@@ -709,7 +709,8 @@ public class Sales extends JPanel {
     void populateTableSales(String searchQuery) {
         String sql = "SELECT transaction_id, date, customer_name, item_id, item_name, quantity, price, total_price " +
                 "FROM transaction_history " +
-                "WHERE transaction_id LIKE ? OR customer_name LIKE ? OR item_id LIKE ? OR item_name LIKE ?";
+                "WHERE transaction_id LIKE ? OR customer_name LIKE ? OR item_id LIKE ? OR item_name LIKE ? " +
+                "ORDER BY date";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)) {

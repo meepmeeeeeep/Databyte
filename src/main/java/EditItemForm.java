@@ -159,7 +159,7 @@ public class EditItemForm extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(720, Short.MAX_VALUE))
+                        .addContainerGap(722, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
@@ -227,7 +227,7 @@ public class EditItemForm extends JPanel {
             quantityLabel.setEditable(false);
 
             //---- addButton ----
-            addButton.setText("Confirm");
+            addButton.setText("CONFIRM");
             addButton.setBackground(new Color(0x6c39c1));
             addButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
             addButton.setForeground(new Color(0xfcf8ff));

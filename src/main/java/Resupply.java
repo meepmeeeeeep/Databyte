@@ -1,4 +1,4 @@
-// Inventory.java
+// Resupply.java
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -202,7 +202,7 @@ public class Resupply extends JPanel {
     }
     // Action Listener Method
     private void financials(ActionEvent e) {
-        // TODO add your code here
+        // TODO
     }
 
     //
@@ -215,12 +215,12 @@ public class Resupply extends JPanel {
     }
     // Hover Effects - Mouse Exit
     private void resupplyButtonMouseExited(MouseEvent e) {
-        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButton.png"))).getImage();
+        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
         ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
     // Hover Effects - Mouse Press
     private void resupplyButtonMousePressed(MouseEvent e) {
-        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonPressed.png"))).getImage();
+        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
         ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
 
@@ -769,7 +769,8 @@ public class Resupply extends JPanel {
     void populateTable(String searchQuery) {
         String sql = "SELECT item_no, item_id, item_name, category, quantity, price FROM inventory " +
                 "WHERE (item_id LIKE ? OR item_name LIKE ? OR category LIKE ?)" +
-                "AND quantity < 20"; // Only fetch low stock items (less than 20)
+                "AND quantity < 20 " +
+                "ORDER BY quantity"; // Only fetch low stock items (less than 20)
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)){

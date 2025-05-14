@@ -2,8 +2,13 @@
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 
 public class Dashboard extends JPanel {
     public Dashboard() {
@@ -33,6 +38,14 @@ public class Dashboard extends JPanel {
         exitButton = new ImageButton(exitBg, "");
 
         initComponents();
+
+        String[] columns = {"Date", "Item Name", "Quantity", "Unit Price", "Total Price"};
+        DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
+        transactionHistoryTable.setModel(tableModel);
+
+        setTableTheme();
+
+        populateTableRecentSales();
     }
 
     //
@@ -161,7 +174,7 @@ public class Dashboard extends JPanel {
     }
     // Action Listener Method
     private void financials(ActionEvent e) {
-        // TODO add your code here
+        // TODO
     }
 
     //
@@ -214,6 +227,9 @@ public class Dashboard extends JPanel {
         dashboardPanel1Container4 = new JPanel();
         totalProductsPanel = new JPanel();
         salesExpensesPanel = new JPanel();
+        dashboardLabel2 = new JTextField();
+        scrollPane1 = new JScrollPane();
+        transactionHistoryTable = new JTable();
         stockAlertPanel = new JPanel();
 
         //======== this ========
@@ -629,15 +645,46 @@ public class Dashboard extends JPanel {
         {
             salesExpensesPanel.setBackground(new Color(0xfcf8ff));
 
+            //---- dashboardLabel2 ----
+            dashboardLabel2.setText("Most Recent Transactions");
+            dashboardLabel2.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            dashboardLabel2.setBackground(new Color(0xfcf8ff));
+            dashboardLabel2.setForeground(new Color(0x251779));
+            dashboardLabel2.setBorder(null);
+            dashboardLabel2.setFocusable(false);
+            dashboardLabel2.setEditable(false);
+
+            //======== scrollPane1 ========
+            {
+
+                //---- transactionHistoryTable ----
+                transactionHistoryTable.setRowHeight(40);
+                transactionHistoryTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                transactionHistoryTable.setFocusable(false);
+                scrollPane1.setViewportView(transactionHistoryTable);
+            }
+
             GroupLayout salesExpensesPanelLayout = new GroupLayout(salesExpensesPanel);
             salesExpensesPanel.setLayout(salesExpensesPanelLayout);
             salesExpensesPanelLayout.setHorizontalGroup(
                 salesExpensesPanelLayout.createParallelGroup()
-                    .addGap(0, 734, Short.MAX_VALUE)
+                    .addGroup(salesExpensesPanelLayout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(salesExpensesPanelLayout.createParallelGroup()
+                            .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE)
+                            .addGroup(salesExpensesPanelLayout.createSequentialGroup()
+                                .addComponent(dashboardLabel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 473, Short.MAX_VALUE)))
+                        .addGap(20, 20, 20))
             );
             salesExpensesPanelLayout.setVerticalGroup(
                 salesExpensesPanelLayout.createParallelGroup()
-                    .addGap(0, 447, Short.MAX_VALUE)
+                    .addGroup(GroupLayout.Alignment.TRAILING, salesExpensesPanelLayout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(dashboardLabel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+                        .addGap(20, 20, 20))
             );
         }
 
@@ -666,12 +713,14 @@ public class Dashboard extends JPanel {
                     .addGroup(layout.createParallelGroup()
                         .addComponent(windowTitleContainer, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createSequentialGroup()
-                            .addGap(18, 18, 18)
                             .addGroup(layout.createParallelGroup()
-                                .addComponent(dashboardPanel1, GroupLayout.DEFAULT_SIZE, 1102, Short.MAX_VALUE)
                                 .addGroup(layout.createSequentialGroup()
-                                    .addComponent(salesExpensesPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addGap(18, 18, 18)
+                                    .addComponent(dashboardPanel1, GroupLayout.DEFAULT_SIZE, 1102, Short.MAX_VALUE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                    .addComponent(salesExpensesPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGap(24, 24, 24)
                                     .addComponent(stockAlertPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
                             .addGap(20, 20, 20))))
         );
@@ -713,6 +762,121 @@ public class Dashboard extends JPanel {
     private JPanel dashboardPanel1Container4;
     private JPanel totalProductsPanel;
     private JPanel salesExpensesPanel;
+    private JTextField dashboardLabel2;
+    private JScrollPane scrollPane1;
+    private JTable transactionHistoryTable;
     private JPanel stockAlertPanel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    private void setTableTheme() {
+        // Use Custom Theme for Recent Sales Table
+        transactionHistoryTable.setShowGrid(false);
+        DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (isSelected) {
+                    label.setBackground(Color.decode("#A59BDA"));
+                    label.setForeground(Color.BLACK);
+                } else {
+                    label.setBackground(row % 2 == 0 ? Color.decode("#D4CFED") : Color.WHITE);
+                    label.setForeground(Color.BLACK);
+                }
+
+                // Apply left padding (except first column)
+                if (column != 0) {
+                    label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                    label.setHorizontalAlignment(SwingConstants.LEFT);
+                } else {
+                    label.setHorizontalAlignment(SwingConstants.CENTER); // Center first column data
+                }
+
+                return label;
+            }
+        };
+
+        // Apply renderer to all columns
+        for (int i = 0; i < transactionHistoryTable.getColumnCount(); i++) {
+            transactionHistoryTable.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        // Set Table Header Style
+        JTableHeader header = transactionHistoryTable.getTableHeader();
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                label.setBorder(BorderFactory.createEmptyBorder()); // No borders
+                label.setBackground(Color.decode("#6c39c1")); // Change background
+                label.setForeground(Color.WHITE); // Change foreground
+                label.setHorizontalAlignment(SwingConstants.CENTER); // Center text
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                return label;
+            }
+        });
+
+        // Set Table Column Size
+        // First Column
+        TableColumn firstColumn = transactionHistoryTable.getColumnModel().getColumn(0);
+        firstColumn.setPreferredWidth(70);
+        firstColumn.setMinWidth(70);
+        // Second Column
+        TableColumn secondColumn = transactionHistoryTable.getColumnModel().getColumn(1);
+        secondColumn.setPreferredWidth(100);
+        secondColumn.setMinWidth(100);
+        // Third Column
+        TableColumn thirdColumn = transactionHistoryTable.getColumnModel().getColumn(2);
+        thirdColumn.setPreferredWidth(60);
+        thirdColumn.setMinWidth(60);
+        // Fourth Column
+        TableColumn fourthColumn = transactionHistoryTable.getColumnModel().getColumn(3);
+        fourthColumn.setPreferredWidth(60);
+        fourthColumn.setMinWidth(60);
+        // Fifth Column
+        TableColumn fifthColumn = transactionHistoryTable.getColumnModel().getColumn(4);
+        fifthColumn.setPreferredWidth(60);
+        fifthColumn.setMinWidth(60);
+
+        // Lock Column Re-order
+        transactionHistoryTable.getTableHeader().setReorderingAllowed(false);
+    }
+
+    //
+    // SQL Functionalities Section
+    //
+    void populateTableRecentSales() {
+        String sql = "SELECT date, item_name, quantity, price, total_price " +
+                "FROM transaction_history " +
+                "ORDER BY date";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.setColumnIdentifiers(new String[]{"Date", "Item Name", "Quantity", "Unit Price", "Total Price"});
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getTimestamp("date"),
+                        rs.getString("item_name"),
+                        rs.getInt("quantity"),
+                        rs.getDouble("price"),
+                        rs.getDouble("total_price")
+                });
+            }
+
+            transactionHistoryTable.setModel(model);
+            setTableTheme();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading transaction history: " + ex.getMessage());
+        }
+    }
 }

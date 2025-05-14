@@ -198,7 +198,7 @@ public class Inventory extends JPanel {
     }
     // Action Listener Method
     private void financials(ActionEvent e) {
-        // TODO add your code here
+        // TODO
     }
 
     //
@@ -871,7 +871,8 @@ public class Inventory extends JPanel {
 
     void populateTable(String searchQuery) {
         String sql = "SELECT item_no, item_id, item_name, category, quantity, price FROM inventory " +
-                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ?";
+                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ? " +
+                "ORDER BY item_no";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)){

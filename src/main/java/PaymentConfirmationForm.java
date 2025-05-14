@@ -1,4 +1,4 @@
-// AddItemForm.java
+// PaymentConfirmationForm.java
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;

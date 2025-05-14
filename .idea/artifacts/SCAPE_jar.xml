@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="SCAPE:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SCAPE_jar</output-path>
+    <root id="archive" name="SCAPE.jar">
+      <element id="module-output" name="SCAPE" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/mysql/mysql-connector-j/9.3.0/mysql-connector-j-9.3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/4.29.0/protobuf-java-4.29.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>

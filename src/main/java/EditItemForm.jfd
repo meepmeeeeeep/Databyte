@@ -21,7 +21,7 @@ new FormModel {
 				"preferredSize": new java.awt.Dimension( 30, 820 )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::720:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::722:x}}"
 				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
 			} ) {
 				name: "windowTitleContainer"
@@ -105,7 +105,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "addButton"
-					"text": "Confirm"
+					"text": "CONFIRM"
 					"background": &Color3 new java.awt.Color( 108, 57, 193, 255 )
 					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 14 )
 					"foreground": &Color4 new java.awt.Color( 252, 248, 255, 255 )

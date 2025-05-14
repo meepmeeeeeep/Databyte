@@ -1,4 +1,4 @@
-// AddItemForm.java
+// PaymentDetails.java
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -178,6 +178,7 @@ public class PaymentDetails extends JPanel {
             paymentAmountField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             paymentAmountField.setBackground(new Color(0xe8e7f4));
             paymentAmountField.setEditable(false);
+            paymentAmountField.setFocusable(false);
 
             //---- paymentMethodLabel ----
             paymentMethodLabel.setText("Payment Method:");
@@ -207,6 +208,7 @@ public class PaymentDetails extends JPanel {
             changeField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             changeField.setBackground(new Color(0xe8e7f4));
             changeField.setEditable(false);
+            changeField.setFocusable(false);
 
             GroupLayout panel1Layout = new GroupLayout(panel1);
             panel1.setLayout(panel1Layout);

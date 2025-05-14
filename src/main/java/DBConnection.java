@@ -1,8 +1,6 @@
 // DBConnection.java
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,9 +10,9 @@ public class DBConnection {
     public static final String DB_PASSWORD = "bggRtELWar"; // DB password
 
     public DBConnection() {
-        // createUsersTable(); // Ensure users table exists at startup
-        // createInventoryTable(); // Ensure inventory table exists at startup
-        // createTransactionTable(); // Ensure sales table exists at startup
+        createUsersTable(); // Ensure users table exists at startup
+        createInventoryTable(); // Ensure inventory table exists at startup
+        createTransactionTable(); // Ensure sales table exists at startup
     }
 
     private void createUsersTable() {
@@ -105,34 +103,6 @@ public class DBConnection {
             System.out.println(e.getMessage());
             return null;
         }
-    }
-
-    public List<InventoryItem> getInventoryItems() {
-        List<InventoryItem> items = new ArrayList<>();
-
-        String query = "SELECT * FROM inventory";
-
-        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {
-
-            while (rs.next()) {
-                int itemNo = rs.getInt("item_no");
-                String itemId = rs.getString("item_id");
-                String itemName = rs.getString("item_name");
-                String category = rs.getString("category");
-                int quantity = rs.getInt("quantity");
-                double price = rs.getDouble("price");
-
-                InventoryItem item = new InventoryItem(itemNo, itemId, itemName, category, quantity, price);
-                items.add(item);
-            }
-
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        return items;
     }
 
     // Generate Transaction ID
