@@ -5,9 +5,6 @@ import java.sql.*;
 
 public class Main {
     public static void main(String[] args) {
-        // Initialize the DB connection
-        DBConnection dbConnection = new DBConnection();
-
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Login Form");
             frame.setUndecorated(true);         // Removes the title bar

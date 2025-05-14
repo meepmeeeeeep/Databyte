@@ -54,6 +54,12 @@ public class Sales extends JPanel {
 
         populateTableSales(); // Load the table data
         searchListenerHandler(); // Initialize Search Listener Handler
+
+        // Add Left-Padding to Search Field
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                searchField.getBorder(),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
+        ));
     }
 
     //
@@ -203,7 +209,15 @@ public class Sales extends JPanel {
     }
     // Action Listener Method
     private void resupply(ActionEvent e) {
-        // TODO add your code here
+        // Open Resupply
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
+
+        JFrame frame = new JFrame("Resupply");
+        frame.setContentPane(new Resupply());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
     //

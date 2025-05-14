@@ -184,7 +184,15 @@ public class Dashboard extends JPanel {
     }
     // Action Listener Method
     private void resupply(ActionEvent e) {
-        // TODO add your code here
+        // Open Resupply
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
+
+        JFrame frame = new JFrame("Resupply");
+        frame.setContentPane(new Resupply());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
 

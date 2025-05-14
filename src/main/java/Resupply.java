@@ -1,6 +1,13 @@
 // Inventory.java
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -9,23 +16,16 @@ import java.sql.*;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import javax.swing.border.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
 
-public class Inventory extends JPanel {
-    public Inventory() {
+public class Resupply extends JPanel {
+    public Resupply() {
         // Use Custom Background Images for Side Panel Buttons
         //---- dashboardButton ----
         Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButton.png"))).getImage();
         dashboardButton = new ImageButton(dashboardBg, "");
 
         //---- inventoryButton ----
-        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonActive.png"))).getImage();
+        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButton.png"))).getImage();
         inventoryButton = new ImageButton(inventoryBg, "");
 
         //---- salesButton ----
@@ -37,22 +37,14 @@ public class Inventory extends JPanel {
         financialsButton = new ImageButton(financialsBg, "");
 
         //---- resupplyButton ----
-        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButton.png"))).getImage();
+        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
         resupplyButton = new ImageButton(resupplyBg, "");
 
         //---- exitButton ----
         Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButton.png"))).getImage();
         exitButton = new ImageButton(exitBg, "");
 
-        // Use Custom Background Images for Inventory Buttons
-        //---- addItemButton ----
-        Image addItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/addItemButton.png"))).getImage();
-        addButton = new ImageButton(addItemBg, "");
-
-        //---- deleteItemButton ----
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButton.png"))).getImage();
-        deleteButton = new ImageButton(deleteItemBg, "");
-
+        // Use Custom Background Images for Resupply Buttons
         //---- editItemButton ----
         Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/editItemButton.png"))).getImage();
         editButton = new ImageButton(editItemBg, "");
@@ -136,13 +128,25 @@ public class Inventory extends JPanel {
     }
     // Hover Effects - Mouse Exit
     private void inventoryButtonMouseExited(MouseEvent e) {
-        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonActive.png"))).getImage();
+        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButton.png"))).getImage();
         ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
     }
     // Hover Effects - Mouse Press
     private void inventoryButtonMousePressed(MouseEvent e) {
-        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButton.png"))).getImage();
+        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonPressed.png"))).getImage();
         ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
+    }
+    // Action Listener Method
+    private void inventory(ActionEvent e) {
+        // Open Inventory
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Resupply
+
+        JFrame frame = new JFrame("Inventory");
+        frame.setContentPane(new Inventory());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
 
@@ -219,69 +223,6 @@ public class Inventory extends JPanel {
         Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonPressed.png"))).getImage();
         ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
-    // Action Listener Method
-    private void resupply(ActionEvent e) {
-        // Open Resupply
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
-
-        JFrame frame = new JFrame("Resupply");
-        frame.setContentPane(new Resupply());
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
-    }
-
-    //
-    // Add Item Button Event Listener Methods
-    //
-    // Action Listener Method
-    private void add(ActionEvent e) {
-        JFrame frame = new JFrame("Add Item");
-        frame.setContentPane(new AddItemForm(this));
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);          // Disable window resizing
-        frame.setVisible(true);
-    }
-    // Hover Effects - Mouse Enter
-    private void addButtonMouseEntered(MouseEvent e) {
-        Image addItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/addItemButtonActive.png"))).getImage();
-        ((ImageButton) addButton).setBackgroundImage(addItemBg);
-    }
-    // Hover Effects - Mouse Exit
-    private void addButtonMouseExited(MouseEvent e) {
-        Image addItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/addItemButton.png"))).getImage();
-        ((ImageButton) addButton).setBackgroundImage(addItemBg);
-    }
-    // Hover Effects - Mouse Press
-    private void addButtonMousePressed(MouseEvent e) {
-        Image addItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/addItemButtonPressed.png"))).getImage();
-        ((ImageButton) addButton).setBackgroundImage(addItemBg);
-    }
-
-    //
-    // Delete Item Button Event Listener Methods
-    //
-    // Action Listener Method
-    private void delete(ActionEvent e) {
-        deleteSelectedItem();
-    }
-    // Hover Effects - Mouse Enter
-    private void deleteButtonMouseEntered(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonActive.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
-    }
-    // Hover Effects - Mouse Exit
-    private void deleteButtonMouseExited(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButton.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
-    }
-    // Hover Effects - Mouse Press
-    private void deleteButtonMousePressed(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonPressed.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
-    }
 
     //
     // Edit Item Button Event Listener Methods
@@ -293,7 +234,7 @@ public class Inventory extends JPanel {
             String itemId = inventoryTable.getValueAt(selectedRow, 1).toString();
 
             JFrame frame = new JFrame("Editing Item " + itemId);
-            frame.setContentPane(new EditItemForm(itemId, this));
+            frame.setContentPane(new ResupplyItemForm(itemId, this));
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setResizable(false);          // Disable window resizing
@@ -424,6 +365,7 @@ public class Inventory extends JPanel {
                     inventoryButtonMousePressed(e);
                 }
             });
+            inventoryButton.addActionListener(e -> inventory(e));
 
             //---- salesButton ----
             salesButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -498,7 +440,6 @@ public class Inventory extends JPanel {
                     resupplyButtonMousePressed(e);
                 }
             });
-            resupplyButton.addActionListener(e -> resupply(e));
 
             //---- exitButton ----
             exitButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
@@ -571,7 +512,7 @@ public class Inventory extends JPanel {
             windowTitleContainer.setBackground(new Color(0xfcf8ff));
 
             //---- dashboardLabel ----
-            dashboardLabel.setText("Inventory");
+            dashboardLabel.setText("Resupply");
             dashboardLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             dashboardLabel.setBackground(new Color(0xfcf8ff));
             dashboardLabel.setForeground(new Color(0x251779));
@@ -641,42 +582,6 @@ public class Inventory extends JPanel {
                 }
             });
 
-            //---- deleteButton ----
-            deleteButton.setFocusable(false);
-            deleteButton.addActionListener(e -> delete(e));
-            deleteButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    deleteButtonMouseEntered(e);
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    deleteButtonMouseExited(e);
-                }
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    deleteButtonMousePressed(e);
-                }
-            });
-
-            //---- addButton ----
-            addButton.setFocusable(false);
-            addButton.addActionListener(e -> add(e));
-            addButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    addButtonMouseEntered(e);
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    addButtonMouseExited(e);
-                }
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    addButtonMousePressed(e);
-                }
-            });
-
             GroupLayout controlsPanelLayout = new GroupLayout(controlsPanel);
             controlsPanel.setLayout(controlsPanelLayout);
             controlsPanelLayout.setHorizontalGroup(
@@ -684,11 +589,7 @@ public class Inventory extends JPanel {
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
-                        .addComponent(addButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 557, Short.MAX_VALUE)
                         .addComponent(editButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(refreshButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
@@ -700,9 +601,7 @@ public class Inventory extends JPanel {
                         .addGap(10, 10, 10)
                         .addGroup(controlsPanelLayout.createParallelGroup()
                             .addComponent(refreshButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(editButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                            .addComponent(deleteButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                            .addComponent(addButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
+                            .addComponent(editButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                         .addGap(10, 10, 10))
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
@@ -767,8 +666,6 @@ public class Inventory extends JPanel {
     private JTextField searchField;
     private JButton refreshButton;
     private JButton editButton;
-    private JButton deleteButton;
-    private JButton addButton;
     private JScrollPane scrollPane1;
     private JTable inventoryTable;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
@@ -864,14 +761,15 @@ public class Inventory extends JPanel {
     //
     // SQL Functionalities Section
     //
-     // Refresh/Populate Table
+    // Refresh/Populate Table
     void populateTable() {
         populateTable("");
     }
 
     void populateTable(String searchQuery) {
         String sql = "SELECT item_no, item_id, item_name, category, quantity, price FROM inventory " +
-                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ?";
+                "WHERE (item_id LIKE ? OR item_name LIKE ? OR category LIKE ?)" +
+                "AND quantity < 20"; // Only fetch low stock items (less than 20)
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)){
@@ -900,43 +798,6 @@ public class Inventory extends JPanel {
             setTableTheme();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error loading inventory: " + ex.getMessage());
-        }
-    }
-
-    // Delete Item
-    private void deleteSelectedItem() {
-        int selectedRow = inventoryTable.getSelectedRow();
-
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an item to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Get the item_id from the selected row
-        String itemId = inventoryTable.getValueAt(selectedRow, 1).toString();
-
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete this item?",
-                "Confirm Deletion",
-                JOptionPane.YES_NO_OPTION);
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            String sql = "DELETE FROM inventory WHERE item_id = ?";
-
-            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setString(1, itemId);
-                int affectedRows = pstmt.executeUpdate();
-
-                if (affectedRows > 0) {
-                    JOptionPane.showMessageDialog(this, "Item deleted successfully.");
-                    populateTable(); // Refresh table
-                } else {
-                    JOptionPane.showMessageDialog(this, "Item could not be deleted. Please try again.");
-                }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error deleting item: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-            }
         }
     }
 
