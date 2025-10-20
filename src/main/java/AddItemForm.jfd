@@ -80,7 +80,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceLabel"
-					"text": "Price:"
+					"text": "Unit Price:"
 					"font": #Font0
 					"background": #Color0
 					"foreground": #Color1

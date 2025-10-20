@@ -3,6 +3,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -25,9 +27,9 @@ public class Dashboard extends JPanel {
         Image salesBg = new ImageIcon(getClass().getResource("/assets/images/salesButton.png")).getImage();
         salesButton = new ImageButton(salesBg, "");
 
-        //---- financialsButton ----
-        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
-        financialsButton = new ImageButton(financialsBg, "");
+//        //---- financialsButton ----
+//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
+//        financialsButton = new ImageButton(financialsBg, "");
 
         //---- resupplyButton ----
         Image resupplyBg = new ImageIcon(getClass().getResource("/assets/images/resupplyButton.png")).getImage();
@@ -39,13 +41,30 @@ public class Dashboard extends JPanel {
 
         initComponents();
 
+        // Set the current date in the date label
+        setCurrentDate();
+
         String[] columns = {"Date", "Item Name", "Quantity", "Unit Price", "Total Price"};
         DefaultTableModel tableModel = new DefaultTableModel(columns, 0);
         transactionHistoryTable.setModel(tableModel);
 
         setTableTheme();
 
+        setupLowStockTable();
         populateTableRecentSales();
+        updateDashboardStatistics();
+
+        // Make table rows non-selectable
+        lowStockTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        lowStockTable.setRowSelectionAllowed(false);
+        lowStockTable.setCellSelectionEnabled(false);
+        lowStockTable.getTableHeader().setReorderingAllowed(false);
+        lowStockTable.setFocusable(false);
+        transactionHistoryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        transactionHistoryTable.setRowSelectionAllowed(false);
+        transactionHistoryTable.setCellSelectionEnabled(false);
+        transactionHistoryTable.getTableHeader().setReorderingAllowed(false);
+        transactionHistoryTable.setFocusable(false);
     }
 
     //
@@ -154,24 +173,25 @@ public class Dashboard extends JPanel {
     }
 
 
-    //
-    // Financials Button Event Listener Methods
-    //
-    // Hover Effects - Mouse Enter
-    private void financialsButtonMouseEntered(MouseEvent e) {
-        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonActive.png")).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
-    // Hover Effects - Mouse Exit
-    private void financialsButtonMouseExited(MouseEvent e) {
-        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
-    // Hover Effects - Mouse Press
-    private void financialsButtonMousePressed(MouseEvent e) {
-        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonPressed.png")).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
+//    //
+//    // Financials Button Event Listener Methods
+//    //
+//    // Hover Effects - Mouse Enter
+//    private void financialsButtonMouseEntered(MouseEvent e) {
+//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonActive.png")).getImage();
+//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+//    // Hover Effects - Mouse Exit
+//    private void financialsButtonMouseExited(MouseEvent e) {
+//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
+//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+//    // Hover Effects - Mouse Press
+//    private void financialsButtonMousePressed(MouseEvent e) {
+//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonPressed.png")).getImage();
+//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+    
     // Action Listener Method
     private void financials(ActionEvent e) {
         // TODO
@@ -217,20 +237,32 @@ public class Dashboard extends JPanel {
         appNameSubLabel = new JLabel();
         windowTitleContainer = new JPanel();
         dashboardLabel = new JTextField();
+        dateLabel = new JTextField();
         dashboardPanel1 = new JPanel();
         dashboardPanel1Container1 = new JPanel();
         totalSalesPanel = new JPanel();
+        totalSalesLabel = new JTextField();
+        totalSalesPlaceholder = new JTextField();
         dashboardPanel1Container2 = new JPanel();
         totalExpensesPanel = new JPanel();
+        totalExpensesLabel = new JTextField();
+        totalExpensesPlaceholder = new JTextField();
         dashboardPanel1Container3 = new JPanel();
         totalOrdersPanel = new JPanel();
+        totalOrdersLabel = new JTextField();
+        totalOrdersPlaceholder = new JTextField();
         dashboardPanel1Container4 = new JPanel();
         totalProductsPanel = new JPanel();
+        totalProductsLabel = new JTextField();
+        totalProductsPlaceholder = new JTextField();
         salesExpensesPanel = new JPanel();
         dashboardLabel2 = new JTextField();
         scrollPane1 = new JScrollPane();
         transactionHistoryTable = new JTable();
         stockAlertPanel = new JPanel();
+        scrollPane2 = new JScrollPane();
+        lowStockTable = new JTable();
+        dashboardLabel3 = new JTextField();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -243,13 +275,13 @@ public class Dashboard extends JPanel {
             sidePanel.setPreferredSize(new Dimension(260, 820));
 
             //---- appNameLabel ----
-            appNameLabel.setText("SCAPE Project");
+            appNameLabel.setText("Databyte");
             appNameLabel.setFont(new Font("Segoe UI Black", Font.ITALIC, 30));
             appNameLabel.setForeground(Color.white);
             appNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
             //---- appNameSubLabel ----
-            appNameSubLabel.setText("by group 2");
+            appNameSubLabel.setText("by group 7");
             appNameSubLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
             appNameSubLabel.setForeground(Color.white);
             appNameSubLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -327,31 +359,6 @@ public class Dashboard extends JPanel {
             });
             salesButton.addActionListener(e -> sales(e));
 
-            //---- financialsButton ----
-            financialsButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
-            financialsButton.setForeground(new Color(0x6c39c1));
-            financialsButton.setBackground(new Color(0x6c39c1));
-            financialsButton.setBorder(null);
-            financialsButton.setHorizontalAlignment(SwingConstants.LEFT);
-            financialsButton.setFocusable(false);
-            financialsButton.setBorderPainted(false);
-            financialsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            financialsButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    financialsButtonMouseEntered(e);
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    financialsButtonMouseExited(e);
-                }
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    financialsButtonMousePressed(e);
-                }
-            });
-            financialsButton.addActionListener(e -> financials(e));
-
             //---- resupplyButton ----
             resupplyButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
             resupplyButton.setForeground(new Color(0x6c39c1));
@@ -416,7 +423,6 @@ public class Dashboard extends JPanel {
                                 .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
                                 .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
                             .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(19, Short.MAX_VALUE))
             );
@@ -434,10 +440,8 @@ public class Dashboard extends JPanel {
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(salesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resupplyButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 366, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -456,6 +460,16 @@ public class Dashboard extends JPanel {
             dashboardLabel.setFocusable(false);
             dashboardLabel.setEditable(false);
 
+            //---- dateLabel ----
+            dateLabel.setText("Date Placeholder");
+            dateLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            dateLabel.setBackground(new Color(0xfcf8ff));
+            dateLabel.setForeground(new Color(0x251779));
+            dateLabel.setBorder(null);
+            dateLabel.setFocusable(false);
+            dateLabel.setEditable(false);
+            dateLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+
             GroupLayout windowTitleContainerLayout = new GroupLayout(windowTitleContainer);
             windowTitleContainer.setLayout(windowTitleContainerLayout);
             windowTitleContainerLayout.setHorizontalGroup(
@@ -463,13 +477,17 @@ public class Dashboard extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(942, Short.MAX_VALUE))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 776, Short.MAX_VALUE)
+                        .addComponent(dateLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addGap(20, 20, 20))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(17, 17, 17)
-                        .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addGroup(windowTitleContainerLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(dateLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(17, Short.MAX_VALUE))
             );
         }
@@ -489,15 +507,43 @@ public class Dashboard extends JPanel {
                 {
                     totalSalesPanel.setBackground(new Color(0xe8e7f4));
 
+                    //---- totalSalesLabel ----
+                    totalSalesLabel.setText("Total Sales (Today)");
+                    totalSalesLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                    totalSalesLabel.setForeground(new Color(0x251779));
+                    totalSalesLabel.setBorder(null);
+                    totalSalesLabel.setFocusable(false);
+                    totalSalesLabel.setEditable(false);
+                    totalSalesLabel.setBackground(new Color(0xe8e7f4));
+
+                    //---- totalSalesPlaceholder ----
+                    totalSalesPlaceholder.setText("0");
+                    totalSalesPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalSalesPlaceholder.setForeground(new Color(0x251779));
+                    totalSalesPlaceholder.setBorder(null);
+                    totalSalesPlaceholder.setFocusable(false);
+                    totalSalesPlaceholder.setEditable(false);
+                    totalSalesPlaceholder.setBackground(new Color(0xe8e7f4));
+
                     GroupLayout totalSalesPanelLayout = new GroupLayout(totalSalesPanel);
                     totalSalesPanel.setLayout(totalSalesPanelLayout);
                     totalSalesPanelLayout.setHorizontalGroup(
                         totalSalesPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalSalesPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addGroup(totalSalesPanelLayout.createParallelGroup()
+                                    .addComponent(totalSalesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(totalSalesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap(60, Short.MAX_VALUE))
                     );
                     totalSalesPanelLayout.setVerticalGroup(
                         totalSalesPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalSalesPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(totalSalesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(totalSalesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(61, Short.MAX_VALUE))
                     );
                 }
 
@@ -529,15 +575,43 @@ public class Dashboard extends JPanel {
                 {
                     totalExpensesPanel.setBackground(new Color(0xe8e7f4));
 
+                    //---- totalExpensesLabel ----
+                    totalExpensesLabel.setText("Total Expenses (Today)");
+                    totalExpensesLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                    totalExpensesLabel.setForeground(new Color(0x251779));
+                    totalExpensesLabel.setBorder(null);
+                    totalExpensesLabel.setFocusable(false);
+                    totalExpensesLabel.setEditable(false);
+                    totalExpensesLabel.setBackground(new Color(0xe8e7f4));
+
+                    //---- totalExpensesPlaceholder ----
+                    totalExpensesPlaceholder.setText("0");
+                    totalExpensesPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalExpensesPlaceholder.setForeground(new Color(0x251779));
+                    totalExpensesPlaceholder.setBorder(null);
+                    totalExpensesPlaceholder.setFocusable(false);
+                    totalExpensesPlaceholder.setEditable(false);
+                    totalExpensesPlaceholder.setBackground(new Color(0xe8e7f4));
+
                     GroupLayout totalExpensesPanelLayout = new GroupLayout(totalExpensesPanel);
                     totalExpensesPanel.setLayout(totalExpensesPanelLayout);
                     totalExpensesPanelLayout.setHorizontalGroup(
                         totalExpensesPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalExpensesPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addGroup(totalExpensesPanelLayout.createParallelGroup()
+                                    .addComponent(totalExpensesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(totalExpensesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap(35, Short.MAX_VALUE))
                     );
                     totalExpensesPanelLayout.setVerticalGroup(
                         totalExpensesPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalExpensesPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(totalExpensesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(totalExpensesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(61, Short.MAX_VALUE))
                     );
                 }
 
@@ -569,15 +643,43 @@ public class Dashboard extends JPanel {
                 {
                     totalOrdersPanel.setBackground(new Color(0xe8e7f4));
 
+                    //---- totalOrdersLabel ----
+                    totalOrdersLabel.setText("Total Orders");
+                    totalOrdersLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                    totalOrdersLabel.setForeground(new Color(0x251779));
+                    totalOrdersLabel.setBorder(null);
+                    totalOrdersLabel.setFocusable(false);
+                    totalOrdersLabel.setEditable(false);
+                    totalOrdersLabel.setBackground(new Color(0xe8e7f4));
+
+                    //---- totalOrdersPlaceholder ----
+                    totalOrdersPlaceholder.setText("0");
+                    totalOrdersPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalOrdersPlaceholder.setForeground(new Color(0x251779));
+                    totalOrdersPlaceholder.setBorder(null);
+                    totalOrdersPlaceholder.setFocusable(false);
+                    totalOrdersPlaceholder.setEditable(false);
+                    totalOrdersPlaceholder.setBackground(new Color(0xe8e7f4));
+
                     GroupLayout totalOrdersPanelLayout = new GroupLayout(totalOrdersPanel);
                     totalOrdersPanel.setLayout(totalOrdersPanelLayout);
                     totalOrdersPanelLayout.setHorizontalGroup(
                         totalOrdersPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalOrdersPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addGroup(totalOrdersPanelLayout.createParallelGroup()
+                                    .addComponent(totalOrdersPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(totalOrdersLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap(128, Short.MAX_VALUE))
                     );
                     totalOrdersPanelLayout.setVerticalGroup(
                         totalOrdersPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalOrdersPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(totalOrdersLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(totalOrdersPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(61, Short.MAX_VALUE))
                     );
                 }
 
@@ -609,15 +711,43 @@ public class Dashboard extends JPanel {
                 {
                     totalProductsPanel.setBackground(new Color(0xe8e7f4));
 
+                    //---- totalProductsLabel ----
+                    totalProductsLabel.setText("Total Products");
+                    totalProductsLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+                    totalProductsLabel.setBackground(new Color(0xe8e7f4));
+                    totalProductsLabel.setForeground(new Color(0x251779));
+                    totalProductsLabel.setBorder(null);
+                    totalProductsLabel.setFocusable(false);
+                    totalProductsLabel.setEditable(false);
+
+                    //---- totalProductsPlaceholder ----
+                    totalProductsPlaceholder.setText("0");
+                    totalProductsPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalProductsPlaceholder.setForeground(new Color(0x251779));
+                    totalProductsPlaceholder.setBorder(null);
+                    totalProductsPlaceholder.setFocusable(false);
+                    totalProductsPlaceholder.setEditable(false);
+                    totalProductsPlaceholder.setBackground(new Color(0xe8e7f4));
+
                     GroupLayout totalProductsPanelLayout = new GroupLayout(totalProductsPanel);
                     totalProductsPanel.setLayout(totalProductsPanelLayout);
                     totalProductsPanelLayout.setHorizontalGroup(
                         totalProductsPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalProductsPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addGroup(totalProductsPanelLayout.createParallelGroup()
+                                    .addComponent(totalProductsPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(totalProductsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addContainerGap(100, Short.MAX_VALUE))
                     );
                     totalProductsPanelLayout.setVerticalGroup(
                         totalProductsPanelLayout.createParallelGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addGroup(totalProductsPanelLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(totalProductsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(28, 28, 28)
+                                .addComponent(totalProductsPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(61, Short.MAX_VALUE))
                     );
                 }
 
@@ -683,7 +813,7 @@ public class Dashboard extends JPanel {
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE)
                         .addGap(20, 20, 20))
             );
         }
@@ -692,15 +822,44 @@ public class Dashboard extends JPanel {
         {
             stockAlertPanel.setBackground(new Color(0xfcf8ff));
 
+            //======== scrollPane2 ========
+            {
+
+                //---- lowStockTable ----
+                lowStockTable.setRowHeight(40);
+                lowStockTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                lowStockTable.setFocusable(false);
+                scrollPane2.setViewportView(lowStockTable);
+            }
+
+            //---- dashboardLabel3 ----
+            dashboardLabel3.setText("Low Stock Alerts");
+            dashboardLabel3.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            dashboardLabel3.setBackground(new Color(0xfcf8ff));
+            dashboardLabel3.setForeground(new Color(0x251779));
+            dashboardLabel3.setBorder(null);
+            dashboardLabel3.setFocusable(false);
+            dashboardLabel3.setEditable(false);
+
             GroupLayout stockAlertPanelLayout = new GroupLayout(stockAlertPanel);
             stockAlertPanel.setLayout(stockAlertPanelLayout);
             stockAlertPanelLayout.setHorizontalGroup(
                 stockAlertPanelLayout.createParallelGroup()
-                    .addGap(0, 350, Short.MAX_VALUE)
+                    .addGroup(stockAlertPanelLayout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(stockAlertPanelLayout.createParallelGroup()
+                            .addComponent(dashboardLabel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(scrollPane2, GroupLayout.PREFERRED_SIZE, 310, GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(20, Short.MAX_VALUE))
             );
             stockAlertPanelLayout.setVerticalGroup(
                 stockAlertPanelLayout.createParallelGroup()
-                    .addGap(0, 447, Short.MAX_VALUE)
+                    .addGroup(GroupLayout.Alignment.TRAILING, stockAlertPanelLayout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(dashboardLabel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+                        .addGap(20, 20, 20))
             );
         }
 
@@ -747,25 +906,36 @@ public class Dashboard extends JPanel {
     private JButton dashboardButton;
     private JButton inventoryButton;
     private JButton salesButton;
-    private JButton financialsButton;
     private JButton resupplyButton;
     private JButton exitButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
+    private JTextField dateLabel;
     private JPanel dashboardPanel1;
     private JPanel dashboardPanel1Container1;
     private JPanel totalSalesPanel;
+    private JTextField totalSalesLabel;
+    private JTextField totalSalesPlaceholder;
     private JPanel dashboardPanel1Container2;
     private JPanel totalExpensesPanel;
+    private JTextField totalExpensesLabel;
+    private JTextField totalExpensesPlaceholder;
     private JPanel dashboardPanel1Container3;
     private JPanel totalOrdersPanel;
+    private JTextField totalOrdersLabel;
+    private JTextField totalOrdersPlaceholder;
     private JPanel dashboardPanel1Container4;
     private JPanel totalProductsPanel;
+    private JTextField totalProductsLabel;
+    private JTextField totalProductsPlaceholder;
     private JPanel salesExpensesPanel;
     private JTextField dashboardLabel2;
     private JScrollPane scrollPane1;
     private JTable transactionHistoryTable;
     private JPanel stockAlertPanel;
+    private JScrollPane scrollPane2;
+    private JTable lowStockTable;
+    private JTextField dashboardLabel3;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     private void setTableTheme() {
@@ -853,14 +1023,20 @@ public class Dashboard extends JPanel {
     void populateTableRecentSales() {
         String sql = "SELECT date, item_name, quantity, price, total_price " +
                 "FROM transaction_history " +
-                "ORDER BY date";
+                "ORDER BY date DESC LIMIT 20";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)) {
 
             ResultSet rs = pst.executeQuery();
 
-            DefaultTableModel model = new DefaultTableModel();
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Make all cells non-editable
+                }
+            };
+
             model.setColumnIdentifiers(new String[]{"Date", "Item Name", "Quantity", "Unit Price", "Total Price"});
 
             while (rs.next()) {
@@ -877,6 +1053,228 @@ public class Dashboard extends JPanel {
             setTableTheme();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error loading transaction history: " + ex.getMessage());
+        }
+    }
+
+    private void updateDashboardStatistics() {
+        updateTotalSales();
+        updateTotalExpenses();
+        updateTotalOrders();
+        updateTotalProducts();
+    }
+
+    private void updateTotalSales() {
+        String sql = "SELECT SUM(total_price) AS total_sales FROM transaction_history " +
+                "WHERE DATE(date) = CURRENT_DATE()";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                double totalSales = rs.getDouble("total_sales");
+                if (rs.wasNull()) {
+                    totalSalesPlaceholder.setText("0.00");
+                } else {
+                    totalSalesPlaceholder.setText(String.format("%.2f", totalSales));
+                }
+            } else {
+                totalSalesPlaceholder.setText("0.00");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching today's sales: " + ex.getMessage());
+            totalSalesPlaceholder.setText("0.00");
+        }
+    }
+
+    private void updateTotalExpenses() {
+        String sql = "SELECT SUM(total_cost) AS total_expenses FROM resupply_history " +
+                "WHERE DATE(resupply_date) = CURRENT_DATE()";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                double totalExpenses = rs.getDouble("total_expenses");
+                if (rs.wasNull()) {
+                    totalExpensesPlaceholder.setText("0.00");
+                } else {
+                    totalExpensesPlaceholder.setText(String.format("%.2f", totalExpenses));
+                }
+            } else {
+                totalExpensesPlaceholder.setText("0.00");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching today's expenses: " + ex.getMessage());
+            totalExpensesPlaceholder.setText("0.00");
+        }
+    }
+
+
+    private void updateTotalOrders() {
+        String sql = "SELECT COUNT(*) AS total_orders FROM transaction_history";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                int totalOrders = rs.getInt("total_orders");
+                totalOrdersPlaceholder.setText(String.valueOf(totalOrders));
+            } else {
+                totalOrdersPlaceholder.setText("0");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching total orders: " + ex.getMessage());
+            totalOrdersPlaceholder.setText("0");
+        }
+    }
+
+    private void updateTotalProducts() {
+        String sql = "SELECT COUNT(*) AS total_products FROM inventory";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+            if (rs.next()) {
+                int totalProducts = rs.getInt("total_products");
+                totalProductsPlaceholder.setText(String.valueOf(totalProducts));
+            } else {
+                totalProductsPlaceholder.setText("0");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching total products: " + ex.getMessage());
+            totalProductsPlaceholder.setText("0");
+        }
+    }
+
+    private void setCurrentDate() {
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
+        dateLabel.setText(today.format(formatter));
+    }
+
+    private void setupLowStockTable() {
+        // Create table model
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Item Name", "Quantity"},
+                0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Make all cells non-editable
+            }
+        };
+
+        lowStockTable.setModel(model);
+        lowStockTable.setShowGrid(false);
+
+// Custom cell renderer for low stock items
+        DefaultTableCellRenderer lowStockRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Set font to bold
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+                // Set background color
+                if (isSelected) {
+                    label.setBackground(Color.decode("#A59BDA"));
+                } else {
+                    label.setBackground(row % 2 == 0 ? Color.decode("#D4CFED") : Color.WHITE);
+                }
+
+                // Only try to parse as integer if it's the quantity column and not "N/A"
+                if (column == 1 && value != null && !value.toString().equals("N/A")) {
+                    try {
+                        int quantity = Integer.parseInt(value.toString());
+
+                        // Set text color based on quantity (redder as it gets closer to 0)
+                        if (quantity <= 5) {
+                            label.setForeground(new Color(200, 0, 0)); // Very red for critical level
+                        } else if (quantity <= 10) {
+                            label.setForeground(new Color(220, 30, 30)); // Medium red
+                        } else {
+                            label.setForeground(new Color(240, 60, 60)); // Light red
+                        }
+                    } catch (NumberFormatException e) {
+                        // If it's not a valid number, use default color
+                        label.setForeground(Color.BLACK);
+                    }
+                } else if (column == 0 && table.getValueAt(row, 1).toString().equals("N/A")) {
+                    // For the "No low stock items" message row
+                    label.setForeground(Color.BLACK);
+                }
+
+                // Apply left padding
+                label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                label.setHorizontalAlignment(SwingConstants.LEFT);
+
+                return label;
+            }
+        };
+
+        // Apply renderer to all columns
+        for (int i = 0; i < lowStockTable.getColumnCount(); i++) {
+            lowStockTable.getColumnModel().getColumn(i).setCellRenderer(lowStockRenderer);
+        }
+
+        // Set Table Header Style
+        JTableHeader header = lowStockTable.getTableHeader();
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                label.setBorder(BorderFactory.createEmptyBorder()); // No borders
+                label.setBackground(Color.decode("#6c39c1")); // Change background
+                label.setForeground(Color.WHITE); // Change foreground
+                label.setHorizontalAlignment(SwingConstants.CENTER); // Center text
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                return label;
+            }
+        });
+
+        // Lock Column Re-order
+        lowStockTable.getTableHeader().setReorderingAllowed(false);
+
+        // Populate the table with low stock items
+        populateLowStockItems();
+    }
+
+    private void populateLowStockItems() {
+        String sql = "SELECT item_name, quantity FROM inventory WHERE quantity < 20 ORDER BY quantity ASC";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+            DefaultTableModel model = (DefaultTableModel) lowStockTable.getModel();
+
+            // Clear existing data
+            model.setRowCount(0);
+
+            // Add new data
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getString("item_name"),
+                        rs.getInt("quantity")
+                });
+            }
+
+            // If no low stock items found, add a message row
+            if (model.getRowCount() == 0) {
+                model.addRow(new Object[]{"No low stock items", "N/A"});
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading low stock items: " + ex.getMessage());
         }
     }
 }

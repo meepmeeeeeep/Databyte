@@ -32,9 +32,9 @@ public class Resupply extends JPanel {
         Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButton.png"))).getImage();
         salesButton = new ImageButton(salesBg, "");
 
-        //---- financialsButton ----
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
-        financialsButton = new ImageButton(financialsBg, "");
+//        //---- financialsButton ----
+//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
+//        financialsButton = new ImageButton(financialsBg, "");
 
         //---- resupplyButton ----
         Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
@@ -46,7 +46,7 @@ public class Resupply extends JPanel {
 
         // Use Custom Background Images for Resupply Buttons
         //---- editItemButton ----
-        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/editItemButton.png"))).getImage();
+        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyItemButton.png"))).getImage();
         editButton = new ImageButton(editItemBg, "");
 
         //---- refreshButton ----
@@ -55,13 +55,22 @@ public class Resupply extends JPanel {
 
         initComponents();
         populateTable(); // Refresh the table
+        populateResupplyHistory(); // Refresh the resupply history table
         searchListenerHandler(); // Search Listener Handler for searchField
+
+        // Make table rows non-selectable
+        resupplyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        resupplyTable.setRowSelectionAllowed(false);
+        resupplyTable.setCellSelectionEnabled(false);
+        resupplyTable.getTableHeader().setReorderingAllowed(false);
+        resupplyTable.setFocusable(false);
 
         // Add Left-Padding to Search Field
         searchField.setBorder(BorderFactory.createCompoundBorder(
                 searchField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+
     }
 
     //
@@ -69,18 +78,18 @@ public class Resupply extends JPanel {
     //
     // Hover Effects - Mouse Enter
     private void exitButtonMouseEntered(MouseEvent e) {
-        Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButtonActive.png"))).getImage();
-        ((ImageButton) exitButton).setBackgroundImage(exitBg);
+            Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButtonActive.png"))).getImage();
+            ((ImageButton) exitButton).setBackgroundImage(exitBg);
     }
     // Hover Effects - Mouse Exit
     private void exitButtonMouseExited(MouseEvent e) {
-        Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButton.png"))).getImage();
-        ((ImageButton) exitButton).setBackgroundImage(exitBg);
+            Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButton.png"))).getImage();
+            ((ImageButton) exitButton).setBackgroundImage(exitBg);
     }
     // Hover Effects - Mouse Press
     private void exitButtonMousePressed(MouseEvent e) {
-        Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButtonPressed.png"))).getImage();
-        ((ImageButton) exitButton).setBackgroundImage(exitBg);
+            Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButtonPressed.png"))).getImage();
+            ((ImageButton) exitButton).setBackgroundImage(exitBg);
     }
     // Action Listener Method
     private void exit(ActionEvent e) {
@@ -92,18 +101,18 @@ public class Resupply extends JPanel {
     //
     // Hover Effects - Mouse Enter
     private void dashboardButtonMouseEntered(MouseEvent e) {
-        Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButtonActive.png"))).getImage();
-        ((ImageButton) dashboardButton).setBackgroundImage(dashboardBg);
+            Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButtonActive.png"))).getImage();
+            ((ImageButton) dashboardButton).setBackgroundImage(dashboardBg);
     }
     // Hover Effects - Mouse Exit
     private void dashboardButtonMouseExited(MouseEvent e) {
-        Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButton.png"))).getImage();
-        ((ImageButton) dashboardButton).setBackgroundImage(dashboardBg);
+            Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButton.png"))).getImage();
+            ((ImageButton) dashboardButton).setBackgroundImage(dashboardBg);
     }
     // Hover Effects - Mouse Press
     private void dashboardButtonMousePressed(MouseEvent e) {
-        Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButtonPressed.png"))).getImage();
-        ((ImageButton) dashboardButton).setBackgroundImage(dashboardBg);
+            Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButtonPressed.png"))).getImage();
+            ((ImageButton) dashboardButton).setBackgroundImage(dashboardBg);
     }
     // Action Listener Method
     private void dashboard(ActionEvent e) {
@@ -123,18 +132,18 @@ public class Resupply extends JPanel {
     //
     // Hover Effects - Mouse Enter
     private void inventoryButtonMouseEntered(MouseEvent e) {
-        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonActive.png"))).getImage();
-        ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
+            Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonActive.png"))).getImage();
+            ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
     }
     // Hover Effects - Mouse Exit
     private void inventoryButtonMouseExited(MouseEvent e) {
-        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButton.png"))).getImage();
-        ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
+            Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButton.png"))).getImage();
+            ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
     }
     // Hover Effects - Mouse Press
     private void inventoryButtonMousePressed(MouseEvent e) {
-        Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonPressed.png"))).getImage();
-        ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
+            Image inventoryBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/inventoryButtonPressed.png"))).getImage();
+            ((ImageButton) inventoryButton).setBackgroundImage(inventoryBg);
     }
     // Action Listener Method
     private void inventory(ActionEvent e) {
@@ -155,18 +164,18 @@ public class Resupply extends JPanel {
     //
     // Hover Effects - Mouse Enter
     private void salesButtonMouseEntered(MouseEvent e) {
-        Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButtonActive.png"))).getImage();
-        ((ImageButton) salesButton).setBackgroundImage(salesBg);
+            Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButtonActive.png"))).getImage();
+            ((ImageButton) salesButton).setBackgroundImage(salesBg);
     }
     // Hover Effects - Mouse Exit
     private void salesButtonMouseExited(MouseEvent e) {
-        Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButton.png"))).getImage();
-        ((ImageButton) salesButton).setBackgroundImage(salesBg);
+            Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButton.png"))).getImage();
+            ((ImageButton) salesButton).setBackgroundImage(salesBg);
     }
     // Hover Effects - Mouse Press
     private void salesButtonMousePressed(MouseEvent e) {
-        Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButtonPressed.png"))).getImage();
-        ((ImageButton) salesButton).setBackgroundImage(salesBg);
+            Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButtonPressed.png"))).getImage();
+            ((ImageButton) salesButton).setBackgroundImage(salesBg);
     }
     // Action Listener Method
     private void sales(ActionEvent e) {
@@ -181,25 +190,25 @@ public class Resupply extends JPanel {
         frame.setVisible(true);
     }
 
-
-    //
-    // Financials Button Event Listener Methods
-    //
-    // Hover Effects - Mouse Enter
-    private void financialsButtonMouseEntered(MouseEvent e) {
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonActive.png"))).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
-    // Hover Effects - Mouse Exit
-    private void financialsButtonMouseExited(MouseEvent e) {
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
-    // Hover Effects - Mouse Press
-    private void financialsButtonMousePressed(MouseEvent e) {
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonPressed.png"))).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
+//    //
+//    // Financials Button Event Listener Methods
+//    //
+//    // Hover Effects - Mouse Enter
+//    private void financialsButtonMouseEntered(MouseEvent e) {
+//            Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonActive.png"))).getImage();
+//            ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+//    // Hover Effects - Mouse Exit
+//    private void financialsButtonMouseExited(MouseEvent e) {
+//            Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
+//            ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+//    // Hover Effects - Mouse Press
+//    private void financialsButtonMousePressed(MouseEvent e) {
+//            Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonPressed.png"))).getImage();
+//            ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+    
     // Action Listener Method
     private void financials(ActionEvent e) {
         // TODO
@@ -210,18 +219,18 @@ public class Resupply extends JPanel {
     //
     // Hover Effects - Mouse Enter
     private void resupplyButtonMouseEntered(MouseEvent e) {
-        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
-        ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
+            Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
+            ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
     // Hover Effects - Mouse Exit
     private void resupplyButtonMouseExited(MouseEvent e) {
-        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
-        ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
+            Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
+            ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
     // Hover Effects - Mouse Press
     private void resupplyButtonMousePressed(MouseEvent e) {
-        Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
-        ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
+            Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButtonActive.png"))).getImage();
+            ((ImageButton) resupplyButton).setBackgroundImage(resupplyBg);
     }
 
     //
@@ -233,29 +242,30 @@ public class Resupply extends JPanel {
         if (selectedRow != -1) {
             String itemId = inventoryTable.getValueAt(selectedRow, 1).toString();
 
-            JFrame frame = new JFrame("Editing Item " + itemId);
+            JFrame frame = new JFrame("Resupply for Item " + itemId);
             frame.setContentPane(new ResupplyItemForm(itemId, this));
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setResizable(false);          // Disable window resizing
             frame.setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(null, "Please select a row to edit.");
+            JOptionPane.showMessageDialog(null, "Please select an item to resupply");
         }
     }
+
     // Hover Effects - Mouse Enter
     private void editButtonMouseEntered(MouseEvent e) {
-        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/editItemButtonActive.png"))).getImage();
+        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyItemButtonActive.png"))).getImage();
         ((ImageButton) editButton).setBackgroundImage(editItemBg);
     }
     // Hover Effects - Mouse Exit
     private void editButtonMouseExited(MouseEvent e) {
-        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/editItemButton.png"))).getImage();
+        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyItemButton.png"))).getImage();
         ((ImageButton) editButton).setBackgroundImage(editItemBg);
     }
     // Hover Effects - Mouse Press
     private void editButtonMousePressed(MouseEvent e) {
-        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/editItemButtonPressed.png"))).getImage();
+        Image editItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyItemButtonPressed.png"))).getImage();
         ((ImageButton) editButton).setBackgroundImage(editItemBg);
     }
 
@@ -266,6 +276,7 @@ public class Resupply extends JPanel {
     private void refresh(ActionEvent e) {
         String query = searchField.getText().trim();
         populateTable(query);
+        populateResupplyHistory();
     }
     // Hover Effects - Mouse Enter
     private void refreshButtonMouseEntered(MouseEvent e) {
@@ -295,6 +306,9 @@ public class Resupply extends JPanel {
         searchField = new JTextField();
         scrollPane1 = new JScrollPane();
         inventoryTable = new JTable();
+        scrollPane2 = new JScrollPane();
+        resupplyTable = new JTable();
+        resupplyHistoryTableLabel = new JTextField();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -307,13 +321,13 @@ public class Resupply extends JPanel {
             sidePanel.setPreferredSize(new Dimension(260, 820));
 
             //---- appNameLabel ----
-            appNameLabel.setText("SCAPE Project");
+            appNameLabel.setText("Databyte");
             appNameLabel.setFont(new Font("Segoe UI Black", Font.ITALIC, 30));
             appNameLabel.setForeground(Color.white);
             appNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
             //---- appNameSubLabel ----
-            appNameSubLabel.setText("by group 2");
+            appNameSubLabel.setText("by group 7");
             appNameSubLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
             appNameSubLabel.setForeground(Color.white);
             appNameSubLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -392,31 +406,6 @@ public class Resupply extends JPanel {
             });
             salesButton.addActionListener(e -> sales(e));
 
-            //---- financialsButton ----
-            financialsButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
-            financialsButton.setForeground(new Color(0x6c39c1));
-            financialsButton.setBackground(new Color(0x6c39c1));
-            financialsButton.setBorder(null);
-            financialsButton.setHorizontalAlignment(SwingConstants.LEFT);
-            financialsButton.setFocusable(false);
-            financialsButton.setBorderPainted(false);
-            financialsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            financialsButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    financialsButtonMouseEntered(e);
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    financialsButtonMouseExited(e);
-                }
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    financialsButtonMousePressed(e);
-                }
-            });
-            financialsButton.addActionListener(e -> financials(e));
-
             //---- resupplyButton ----
             resupplyButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
             resupplyButton.setForeground(new Color(0x6c39c1));
@@ -480,7 +469,6 @@ public class Resupply extends JPanel {
                                 .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
                                 .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
                             .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(19, Short.MAX_VALUE))
             );
@@ -498,10 +486,8 @@ public class Resupply extends JPanel {
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(salesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resupplyButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 366, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 417, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -527,7 +513,7 @@ public class Resupply extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(1036, Short.MAX_VALUE))
+                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
@@ -622,6 +608,27 @@ public class Resupply extends JPanel {
             scrollPane1.setViewportView(inventoryTable);
         }
 
+        //======== scrollPane2 ========
+        {
+            scrollPane2.setBorder(null);
+            scrollPane2.setBackground(new Color(0xfcf8ff));
+            scrollPane2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+            //---- resupplyTable ----
+            resupplyTable.setRowHeight(40);
+            resupplyTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            scrollPane2.setViewportView(resupplyTable);
+        }
+
+        //---- resupplyHistoryTableLabel ----
+        resupplyHistoryTableLabel.setText("Resupply History");
+        resupplyHistoryTableLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        resupplyHistoryTableLabel.setBackground(new Color(0xe8e7f4));
+        resupplyHistoryTableLabel.setForeground(new Color(0x251779));
+        resupplyHistoryTableLabel.setBorder(null);
+        resupplyHistoryTableLabel.setFocusable(false);
+        resupplyHistoryTableLabel.setEditable(false);
+
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
         layout.setHorizontalGroup(
@@ -633,8 +640,13 @@ public class Resupply extends JPanel {
                         .addComponent(controlsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createSequentialGroup()
                             .addGap(18, 18, 18)
-                            .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 1102, Short.MAX_VALUE)
-                            .addGap(20, 20, 20))))
+                            .addGroup(layout.createParallelGroup()
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(resupplyHistoryTableLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addGap(0, 0, Short.MAX_VALUE))
+                                .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 1116, Short.MAX_VALUE)
+                                .addComponent(scrollPane2))
+                            .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup()
@@ -644,7 +656,11 @@ public class Resupply extends JPanel {
                     .addGap(0, 0, 0)
                     .addComponent(controlsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(18, 18, 18)
-                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 645, Short.MAX_VALUE)
+                    .addComponent(scrollPane1, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(resupplyHistoryTableLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                    .addGap(18, 18, 18)
+                    .addComponent(scrollPane2, GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
                     .addGap(20, 20, 20))
         );
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
@@ -657,7 +673,6 @@ public class Resupply extends JPanel {
     private JButton dashboardButton;
     private JButton inventoryButton;
     private JButton salesButton;
-    private JButton financialsButton;
     private JButton resupplyButton;
     private JButton exitButton;
     private JPanel windowTitleContainer;
@@ -668,6 +683,9 @@ public class Resupply extends JPanel {
     private JButton editButton;
     private JScrollPane scrollPane1;
     private JTable inventoryTable;
+    private JScrollPane scrollPane2;
+    private JTable resupplyTable;
+    private JTextField resupplyHistoryTableLabel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     //
@@ -758,6 +776,59 @@ public class Resupply extends JPanel {
         inventoryTable.getTableHeader().setReorderingAllowed(false);
     }
 
+    // Style the resupply history table
+    private void setResupplyTableTheme() {
+        resupplyTable.setShowGrid(false);
+        DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (isSelected) {
+                    label.setBackground(Color.decode("#A59BDA"));
+                    label.setForeground(Color.BLACK);
+                } else {
+                    label.setBackground(row % 2 == 0 ? Color.decode("#D4CFED") : Color.WHITE);
+                    label.setForeground(Color.BLACK);
+                }
+
+                // Apply left padding
+                label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                label.setHorizontalAlignment(SwingConstants.LEFT);
+
+                return label;
+            }
+        };
+
+        // Apply renderer to all columns
+        for (int i = 0; i < resupplyTable.getColumnCount(); i++) {
+            resupplyTable.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        // Set Table Header Style
+        JTableHeader header = resupplyTable.getTableHeader();
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                label.setBorder(BorderFactory.createEmptyBorder()); // No borders
+                label.setBackground(Color.decode("#6c39c1")); // Change background
+                label.setForeground(Color.WHITE); // Change foreground
+                label.setHorizontalAlignment(SwingConstants.CENTER); // Center text
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                return label;
+            }
+        });
+
+        // Lock Column Re-order
+        resupplyTable.getTableHeader().setReorderingAllowed(false);
+    }
+
     //
     // SQL Functionalities Section
     //
@@ -781,7 +852,13 @@ public class Resupply extends JPanel {
 
             ResultSet rs = pst.executeQuery();
 
-            DefaultTableModel model = new DefaultTableModel();
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Make all cells non-editable
+                }
+            };
+
             model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price"});
 
             while (rs.next()) {
@@ -799,6 +876,44 @@ public class Resupply extends JPanel {
             setTableTheme();
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error loading inventory: " + ex.getMessage());
+        }
+    }
+
+    void populateResupplyHistory() {
+        String sql = "SELECT resupply_id, item_id, item_name, quantity, supplier_name, unit_cost, total_cost, resupply_date " +
+                "FROM resupply_history ORDER BY resupply_date DESC";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Make all cells non-editable
+                }
+            };
+
+            model.setColumnIdentifiers(new String[]{"ID", "Item ID", "Item Name", "Quantity", "Supplier", "Unit Cost", "Total Cost", "Date"});
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getInt("resupply_id"),
+                        rs.getString("item_id"),
+                        rs.getString("item_name"),
+                        rs.getInt("quantity"),
+                        rs.getString("supplier_name"),
+                        rs.getDouble("unit_cost"),
+                        rs.getDouble("total_cost"),
+                        rs.getTimestamp("resupply_date")
+                });
+            }
+
+            resupplyTable.setModel(model);
+            setResupplyTableTheme();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading resupply history: " + ex.getMessage());
         }
     }
 

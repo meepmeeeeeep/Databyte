@@ -5,11 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DBConnection {
-    public static final String DB_URL = "jdbc:mysql://sql12.freesqldatabase.com/sql12778158"; // DB URL
-    public static final String DB_USER = "sql12778158"; // DB username
-    public static final String DB_PASSWORD = "bggRtELWar"; // DB password
+    public static final String DB_URL = "jdbc:mysql://localhost:3306/inventory_system"; // DB URL
+    public static final String DB_USER = "root"; // DB username
+    public static final String DB_PASSWORD = ""; // DB password
 
-    public DBConnection() {
+    public void initDatabase() {
         createUsersTable(); // Ensure users table exists at startup
         createInventoryTable(); // Ensure inventory table exists at startup
         createTransactionTable(); // Ensure sales table exists at startup
@@ -26,6 +26,18 @@ public class DBConnection {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(createTableSQL);
+
+            // Check if admin exists before inserting
+            String checkAdminSQL = "SELECT COUNT(*) FROM users WHERE username = 'admin'";
+            ResultSet rs = stmt.executeQuery(checkAdminSQL);
+            rs.next();
+            int count = rs.getInt(1);
+
+            // Only insert if admin doesn't exist
+            if (count == 0) {
+                String insertAdminSQL = "INSERT INTO users (username, password, role) VALUES ('admin', 'admin', 'Admin')";
+                stmt.executeUpdate(insertAdminSQL);
+            }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

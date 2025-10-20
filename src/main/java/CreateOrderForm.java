@@ -365,7 +365,7 @@ public class CreateOrderForm extends JPanel {
             priceField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- priceLabel ----
-            priceLabel.setText("Price:");
+            priceLabel.setText("Unit Price:");
             priceLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             priceLabel.setBackground(new Color(0xfcf8ff));
             priceLabel.setForeground(new Color(0x897cce));

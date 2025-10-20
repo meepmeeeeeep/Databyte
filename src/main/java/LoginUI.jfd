@@ -18,7 +18,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "scapeLabel"
-				"text": "SCAPE"
+				"text": "Databyte"
 				"font": new java.awt.Font( "Segoe UI", 1, 36 )
 				"foreground": new java.awt.Color( 37, 23, 121, 255 )
 				"background": new java.awt.Color( 252, 248, 255, 255 )

@@ -21,7 +21,7 @@ new FormModel {
 				"preferredSize": new java.awt.Dimension( 30, 820 )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::722:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::677:x}}"
 				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
 			} ) {
 				name: "windowTitleContainer"
@@ -56,7 +56,8 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemNameField"
 					"border": &MatteBorder0 new javax.swing.border.MatteBorder( 0, 0, 1, 0, sfield java.awt.Color black )
-					"background": &Color2 new java.awt.Color( 232, 231, 244, 255 )
+					"background": &Color2 new java.awt.Color( 252, 248, 255, 255 )
+					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemIDLabel"
@@ -72,15 +73,17 @@ new FormModel {
 					name: "itemIDField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceLabel"
-					"text": "Unit Price:"
+					"text": "Price:"
 					"font": #Font0
 					"background": #Color0
 					"foreground": #Color1
@@ -91,7 +94,7 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "quantityField"
 					"border": #MatteBorder0
-					"background": #Color2
+					"background": new java.awt.Color( 232, 231, 244, 255 )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "quantityLabel"
@@ -135,6 +138,7 @@ new FormModel {
 					name: "categoryField"
 					"border": #MatteBorder0
 					"background": #Color2
+					"editable": false
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {

@@ -10,8 +10,8 @@ new FormModel {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq {space ::19:x, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp financialsButton::t:p:222:p, comp resupplyButton::t:p:222:p}, space ::19:x}}"
-				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space ::366:x, comp exitButton:::p:45:p, space :p:20:p}}"
+				"$horizontalGroup": "par l {seq {space ::19:x, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p}, space ::19:x}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space ::417:x, comp exitButton:::p:45:p, space :p:20:p}}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -20,14 +20,14 @@ new FormModel {
 				"preferredSize": new java.awt.Dimension( 260, 820 )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "appNameLabel"
-					"text": "SCAPE Project"
+					"text": "Databyte"
 					"font": new java.awt.Font( "Segoe UI Black", 2, 30 )
 					"foreground": &Color0 new java.awt.Color( 255, 255, 255, 255 )
 					"horizontalAlignment": 0
 				} )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "appNameSubLabel"
-					"text": "by group 2"
+					"text": "by group 7"
 					"font": new java.awt.Font( "Segoe UI Semibold", 0, 12 )
 					"foreground": #Color0
 					"horizontalAlignment": 4
@@ -74,21 +74,6 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "salesButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "salesButtonMousePressed", true ) )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "sales", true ) )
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "financialsButton"
-					"font": #Font0
-					"foreground": #Color1
-					"background": #Color2
-					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
-					"horizontalAlignment": 2
-					"focusable": false
-					"borderPainted": false
-					"cursor": #Cursor0
-					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "financialsButtonMouseEntered", true ) )
-					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "financialsButtonMouseExited", true ) )
-					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "financialsButtonMousePressed", true ) )
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "financials", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "resupplyButton"

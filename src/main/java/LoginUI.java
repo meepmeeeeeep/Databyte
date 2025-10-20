@@ -119,7 +119,7 @@ public class LoginUI extends JPanel {
         welcomeLabel.setBackground(new Color(0xfcf8ff));
 
         //---- scapeLabel ----
-        scapeLabel.setText("SCAPE");
+        scapeLabel.setText("Databyte");
         scapeLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
         scapeLabel.setForeground(new Color(0x251779));
         scapeLabel.setBackground(new Color(0xfcf8ff));
@@ -196,44 +196,44 @@ public class LoginUI extends JPanel {
         GroupLayout layout = new GroupLayout(this);
         setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup()
-                .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                    .addGap(0, 950, Short.MAX_VALUE)
-                    .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE))
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(96, 96, 96)
-                    .addGroup(layout.createParallelGroup()
-                        .addComponent(loginButton, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(passwordLabel)
-                        .addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(usernameLabel)
-                        .addComponent(welcomeLabel)
-                        .addComponent(scapeLabel)
-                        .addComponent(usernameField, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
-                        .addComponent(errorLabel))
-                    .addContainerGap(624, Short.MAX_VALUE))
+                layout.createParallelGroup()
+                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 950, Short.MAX_VALUE)
+                                .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(96, 96, 96)
+                                .addGroup(layout.createParallelGroup()
+                                        .addComponent(loginButton, GroupLayout.PREFERRED_SIZE, 145, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(passwordLabel)
+                                        .addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(usernameLabel)
+                                        .addComponent(welcomeLabel)
+                                        .addComponent(scapeLabel)
+                                        .addComponent(usernameField, GroupLayout.PREFERRED_SIZE, 280, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(errorLabel))
+                                .addContainerGap(624, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup()
-                .addGroup(layout.createSequentialGroup()
-                    .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
-                    .addGap(124, 124, 124)
-                    .addComponent(welcomeLabel)
-                    .addGap(0, 0, 0)
-                    .addComponent(scapeLabel)
-                    .addGap(47, 47, 47)
-                    .addComponent(usernameLabel)
-                    .addGap(0, 0, 0)
-                    .addComponent(usernameField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-                    .addGap(18, 18, 18)
-                    .addComponent(passwordLabel)
-                    .addGap(0, 0, 0)
-                    .addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(errorLabel)
-                    .addGap(12, 12, 12)
-                    .addComponent(loginButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(167, Short.MAX_VALUE))
+                layout.createParallelGroup()
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 50, GroupLayout.PREFERRED_SIZE)
+                                .addGap(124, 124, 124)
+                                .addComponent(welcomeLabel)
+                                .addGap(0, 0, 0)
+                                .addComponent(scapeLabel)
+                                .addGap(47, 47, 47)
+                                .addComponent(usernameLabel)
+                                .addGap(0, 0, 0)
+                                .addComponent(usernameField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(passwordLabel)
+                                .addGap(0, 0, 0)
+                                .addComponent(passwordField, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(errorLabel)
+                                .addGap(12, 12, 12)
+                                .addComponent(loginButton, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(167, Short.MAX_VALUE))
         );
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }

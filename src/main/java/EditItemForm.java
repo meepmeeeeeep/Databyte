@@ -205,7 +205,7 @@ public class EditItemForm extends JPanel {
             priceField.setBackground(new Color(0xe8e7f4));
 
             //---- priceLabel ----
-            priceLabel.setText("Price:");
+            priceLabel.setText("Unit Price:");
             priceLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             priceLabel.setBackground(new Color(0xfcf8ff));
             priceLabel.setForeground(new Color(0x897cce));

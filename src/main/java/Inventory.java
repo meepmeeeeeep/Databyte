@@ -32,9 +32,9 @@ public class Inventory extends JPanel {
         Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButton.png"))).getImage();
         salesButton = new ImageButton(salesBg, "");
 
-        //---- financialsButton ----
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
-        financialsButton = new ImageButton(financialsBg, "");
+//        //---- financialsButton ----
+//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
+//        financialsButton = new ImageButton(financialsBg, "");
 
         //---- resupplyButton ----
         Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButton.png"))).getImage();
@@ -178,24 +178,25 @@ public class Inventory extends JPanel {
     }
 
 
-    //
-    // Financials Button Event Listener Methods
-    //
-    // Hover Effects - Mouse Enter
-    private void financialsButtonMouseEntered(MouseEvent e) {
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonActive.png"))).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
-    // Hover Effects - Mouse Exit
-    private void financialsButtonMouseExited(MouseEvent e) {
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
-    // Hover Effects - Mouse Press
-    private void financialsButtonMousePressed(MouseEvent e) {
-        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonPressed.png"))).getImage();
-        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-    }
+//    //
+//    // Financials Button Event Listener Methods
+//    //
+//    // Hover Effects - Mouse Enter
+//    private void financialsButtonMouseEntered(MouseEvent e) {
+//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonActive.png"))).getImage();
+//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+//    // Hover Effects - Mouse Exit
+//    private void financialsButtonMouseExited(MouseEvent e) {
+//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
+//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+//    // Hover Effects - Mouse Press
+//    private void financialsButtonMousePressed(MouseEvent e) {
+//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonPressed.png"))).getImage();
+//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+//    }
+
     // Action Listener Method
     private void financials(ActionEvent e) {
         // TODO
@@ -366,13 +367,13 @@ public class Inventory extends JPanel {
             sidePanel.setPreferredSize(new Dimension(260, 820));
 
             //---- appNameLabel ----
-            appNameLabel.setText("SCAPE Project");
+            appNameLabel.setText("Databyte");
             appNameLabel.setFont(new Font("Segoe UI Black", Font.ITALIC, 30));
             appNameLabel.setForeground(Color.white);
             appNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
             //---- appNameSubLabel ----
-            appNameSubLabel.setText("by group 2");
+            appNameSubLabel.setText("by group 7");
             appNameSubLabel.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 12));
             appNameSubLabel.setForeground(Color.white);
             appNameSubLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -450,31 +451,6 @@ public class Inventory extends JPanel {
             });
             salesButton.addActionListener(e -> sales(e));
 
-            //---- financialsButton ----
-            financialsButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
-            financialsButton.setForeground(new Color(0x6c39c1));
-            financialsButton.setBackground(new Color(0x6c39c1));
-            financialsButton.setBorder(null);
-            financialsButton.setHorizontalAlignment(SwingConstants.LEFT);
-            financialsButton.setFocusable(false);
-            financialsButton.setBorderPainted(false);
-            financialsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            financialsButton.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    financialsButtonMouseEntered(e);
-                }
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    financialsButtonMouseExited(e);
-                }
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    financialsButtonMousePressed(e);
-                }
-            });
-            financialsButton.addActionListener(e -> financials(e));
-
             //---- resupplyButton ----
             resupplyButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
             resupplyButton.setForeground(new Color(0x6c39c1));
@@ -539,7 +515,6 @@ public class Inventory extends JPanel {
                                 .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
                                 .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
                             .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(19, Short.MAX_VALUE))
             );
@@ -557,10 +532,8 @@ public class Inventory extends JPanel {
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(salesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resupplyButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 366, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 417, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -758,7 +731,6 @@ public class Inventory extends JPanel {
     private JButton dashboardButton;
     private JButton inventoryButton;
     private JButton salesButton;
-    private JButton financialsButton;
     private JButton resupplyButton;
     private JButton exitButton;
     private JPanel windowTitleContainer;
@@ -864,7 +836,7 @@ public class Inventory extends JPanel {
     //
     // SQL Functionalities Section
     //
-     // Refresh/Populate Table
+    // Refresh/Populate Table
     void populateTable() {
         populateTable("");
     }
@@ -883,7 +855,13 @@ public class Inventory extends JPanel {
 
             ResultSet rs = pst.executeQuery();
 
-            DefaultTableModel model = new DefaultTableModel();
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Make all cells non-editable
+                }
+            };
+
             model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price"});
 
             while (rs.next()) {

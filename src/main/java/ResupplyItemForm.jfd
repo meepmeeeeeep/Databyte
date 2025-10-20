@@ -5,14 +5,14 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :p:25:p, comp panel1:::::x, space :p:25:p}}}}"
-			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::380:x}"
+			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::745:x}"
 		} ) {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			"minimumSize": new java.awt.Dimension( 850, 380 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 				"$horizontalGroup": "par l {space :0:30:x}"
-				"$verticalGroup": "par l {space :0:380:x}"
+				"$verticalGroup": "par l {space :0:745:x}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -29,26 +29,26 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel"
 					"text": "Resupply Item"
-					"font": new java.awt.Font( "Segoe UI", 1, 18 )
+					"font": &Font0 new java.awt.Font( "Segoe UI", 1, 18 )
 					"background": &Color0 new java.awt.Color( 252, 248, 255, 255 )
-					"foreground": new java.awt.Color( 37, 23, 121, 255 )
+					"foreground": &Color1 new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:25:p, par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p}, space :p:50:p, par l:::p {comp quantityLabel:::p::p, comp priceLabel:::p::p, comp priceField::l::220:x, comp quantityField::l::220:x, seq l {comp addButton:::p:100:p, space :::x, comp cancelButton:::p:100:p}}, space ::25:x}}"
-				"$verticalGroup": "par l {seq l {space :p:25:p, par t {seq {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space s:::p, par l {seq {comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p}, seq {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, space s:::p, comp categoryLabel:::p::p, space :3:3:p, par b {comp categoryField::b:p:35:p, comp cancelButton::b:p:38:p, comp addButton::b:p:38:p}, space ::21:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:25:p, par t {seq t {comp addButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}, par l:t {seq {par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p, comp itemInformationLabel::l:p::p}, space :p:50:p, par l {comp priceLabel:::p::p, comp priceField::l:p:220:p}}, seq {par l {comp supplierNameLabel::l:p::p, comp supplierNameFIeld::l:p:450:p, comp supplierAddressLabel::l:p::p, comp supplierAddressField::l:p:450:p, comp supplierContactNumberLabel::l:p::p, comp supplierContactNumberField::l:p:450:p, comp resupplyInformationLabel::l:p::p}, space :p:50:p, par l {comp totalCostLabel:::p::p, comp totalCostField:::p:220:p, comp unitCostLabel:::p::p, comp unitCostField:::p:220:p, comp quantityLabel:::p::p, comp quantityField::l:p:220:p}}}}, space ::25:x}}"
+				"$verticalGroup": "par l {seq l {space ::11:x, comp itemInformationLabel:::p::p, space u:::p, par t {seq t {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq t {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space s:::p, comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p, space s:::p, comp categoryLabel:::p::p, space :6:6:p, comp categoryField:::p:35:p, space s:::p, comp resupplyInformationLabel:::p::p, space :p:12:p, par t {seq t {comp supplierNameLabel:::p::p, space :6:6:p, comp supplierNameFIeld:::p:35:p}, seq t {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, space s:::p, par l {seq l {comp supplierAddressLabel:::p::p, space :6:6:p, comp supplierAddressField:::p:35:p}, seq l {comp unitCostLabel:::p::p, space :6:6:p, comp unitCostField:::p:35:p}}, space s:::p, par l {seq l {comp supplierContactNumberLabel:::p::p, space :6:6:p, comp supplierContactNumberField:::p:35:p}, seq l {comp totalCostLabel:::p::p, space :6:6:p, comp totalCostField:::p:35:p}}, space s:::p, par b {comp cancelButton::b:p:38:p, comp addButton::b:p:38:p}, space :p:27:p}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemNameLabel"
 					"text": "Item Name:"
-					"font": &Font0 new java.awt.Font( "Segoe UI Semibold", 1, 16 )
+					"font": &Font1 new java.awt.Font( "Segoe UI Semibold", 1, 16 )
 					"background": #Color0
-					"foreground": &Color1 new java.awt.Color( 137, 124, 206, 255 )
+					"foreground": &Color2 new java.awt.Color( 137, 124, 206, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -56,15 +56,15 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemNameField"
 					"border": &MatteBorder0 new javax.swing.border.MatteBorder( 0, 0, 1, 0, sfield java.awt.Color black )
-					"background": &Color2 new java.awt.Color( 252, 248, 255, 255 )
+					"background": &Color3 new java.awt.Color( 252, 248, 255, 255 )
 					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemIDLabel"
 					"text": "Item ID:"
-					"font": #Font0
+					"font": #Font1
 					"background": #Color0
-					"foreground": #Color1
+					"foreground": #Color2
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -72,21 +72,21 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "itemIDField"
 					"border": #MatteBorder0
-					"background": #Color2
+					"background": #Color3
 					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceField"
 					"border": #MatteBorder0
-					"background": #Color2
 					"editable": false
+					"background": new java.awt.Color( 252, 248, 255, 255 )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "priceLabel"
-					"text": "Price:"
-					"font": #Font0
+					"text": "Unit Price:"
+					"font": #Font1
 					"background": #Color0
-					"foreground": #Color1
+					"foreground": #Color2
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -94,14 +94,14 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "quantityField"
 					"border": #MatteBorder0
-					"background": new java.awt.Color( 232, 231, 244, 255 )
+					"background": &Color4 new java.awt.Color( 232, 231, 244, 255 )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "quantityLabel"
 					"text": "Quantity:"
-					"font": #Font0
+					"font": #Font1
 					"background": #Color0
-					"foreground": #Color1
+					"foreground": #Color2
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -109,24 +109,116 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "addButton"
 					"text": "CONFIRM"
-					"background": &Color3 new java.awt.Color( 108, 57, 193, 255 )
-					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 14 )
-					"foreground": &Color4 new java.awt.Color( 252, 248, 255, 255 )
+					"background": &Color5 new java.awt.Color( 108, 57, 193, 255 )
+					"font": &Font2 new java.awt.Font( "Segoe UI", 1, 14 )
+					"foreground": &Color6 new java.awt.Color( 252, 248, 255, 255 )
 					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "edit", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "cancelButton"
 					"text": "CANCEL"
-					"background": #Color3
-					"font": #Font1
-					"foreground": #Color4
+					"background": #Color5
+					"font": #Font2
+					"foreground": #Color6
 					"focusable": false
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancel", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "categoryLabel"
 					"text": "Category:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "categoryField"
+					"border": #MatteBorder0
+					"background": #Color3
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "supplierNameLabel"
+					"text": "Supplier Name:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "supplierNameFIeld"
+					"border": #MatteBorder0
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "supplierAddressLabel"
+					"text": "Supplier Address: (Optional)"
+					"font": #Font1
+					"background": #Color0
+					"foreground": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "supplierAddressField"
+					"border": #MatteBorder0
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "supplierContactNumberLabel"
+					"text": "Supplier Contact Number: (Optional)"
+					"font": #Font1
+					"background": #Color0
+					"foreground": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "supplierContactNumberField"
+					"border": #MatteBorder0
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "unitCostLabel"
+					"text": "Unit Cost:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "unitCostField"
+					"border": #MatteBorder0
+					"background": #Color4
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "totalCostLabel"
+					"text": "Total Cost:"
+					"font": #Font1
+					"background": #Color0
+					"foreground": #Color2
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "totalCostField"
+					"border": #MatteBorder0
+					"background": new java.awt.Color( 252, 248, 255, 255 )
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "resupplyInformationLabel"
+					"text": "Resupply Information"
 					"font": #Font0
 					"background": #Color0
 					"foreground": #Color1
@@ -135,15 +227,19 @@ new FormModel {
 					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "categoryField"
-					"border": #MatteBorder0
-					"background": #Color2
+					name: "itemInformationLabel"
+					"text": "Item Information"
+					"font": #Font0
+					"background": #Color0
+					"foreground": #Color1
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
 					"editable": false
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 10, 5 )
-			"size": new java.awt.Dimension( 850, 380 )
+			"size": new java.awt.Dimension( 850, 745 )
 		} )
 	}
 }

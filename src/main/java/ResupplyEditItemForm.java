@@ -1,20 +1,19 @@
-// AddItemForm.java
+// EditItemForm.java
 
-import java.awt.*;
-import java.awt.event.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import javax.swing.*;
-import javax.swing.GroupLayout;
-import javax.swing.LayoutStyle;
-import javax.swing.border.*;
-public class AddItemForm extends JPanel {
-    private final Inventory inventory;
+import javax.swing.border.MatteBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.sql.*;
 
-    public AddItemForm(Inventory inventory) {
-        this.inventory = inventory;
+public class ResupplyEditItemForm extends JPanel {
+    private final String originalItemId;
+    private final Resupply resupply;
+
+    public ResupplyEditItemForm(String itemId, Resupply resupply) {
+        this.resupply = resupply;
+        // Store the Original Item ID Value
+        this.originalItemId = itemId;
 
         initComponents();
 
@@ -39,58 +38,62 @@ public class AddItemForm extends JPanel {
                 categoryField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+
+        fetchDBData(itemId);
     }
 
     private void cancel(ActionEvent e) {
         SwingUtilities.getWindowAncestor(this).dispose(); // Close Add Item Form
     }
 
-    private void add(ActionEvent e) {
-        String itemName = itemNameField.getText().trim();
-        String itemID = itemIDField.getText().trim();
-        String category = categoryField.getText().trim();
-        String priceText = priceField.getText().trim();
-        String quantityText = quantityField.getText().trim();
+    private void edit(ActionEvent e) {
+        // Get the updated values from the text fields
+        String updatedItemID = itemIDField.getText();
+        String updatedItemName = itemNameField.getText();
+        String updatedCategory = categoryField.getText();
+        String updatedQuantity = quantityField.getText();
+        String updatedPrice = priceField.getText();
 
-        // Validation
-        if (itemName.isEmpty() || itemID.isEmpty() || category.isEmpty() ||
-                priceText.isEmpty() || quantityText.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all fields.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+        // Validate if all fields are filled
+        if (updatedItemName.isEmpty() || updatedCategory.isEmpty() || updatedQuantity.isEmpty() || updatedPrice.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill all fields.");
             return;
         }
 
+        // Update the item in the database
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-            double price = Double.parseDouble(priceText);
-            int quantity = Integer.parseInt(quantityText);
+            double price = Double.parseDouble(updatedPrice);
+            int quantity = Integer.parseInt(updatedQuantity);
 
             if (quantity <= 0 || price <= 0) {
                 JOptionPane.showMessageDialog(this, "Quantity and Price must be positive numbers.", "Validation Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            String sql = "INSERT INTO inventory (item_id, item_name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
+            String sql = "UPDATE inventory SET item_id = ?, item_name = ?, category = ?, quantity = quantity + ?, price = ? WHERE item_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, itemID);
-            pstmt.setString(2, itemName);
-            pstmt.setString(3, category);
+            pstmt.setString(1, updatedItemID);
+            pstmt.setString(2, updatedItemName);
+            pstmt.setString(3, updatedCategory);
             pstmt.setInt(4, quantity);
             pstmt.setDouble(5, price);
+            pstmt.setString(6, originalItemId);
 
-            int rowsInserted = pstmt.executeUpdate();
+            int rowsAffected = pstmt.executeUpdate();
 
-            if (rowsInserted > 0) {
-                JOptionPane.showMessageDialog(this, "Item added successfully!");
-                inventory.populateTable();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Item updated successfully.");
+                resupply.populateTable();
                 SwingUtilities.getWindowAncestor(this).dispose(); // Close the form
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to add item.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Failed to edit item.", "Error", JOptionPane.ERROR_MESSAGE);
             }
 
             pstmt.close();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Price and Quantity must be numeric.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error updating item: " + ex.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -141,7 +144,7 @@ public class AddItemForm extends JPanel {
             windowTitleContainer.setBackground(new Color(0xfcf8ff));
 
             //---- dashboardLabel ----
-            dashboardLabel.setText("Add Item");
+            dashboardLabel.setText("Edit Item");
             dashboardLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             dashboardLabel.setBackground(new Color(0xfcf8ff));
             dashboardLabel.setForeground(new Color(0x251779));
@@ -156,7 +159,7 @@ public class AddItemForm extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(720, Short.MAX_VALUE))
+                        .addContainerGap(677, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
@@ -182,7 +185,8 @@ public class AddItemForm extends JPanel {
 
             //---- itemNameField ----
             itemNameField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            itemNameField.setBackground(new Color(0xe8e7f4));
+            itemNameField.setBackground(new Color(0xfcf8ff));
+            itemNameField.setEditable(false);
 
             //---- itemIDLabel ----
             itemIDLabel.setText("Item ID:");
@@ -195,14 +199,16 @@ public class AddItemForm extends JPanel {
 
             //---- itemIDField ----
             itemIDField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            itemIDField.setBackground(new Color(0xe8e7f4));
+            itemIDField.setBackground(new Color(0xfcf8ff));
+            itemIDField.setEditable(false);
 
             //---- priceField ----
             priceField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            priceField.setBackground(new Color(0xe8e7f4));
+            priceField.setBackground(new Color(0xfcf8ff));
+            priceField.setEditable(false);
 
             //---- priceLabel ----
-            priceLabel.setText("Unit Price:");
+            priceLabel.setText("Price:");
             priceLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             priceLabel.setBackground(new Color(0xfcf8ff));
             priceLabel.setForeground(new Color(0x897cce));
@@ -224,12 +230,12 @@ public class AddItemForm extends JPanel {
             quantityLabel.setEditable(false);
 
             //---- addButton ----
-            addButton.setText("ADD");
+            addButton.setText("CONFIRM");
             addButton.setBackground(new Color(0x6c39c1));
             addButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
             addButton.setForeground(new Color(0xfcf8ff));
             addButton.setFocusable(false);
-            addButton.addActionListener(e -> add(e));
+            addButton.addActionListener(e -> edit(e));
 
             //---- cancelButton ----
             cancelButton.setText("CANCEL");
@@ -250,7 +256,8 @@ public class AddItemForm extends JPanel {
 
             //---- categoryField ----
             categoryField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            categoryField.setBackground(new Color(0xe8e7f4));
+            categoryField.setBackground(new Color(0xfcf8ff));
+            categoryField.setEditable(false);
 
             GroupLayout panel1Layout = new GroupLayout(panel1);
             panel1.setLayout(panel1Layout);
@@ -354,4 +361,35 @@ public class AddItemForm extends JPanel {
     private JTextField categoryLabel;
     private JTextField categoryField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    private void fetchDBData(String itemId) {
+        // Fetch item data from DB
+        try {
+            Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+            String sql = "SELECT * FROM inventory WHERE item_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, itemId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                // Fill text fields with fetched data
+                itemIDField.setText(rs.getString("item_id"));
+                itemNameField.setText(rs.getString("item_name"));
+                categoryField.setText(rs.getString("category"));
+                quantityField.setText(rs.getString("quantity"));
+                priceField.setText(rs.getString("price"));
+            } else {
+                JOptionPane.showMessageDialog(this, "Item not found in database.");
+                SwingUtilities.getWindowAncestor(this).dispose();
+            }
+
+            pstmt.close();
+            rs.close();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading item: " + e.getMessage());
+            System.out.println(e.getMessage());
+            SwingUtilities.getWindowAncestor(this).dispose();
+        }
+    }
 }
