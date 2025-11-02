@@ -246,6 +246,10 @@ public class CreateOrderForm extends JPanel {
         if (!validateFields()) return;
 
         String itemId = itemIDField.getText();
+
+        // Validate that item details match the database
+        if (!validateItemDetails(itemId)) return;
+
         String itemName = itemNameField.getText();
         String category = categoryField.getText();
         double basePrice = Double.parseDouble(priceField.getText());
@@ -1291,5 +1295,44 @@ public class CreateOrderForm extends JPanel {
         }
 
         return true;
+    }
+
+    private boolean validateItemDetails(String itemId) {
+        String sql = "SELECT * FROM inventory WHERE item_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, itemId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Compare all fields with database values
+                boolean isValid =
+                        itemNameField.getText().equals(rs.getString("item_name")) &&
+                                categoryField.getText().equals(rs.getString("category")) &&
+                                String.format("%.2f", Double.parseDouble(priceField.getText())).equals(String.format("%.2f", rs.getDouble("price"))) &&
+                                vatTypeField.getSelectedItem().toString().equals(rs.getString("vat_type")) &&
+                                String.format("%.2f", Double.parseDouble(vatPriceField.getText())).equals(String.format("%.2f", rs.getDouble("vat_inclusive_price")));
+
+                if (!isValid) {
+                    JOptionPane.showMessageDialog(this,
+                            "Item details have been modified. Please use the auto-suggestion to fill correct item details.",
+                            "Validation Error", JOptionPane.WARNING_MESSAGE);
+                }
+                return isValid;
+            }
+
+            JOptionPane.showMessageDialog(this,
+                    "Item not found in inventory.",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Error validating item details: " + e.getMessage(),
+                    "Database Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
     }
 }

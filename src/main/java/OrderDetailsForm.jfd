@@ -21,8 +21,8 @@ new FormModel {
 				"preferredSize": new java.awt.Dimension( 30, 820 )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space :::x}}"
-				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::1181:x, comp printButton:::p:38:p, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:12:p, par l {comp dashboardLabel:::p::p, comp printButton:::p:38:p}, space ::9:x}}"
 			} ) {
 				name: "windowTitleContainer"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -35,6 +35,17 @@ new FormModel {
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "printButton"
+					"background": new java.awt.Color( 108, 57, 193, 255 )
+					"font": new java.awt.Font( "Segoe UI", 1, 14 )
+					"foreground": new java.awt.Color( 252, 248, 255, 255 )
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "printReceipt", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "printButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "printButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "printButtonMousePressed", true ) )
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {

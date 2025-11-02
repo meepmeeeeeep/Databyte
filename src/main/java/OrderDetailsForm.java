@@ -1,13 +1,21 @@
 // OderDetails.java
 
 import java.awt.*;
+import java.awt.Font;
+import java.awt.Image;
+import java.awt.event.*;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle;
 import javax.swing.border.*;
 import javax.swing.table.*;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.io.FileOutputStream;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class OrderDetailsForm extends JPanel {
 
@@ -22,6 +30,11 @@ public class OrderDetailsForm extends JPanel {
                             String paymentMethod,
                             String discountCode,
                             Object[][] cartData) {
+
+        // Use Custom Background Images for Buttons
+        //---- printButton ----
+        Image printBg = new ImageIcon(getClass().getResource("/assets/images/printButton.png")).getImage();
+        printButton = new ImageButton(printBg, "");
 
         initComponents();
 
@@ -62,7 +75,8 @@ public class OrderDetailsForm extends JPanel {
         ));
 
         // Set Form Label text
-        dashboardLabel.setText("Order Details - Transaction ID: " + transactionId + " | Date: " + date.toString());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dashboardLabel.setText("Order Details - Transaction ID: " + transactionId + " | Date: " + sdf.format(date));
 
         // Set customer information
         customerNameField.setText(customerName);
@@ -85,6 +99,143 @@ public class OrderDetailsForm extends JPanel {
         cartTable.setCellSelectionEnabled(false);
         cartTable.getTableHeader().setReorderingAllowed(false);
         cartTable.setFocusable(false);
+    }
+
+    //
+    // Print Button Event Listener Methods
+    //
+    // Hover Effects - Mouse Enter
+    private void printButtonMouseEntered(MouseEvent e) {
+        Image exitBg = new ImageIcon(getClass().getResource("/assets/images/printButtonActive.png")).getImage();
+        ((ImageButton) printButton).setBackgroundImage(exitBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void printButtonMouseExited(MouseEvent e) {
+        Image exitBg = new ImageIcon(getClass().getResource("/assets/images/printButton.png")).getImage();
+        ((ImageButton) printButton).setBackgroundImage(exitBg);
+    }
+    private void printButtonMousePressed(MouseEvent e) {
+        Image dashboardBg = new ImageIcon(getClass().getResource("/assets/images/printButtonPressed.png")).getImage();
+        ((ImageButton) printButton).setBackgroundImage(dashboardBg);
+    }
+
+    private void printReceipt(ActionEvent e) {
+        try {
+            Document document = new Document(com.itextpdf.text.PageSize.A4);
+            document.setPageSize(new com.itextpdf.text.Rectangle(226.772f, 842f)); // 80mm width
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Save Receipt");
+            fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Files", "pdf"));
+
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!filePath.toLowerCase().endsWith(".pdf")) {
+                    filePath += ".pdf";
+                }
+
+                PdfWriter.getInstance(document, new FileOutputStream(filePath));
+                document.open();
+
+                // Define consistent fonts
+                com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.COURIER, 8, com.itextpdf.text.Font.BOLD);
+                com.itextpdf.text.Font normalFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.COURIER, 7, com.itextpdf.text.Font.NORMAL);
+                com.itextpdf.text.Font smallFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.COURIER, 6, com.itextpdf.text.Font.NORMAL);
+
+                // Store header
+                Paragraph header = new Paragraph();
+                header.setAlignment(Element.ALIGN_CENTER);
+                header.add(new Chunk("Databyte\n", titleFont));
+                header.add(new Chunk("123 Main Street\n", smallFont));
+                header.add(new Chunk("Tel: (123) 456-7890\n\n", smallFont));
+                document.add(header);
+
+                // Transaction details
+                document.add(new Paragraph("Transaction ID: " + dashboardLabel.getText().split(":")[1].split("\\|")[0].trim(), normalFont));
+                document.add(new Paragraph("Date: " + dashboardLabel.getText().split("Date:")[1].trim(), normalFont));
+                document.add(new Paragraph("\nCustomer Information:", titleFont));
+                document.add(new Paragraph("Name: " + customerNameField.getText(), normalFont));
+
+                if (!customerPhoneField.getText().isEmpty()) {
+                    document.add(new Paragraph("Contact: " + customerPhoneField.getText(), normalFont));
+                }
+                if (!customerAddressField.getText().isEmpty()) {
+                    document.add(new Paragraph("Address: " + customerAddressField.getText(), normalFont));
+                }
+
+                // Payment Method and Discount Code in Order Details
+                document.add(new Paragraph("\nOrder Details", titleFont));
+                document.add(new Paragraph("Payment Method: " + paymentMethodField.getText(), normalFont));
+
+                document.add(new Paragraph("", normalFont)); // Empty line for spacing
+
+                // Items from cart table
+                DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
+
+                double originalTotal = 0.0;  // Track the original total before discount
+
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    String itemId = model.getValueAt(i, 0).toString();
+                    String itemName = model.getValueAt(i, 1).toString();
+                    int quantity = Integer.parseInt(model.getValueAt(i, 6).toString());
+                    double unitPrice = Double.parseDouble(model.getValueAt(i, 3).toString());
+                    double vatPrice = Double.parseDouble(model.getValueAt(i, 5).toString());
+
+                    // Calculate subtotal using VAT inclusive price
+                    double subtotal = vatPrice * quantity;
+                    originalTotal += subtotal;
+
+                    // Item details with aligned prices
+                    document.add(new Paragraph(itemId + " - " +
+                            (itemName.length() > 20 ? itemName.substring(0, 17) + "..." : itemName), normalFont));
+
+                    Paragraph priceDetails = new Paragraph();
+                    priceDetails.setIndentationLeft(10);
+                    priceDetails.add(new Chunk(String.format("x%d @ %8.2f\n", quantity, unitPrice), smallFont));
+                    priceDetails.add(new Chunk(String.format("VAT incl.: %8.2f\n", vatPrice), smallFont));
+                    priceDetails.add(new Chunk(String.format("Sub: %8.2f\n", subtotal), smallFont));
+                    document.add(priceDetails);
+                }
+
+                // Totals section
+                document.add(new Paragraph("\n", normalFont));
+                double total = Double.parseDouble(totalAmountField.getText());
+                double payment = Double.parseDouble(paymentAmountField.getText());
+                double change = payment - total;
+
+                double finalTotal = Double.parseDouble(totalAmountField.getText());
+
+                if (!discountCodeField.getText().isEmpty()) {
+                    double discountAmount = originalTotal - finalTotal;
+
+                    Paragraph discountInfo = new Paragraph();
+                    discountInfo.setAlignment(Element.ALIGN_RIGHT);
+                    discountInfo.add(new Chunk(String.format("Original Total: %8.2f\n", originalTotal), normalFont));
+                    discountInfo.add(new Chunk(String.format("Discount (%s): %8.2f\n", discountCodeField.getText(), discountAmount), normalFont));
+                    document.add(discountInfo);
+                }
+
+                Paragraph totals = new Paragraph();
+                totals.setAlignment(Element.ALIGN_RIGHT);
+                totals.add(new Chunk(String.format("Total: %8.2f\n", finalTotal), titleFont));
+                totals.add(new Chunk(String.format("Paid: %8.2f\n", payment), normalFont));
+                totals.add(new Chunk(String.format("Change: %8.2f\n", change), normalFont));
+                document.add(totals);
+
+                document.add(new Paragraph("\nThank you for shopping!", smallFont));
+                document.close();
+
+                JOptionPane.showMessageDialog(this,
+                        "Receipt saved successfully!",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error generating receipt: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void initComponents() {
@@ -152,6 +303,27 @@ public class OrderDetailsForm extends JPanel {
             dashboardLabel.setFocusable(false);
             dashboardLabel.setEditable(false);
 
+            //---- printButton ----
+            printButton.setBackground(new Color(0x6c39c1));
+            printButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            printButton.setForeground(new Color(0xfcf8ff));
+            printButton.setFocusable(false);
+            printButton.addActionListener(e -> printReceipt(e));
+            printButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    printButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    printButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    printButtonMousePressed(e);
+                }
+            });
+
             GroupLayout windowTitleContainerLayout = new GroupLayout(windowTitleContainer);
             windowTitleContainer.setLayout(windowTitleContainerLayout);
             windowTitleContainerLayout.setHorizontalGroup(
@@ -159,14 +331,18 @@ public class OrderDetailsForm extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 1181, Short.MAX_VALUE)
+                        .addComponent(printButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                        .addGap(20, 20, 20))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(17, Short.MAX_VALUE))
+                        .addGap(12, 12, 12)
+                        .addGroup(windowTitleContainerLayout.createParallelGroup()
+                            .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(printButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(9, Short.MAX_VALUE))
             );
         }
 
@@ -482,6 +658,7 @@ public class OrderDetailsForm extends JPanel {
     private JPanel sidePanel;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
+    private JButton printButton;
     private JPanel panel1;
     private JTextField customerNameField;
     private JTextField customeNameLabel;
@@ -519,6 +696,17 @@ public class OrderDetailsForm extends JPanel {
 
         // Add the cart data
         for (Object[] row : cartData) {
+            // Get the necessary values
+            double vatPrice = Double.parseDouble(row[5].toString());
+            int quantity = Integer.parseInt(row[6].toString());
+
+            // Calculate VAT inclusive subtotal
+            double vatInclusivePrice = vatPrice;
+            double subtotal = vatInclusivePrice * quantity;
+
+            // Update the subtotal in the row data
+            row[7] = subtotal;
+
             cartTableModel.addRow(row);
         }
 

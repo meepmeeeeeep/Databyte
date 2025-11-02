@@ -82,7 +82,7 @@ public class DBConnection {
                 + "customer_email VARCHAR(100), "
                 + "customer_phone VARCHAR(20), "
                 + "payment_amount DECIMAL(10,2) NOT NULL, "
-                + "payment_method VARCHAR(20) NOT NULL"
+                + "payment_method VARCHAR(20) NOT NULL, "
                 + "discount_code VARCHAR(50)"
                 + ")";
 

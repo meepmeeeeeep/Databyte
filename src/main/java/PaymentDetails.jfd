@@ -4,7 +4,7 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :p:25:p, comp panel1:::::x, space :p:25:p}}}}"
+			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :25:25:p, comp panel1:::::x, space :p:25:p}}}}"
 			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::420:x}"
 		} ) {
 			name: "this"
@@ -21,8 +21,8 @@ new FormModel {
 				"preferredSize": new java.awt.Dimension( 30, 820 )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::607:x}}"
-				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space :::x}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp dashboardLabel:::p::p, space ::15:x}}"
 			} ) {
 				name: "windowTitleContainer"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -38,8 +38,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:19:p, par l {comp totalAmountLabel:::p::p, comp totalAmountField:::p:450:p, comp paymentAmountLabel:::p::p, comp paymentAmountField:::p:450:p, comp paymentDetailsLabel::l:p::p, comp changeLabel:::p::p, comp changeField:::p:450:p}, space :p:50:p, par l {comp paymentMethodLabel:::p::p, comp paymentMethodField:::p:220:p, seq l {comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}}, space ::31:x}}"
-				"$verticalGroup": "par l {seq l {space :p:20:p, par l {seq l {comp paymentDetailsLabel:::p::p, space u:::p, comp totalAmountLabel:::p::p, space :6:6:p, comp totalAmountField:::p:35:p, space s:::p, comp paymentAmountLabel:::p::p, space :6:6:p, comp paymentAmountField:::p:35:p}, seq l {space :p:42:p, comp paymentMethodLabel:::p::p, space :::p, comp paymentMethodField:::p:35:p}}, space s:::p, comp changeLabel:::p::p, space :3:3:p, par b {comp changeField::b:p:35:p, comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p}, space :::x}}"
+				"$horizontalGroup": "par l {seq l {space :p:19:p, par l:::p {comp totalAmountLabel:::p::p, comp paymentAmountLabel:::p::p, comp paymentAmountField::::450:x, comp paymentDetailsLabel::l:p::p, comp changeLabel:::p::p, comp changeField::::450:x, comp totalAmountField::l::450:x}, space ::31:x, par l:::p {seq {comp printButton:::p:38:p, space :::p, comp confirmButton:::p:100:p, space :::p, comp cancelButton:::p:100:p}, comp paymentMethodLabel:::p::p, comp paymentMethodField::l:::x}, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:20:p, comp paymentDetailsLabel:::p::p, space u:::p, par t {seq {comp totalAmountLabel:::p::p, space :::p, comp totalAmountField:::p:35:p}, seq {comp paymentMethodLabel:::p::p, space :::p, comp paymentMethodField:::p:35:p}}, space s:::p, comp paymentAmountLabel:::p::p, space :6:6:p, comp paymentAmountField:::p:35:p, space s:::p, comp changeLabel:::p::p, space :p:3:p, par b {comp changeField::b:p:35:p, par b:b {comp printButton::t:p:38:p, comp confirmButton::b:p:38:p, comp cancelButton::b:p:38:p}}, space ::24:x}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -138,6 +138,17 @@ new FormModel {
 					"background": #Color3
 					"editable": false
 					"focusable": false
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "printButton"
+					"background": new java.awt.Color( 108, 57, 193, 255 )
+					"font": new java.awt.Font( "Segoe UI", 1, 14 )
+					"foreground": new java.awt.Color( 252, 248, 255, 255 )
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "printReceipt", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "printButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "printButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "printButtonMousePressed", true ) )
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {
