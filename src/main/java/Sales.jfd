@@ -136,8 +136,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp transactionHistoryLabel:::p::p, space :p:25:p, comp searchField:::p:400:p, space ::382:x, comp createOrderButton:::p:125:p, space :p:20:p}}"
-				"$verticalGroup": "par l {seq l {space :p:12:p, par b {comp transactionHistoryLabel::b:p::p, comp searchField::b:p:34:p}, space ::12:x}, seq {space :p:10:p, comp createOrderButton::::38:x, space :p:10:p}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp transactionHistoryLabel:::p::p, space :p:25:p, comp searchField:::p:400:p, space ::256:x, comp viewDetailsButton:::p:125:p, space :::p, comp createOrderButton:::p:125:p, space :p:20:p}}"
+				"$verticalGroup": "par l {seq {par l {seq l {space :p:12:p, par b {comp transactionHistoryLabel::b:p::p, comp searchField::b:p:34:p}}, seq {space :p:10:p, par b {comp viewDetailsButton::b:p:38:p, comp createOrderButton::b:p:38:p}}}, space ::10:x}}"
 			} ) {
 				name: "controlsPanel"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -155,15 +155,24 @@ new FormModel {
 					name: "createOrderButton"
 					"text": "Create Order"
 					"focusable": false
-					"background": new java.awt.Color( 108, 57, 193, 255 )
-					"foreground": new java.awt.Color( 255, 255, 255, 255 )
-					"font": new java.awt.Font( "Segoe UI", 1, 14 )
+					"background": &Color5 new java.awt.Color( 108, 57, 193, 255 )
+					"foreground": &Color6 new java.awt.Color( 255, 255, 255, 255 )
+					"font": &Font2 new java.awt.Font( "Segoe UI", 1, 14 )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "createOrder", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "searchField"
 					"border": new javax.swing.border.LineBorder( sfield java.awt.Color black, 1, false )
 					"font": new java.awt.Font( "Segoe UI", 0, 14 )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "viewDetailsButton"
+					"text": "View Details"
+					"focusable": false
+					"background": #Color5
+					"foreground": #Color6
+					"font": #Font2
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "viewDetails", true ) )
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {

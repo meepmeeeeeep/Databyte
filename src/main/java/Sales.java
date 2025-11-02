@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -60,13 +61,6 @@ public class Sales extends JPanel {
                 searchField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
-
-        // Make table rows non-selectable
-        transactionHistoryTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        transactionHistoryTable.setRowSelectionAllowed(false);
-        transactionHistoryTable.setCellSelectionEnabled(false);
-        transactionHistoryTable.getTableHeader().setReorderingAllowed(false);
-        transactionHistoryTable.setFocusable(false);
     }
 
     //
@@ -232,6 +226,78 @@ public class Sales extends JPanel {
     // Create Order Button Event Listener Methods
     //
     // Action Listener Method
+    private void viewDetails(ActionEvent e) {
+        int selectedRow = transactionHistoryTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please select a transaction to view details.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String transactionId = transactionHistoryTable.getValueAt(selectedRow, 0).toString();
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
+            // Get transaction details
+            String transactionSql = "SELECT * FROM transaction_history WHERE transaction_id = ?";
+            PreparedStatement transactionStmt = conn.prepareStatement(transactionSql);
+            transactionStmt.setString(1, transactionId);
+            ResultSet transactionRs = transactionStmt.executeQuery();
+
+            if (transactionRs.next()) {
+                // Get cart items
+                String cartSql = "SELECT * FROM cart_items WHERE transaction_id = ?";
+                PreparedStatement cartStmt = conn.prepareStatement(cartSql);
+                cartStmt.setString(1, transactionId);
+                ResultSet cartRs = cartStmt.executeQuery();
+
+                // Convert ResultSet to ArrayList
+                java.util.List<Object[]> cartData = new ArrayList<>();
+                while (cartRs.next()) {
+                    Object[] row = {
+                            cartRs.getString("item_id"),
+                            cartRs.getString("item_name"),
+                            cartRs.getString("category"),
+                            cartRs.getDouble("price"),
+                            cartRs.getString("vat_type"),
+                            cartRs.getDouble("vat_inclusive_price"),
+                            cartRs.getInt("quantity"),
+                            cartRs.getDouble("price") * cartRs.getInt("quantity")
+                    };
+                    cartData.add(row);
+                }
+
+                // Create and show OrderDetailsForm
+                OrderDetailsForm detailsForm = new OrderDetailsForm(
+                        transactionId,
+                        transactionRs.getTimestamp("date"),
+                        transactionRs.getString("customer_name"),
+                        transactionRs.getString("customer_address"),
+                        transactionRs.getString("customer_email"),
+                        transactionRs.getString("customer_phone"),
+                        transactionRs.getDouble("total_price"),
+                        transactionRs.getDouble("payment_amount"),
+                        transactionRs.getString("payment_method"),
+                        transactionRs.getString("discount_code"),
+                        cartData.toArray(new Object[cartData.size()][])
+                );
+
+                JFrame frame = new JFrame("Order Details");
+                frame.setContentPane(detailsForm);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            }
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error loading order details: " + ex.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void createOrder(ActionEvent e) {
         JFrame frame = new JFrame("Create Order");
         frame.setContentPane(new CreateOrderForm(this));
@@ -254,6 +320,7 @@ public class Sales extends JPanel {
         transactionHistoryLabel = new JTextField();
         createOrderButton = new JButton();
         searchField = new JTextField();
+        viewDetailsButton = new JButton();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -507,6 +574,14 @@ public class Sales extends JPanel {
             searchField.setBorder(LineBorder.createBlackLineBorder());
             searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
+            //---- viewDetailsButton ----
+            viewDetailsButton.setText("View Details");
+            viewDetailsButton.setFocusable(false);
+            viewDetailsButton.setBackground(new Color(0x6c39c1));
+            viewDetailsButton.setForeground(Color.white);
+            viewDetailsButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            viewDetailsButton.addActionListener(e -> viewDetails(e));
+
             GroupLayout controlsPanelLayout = new GroupLayout(controlsPanel);
             controlsPanel.setLayout(controlsPanelLayout);
             controlsPanelLayout.setHorizontalGroup(
@@ -516,22 +591,27 @@ public class Sales extends JPanel {
                         .addComponent(transactionHistoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addGap(25, 25, 25)
                         .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 382, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 256, Short.MAX_VALUE)
+                        .addComponent(viewDetailsButton, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(createOrderButton, GroupLayout.PREFERRED_SIZE, 125, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
             controlsPanelLayout.setVerticalGroup(
                 controlsPanelLayout.createParallelGroup()
                     .addGroup(controlsPanelLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addGroup(controlsPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                            .addComponent(transactionHistoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(12, Short.MAX_VALUE))
-                    .addGroup(controlsPanelLayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(createOrderButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                        .addGap(10, 10, 10))
+                        .addGroup(controlsPanelLayout.createParallelGroup()
+                            .addGroup(controlsPanelLayout.createSequentialGroup()
+                                .addGap(12, 12, 12)
+                                .addGroup(controlsPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                    .addComponent(transactionHistoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(controlsPanelLayout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addGroup(controlsPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                    .addComponent(viewDetailsButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(createOrderButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))))
+                        .addContainerGap(10, Short.MAX_VALUE))
             );
         }
 
@@ -580,6 +660,7 @@ public class Sales extends JPanel {
     private JTextField transactionHistoryLabel;
     private JButton createOrderButton;
     private JTextField searchField;
+    private JButton viewDetailsButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     //

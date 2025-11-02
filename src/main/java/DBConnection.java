@@ -83,6 +83,7 @@ public class DBConnection {
                 + "customer_phone VARCHAR(20), "
                 + "payment_amount DECIMAL(10,2) NOT NULL, "
                 + "payment_method VARCHAR(20) NOT NULL"
+                + "discount_code VARCHAR(50)"
                 + ")";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
