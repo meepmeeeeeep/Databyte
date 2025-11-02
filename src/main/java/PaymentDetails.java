@@ -36,7 +36,7 @@ public class PaymentDetails extends JPanel {
         totalAmountField.setText(totalAmount);
         paymentAmountField.setText(paymentAmount);
         paymentMethodField.setText(paymentMethod);
-        changeField.setText(String.valueOf(change));
+        changeField.setText(String.format("%.2f", change));
     }
 
     private void cancel(ActionEvent e) {

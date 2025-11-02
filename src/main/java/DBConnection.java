@@ -52,6 +52,10 @@ public class DBConnection {
                 + "category VARCHAR(50), "
                 + "quantity INT NOT NULL, "
                 + "price DECIMAL(10, 2) NOT NULL, "
+                + "vat_type ENUM('VATABLE', 'ZERO-RATED', 'VAT EXEMPT') DEFAULT 'VATABLE', "
+                + "vat_inclusive_price DECIMAL(10, 2) GENERATED ALWAYS AS ("
+                + "    CASE WHEN vat_type = 'VATABLE' THEN price * 1.12 ELSE price END"
+                + ") STORED, "
                 + "PRIMARY KEY (item_id), "
                 + "UNIQUE (item_no)"
                 + ")";
@@ -68,6 +72,10 @@ public class DBConnection {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS transaction_history ("
                 + "transaction_id VARCHAR(20) PRIMARY KEY, "
                 + "total_price DECIMAL(10,2) NOT NULL, "
+                + "vatable_amount DECIMAL(10,2) DEFAULT 0, "
+                + "vat_amount DECIMAL(10,2) DEFAULT 0, "
+                + "zero_rated_amount DECIMAL(10,2) DEFAULT 0, "
+                + "vat_exempt_amount DECIMAL(10,2) DEFAULT 0, "
                 + "date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, "
                 + "customer_name VARCHAR(100), "
                 + "customer_address VARCHAR(255), "
@@ -93,7 +101,9 @@ public class DBConnection {
                 + "item_name varchar(100) DEFAULT NULL, "
                 + "category varchar(50) DEFAULT NULL, "
                 + "price decimal(10,2) DEFAULT NULL, "
-                + "quantity int(11) DEFAULT NULL"
+                + "quantity int(11) DEFAULT NULL, "
+                + "vat_type ENUM('VATABLE', 'ZERO-RATED', 'VAT EXEMPT') DEFAULT NULL, "
+                + "vat_inclusive_price decimal(10,2) DEFAULT NULL"
                 + ")";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);

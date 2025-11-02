@@ -696,7 +696,7 @@ public class Sales extends JPanel {
                         rs.getString("transaction_id"),
                         rs.getTimestamp("date"),
                         rs.getString("customer_name"),
-                        String.format("₱%.2f", rs.getDouble("total_price")) // Format price with peso sign
+                        String.format("%.2f", rs.getDouble("total_price")) // Format price with peso sign
                 });
             }
 

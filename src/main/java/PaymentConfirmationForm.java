@@ -19,6 +19,8 @@ public class PaymentConfirmationForm extends JPanel {
     private final String customerAddress;
     private final String customerEmail;
     private final String customerPhone;
+    private double originalAmount = 0.0;
+    private boolean discountApplied = false;
     private DefaultTableModel cartTableModel;
     private Map<String, Integer> itemQuantityMap;
     public PaymentConfirmationForm(Sales sales, String transactionId, Object[][] cartData, double totalAmount,
@@ -61,6 +63,18 @@ public class PaymentConfirmationForm extends JPanel {
                 paymentAmountField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+        discountCodeField.setBorder(BorderFactory.createCompoundBorder(
+                discountCodeField.getBorder(),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
+        ));
+        paymentMethodField.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                return comp;
+            }
+        });
 
         // Set Text Fields Values
         // ---- Customer Information ----
@@ -83,10 +97,50 @@ public class PaymentConfirmationForm extends JPanel {
         SwingUtilities.getWindowAncestor(this).dispose(); // Close Payment Confirmation Form
     }
 
+    private void cancelDiscountButton(ActionEvent e) {
+        if (!discountApplied) {
+            JOptionPane.showMessageDialog(this,
+                    "No discount is currently applied.",
+                    "No Discount",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
+            // Get the current discount code from the field
+            String code = discountCodeField.getText().trim().toUpperCase();
+
+            // Update the discount code usage in the database (decrement)
+            String updateSql = "UPDATE discount_codes SET current_uses = current_uses - 1 WHERE code = ?";
+            PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+            updateStmt.setString(1, code);
+            updateStmt.executeUpdate();
+
+            // Reset the UI
+            totalAmountField.setText(String.format("%.2f", originalAmount));
+            discountApplied = false;
+            discountCodeField.setEnabled(true);
+            discountCodeField.setText("");
+            applyDiscountButton.setEnabled(true);
+
+            JOptionPane.showMessageDialog(this,
+                    "Discount removed. Original price restored.",
+                    "Discount Removed",
+                    JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void confirm(ActionEvent e) {
         try {
-            String totalStr = totalAmountField.getText().trim();
-            String paymentStr = paymentAmountField.getText().trim();
+            // Get the values and remove any currency symbols, spaces, and commas
+            String totalStr = totalAmountField.getText().trim().replaceAll("[^\\d.]", "");
+            String paymentStr = paymentAmountField.getText().trim().replaceAll("[^\\d.]", "");
             String paymentMethod = (String) paymentMethodField.getSelectedItem();
 
             if (totalStr.isEmpty() || paymentStr.isEmpty()) {
@@ -113,12 +167,12 @@ public class PaymentConfirmationForm extends JPanel {
                 conn.setAutoCommit(false);
 
                 try {
+                    // Insert transaction record
                     String sql = "INSERT INTO transaction_history (transaction_id, total_price, date, customer_name, " +
                             "customer_address, customer_email, customer_phone, payment_amount, payment_method) " +
                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement stmt = conn.prepareStatement(sql);
 
-                    // Insert one transaction record with total amount
                     stmt.setString(1, transactionID);
                     stmt.setDouble(2, total);
                     stmt.setString(3, date);
@@ -131,11 +185,28 @@ public class PaymentConfirmationForm extends JPanel {
 
                     stmt.executeUpdate();
 
-                    // Update inventory for each item
+                    // Insert cart items
+                    String cartSql = "INSERT INTO cart_items (transaction_id, item_id, item_name, category, " +
+                            "price, vat_type, vat_inclusive_price, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    PreparedStatement cartStmt = conn.prepareStatement(cartSql);
+
+                    for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+                        cartStmt.setString(1, transactionID);
+                        cartStmt.setString(2, cartTableModel.getValueAt(i, 0).toString()); // item_id
+                        cartStmt.setString(3, cartTableModel.getValueAt(i, 1).toString()); // item_name
+                        cartStmt.setString(4, cartTableModel.getValueAt(i, 2).toString()); // category
+                        cartStmt.setDouble(5, Double.parseDouble(cartTableModel.getValueAt(i, 3).toString())); // price
+                        cartStmt.setString(6, cartTableModel.getValueAt(i, 4).toString()); // vat_type
+                        cartStmt.setDouble(7, Double.parseDouble(cartTableModel.getValueAt(i, 5).toString())); // vat_inclusive_price
+                        cartStmt.setInt(8, Integer.parseInt(cartTableModel.getValueAt(i, 6).toString())); // quantity
+                        cartStmt.executeUpdate();
+                    }
+
+                    // Update inventory
                     for (int i = 0; i < cartTableModel.getRowCount(); i++) {
                         String updateSql = "UPDATE inventory SET quantity = quantity - ? WHERE item_id = ?";
                         PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-                        updateStmt.setInt(1, Integer.parseInt(cartTableModel.getValueAt(i, 4).toString()));
+                        updateStmt.setInt(1, Integer.parseInt(cartTableModel.getValueAt(i, 6).toString()));
                         updateStmt.setString(2, cartTableModel.getValueAt(i, 0).toString());
                         updateStmt.executeUpdate();
                     }
@@ -144,11 +215,13 @@ public class PaymentConfirmationForm extends JPanel {
                     conn.commit();
 
                     // Show payment details
-                    String totalAmount = totalAmountField.getText();
-                    String paymentAmount = paymentAmountField.getText();
-                    String paymentChoice = (String) paymentMethodField.getSelectedItem();
-
-                    PaymentDetails paymentDetails = new PaymentDetails(totalAmount, paymentAmount, paymentChoice, change, sales);
+                    PaymentDetails paymentDetails = new PaymentDetails(
+                            String.format("%.2f", total),
+                            String.format("%.2f", payment),
+                            paymentMethod,
+                            change,
+                            sales
+                    );
 
                     JFrame frame = new JFrame("Payment Details");
                     frame.setContentPane(paymentDetails);
@@ -170,6 +243,105 @@ public class PaymentConfirmationForm extends JPanel {
             JOptionPane.showMessageDialog(null, "Please enter valid numeric values.");
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error saving transaction: " + ex.getMessage());
+        }
+    }
+
+    private void applyDiscountButton(ActionEvent e) {
+        if (discountApplied) {
+            JOptionPane.showMessageDialog(this,
+                    "A discount is already applied. Remove current discount first.",
+                    "Discount Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String code = discountCodeField.getText().trim().toUpperCase();
+        if (code.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter a discount code.",
+                    "Invalid Input",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
+            // Updated SQL query to include minimum_purchase check
+            String sql = "SELECT discount_percentage, current_uses, max_uses, minimum_purchase " +
+                    "FROM discount_codes " +
+                    "WHERE code = ? AND is_active = TRUE " +
+                    "AND valid_from <= CURRENT_DATE " +
+                    "AND valid_until >= CURRENT_DATE";
+
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, code);
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) {
+                JOptionPane.showMessageDialog(this,
+                        "Invalid or expired discount code.",
+                        "Invalid Code",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            double discountPercentage = rs.getDouble("discount_percentage");
+            int currentUses = rs.getInt("current_uses");
+            int maxUses = rs.getInt("max_uses");
+            double minimumPurchase = rs.getDouble("minimum_purchase");
+
+            // Check if current total meets minimum purchase requirement
+            double currentTotal = Double.parseDouble(totalAmountField.getText().trim());
+            if (currentTotal < minimumPurchase) {
+                JOptionPane.showMessageDialog(this,
+                        String.format("This discount code requires a minimum purchase of ₱%.2f",
+                                minimumPurchase),
+                        "Minimum Purchase Required",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (currentUses >= maxUses) {
+                JOptionPane.showMessageDialog(this,
+                        "This discount code has reached its maximum uses.",
+                        "Code Expired",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                originalAmount = Double.parseDouble(totalAmountField.getText());
+                double discountRate = discountPercentage / 100.0;
+                double discountAmount = originalAmount * discountRate;
+                double discountedTotal = originalAmount - discountAmount;
+
+                // Update the discount code usage in the database
+                String updateSql = "UPDATE discount_codes SET current_uses = current_uses + 1 WHERE code = ?";
+                PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                updateStmt.setString(1, code);
+                updateStmt.executeUpdate();
+
+                totalAmountField.setText(String.format("%.2f", discountedTotal));
+                discountApplied = true;
+                discountCodeField.setEnabled(false);
+                applyDiscountButton.setEnabled(false);
+
+                JOptionPane.showMessageDialog(this,
+                        String.format("Discount applied!\nOriginal amount: ₱%.2f\nDiscount amount: ₱%.2f (%.0f%%)\nDiscounted total: ₱%.2f",
+                                originalAmount, discountAmount, discountPercentage, discountedTotal),
+                        "Discount Applied",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Error processing discount. Please try again.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Database error: " + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -201,6 +373,10 @@ public class PaymentConfirmationForm extends JPanel {
         cartLabel = new JTextField();
         scrollPane1 = new JScrollPane();
         cartTable = new JTable();
+        discountCodeLabel = new JTextField();
+        discountCodeField = new JTextField();
+        applyDiscountButton = new JButton();
+        cancelDiscountButton = new JButton();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -362,7 +538,7 @@ public class PaymentConfirmationForm extends JPanel {
             totalAmountLabel.setText("Total Amount:");
             totalAmountLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             totalAmountLabel.setBackground(new Color(0xfcf8ff));
-            totalAmountLabel.setForeground(new Color(0x251779));
+            totalAmountLabel.setForeground(new Color(0x897cce));
             totalAmountLabel.setBorder(null);
             totalAmountLabel.setFocusable(false);
             totalAmountLabel.setEditable(false);
@@ -392,7 +568,7 @@ public class PaymentConfirmationForm extends JPanel {
             paymentMethodLabel.setText("Payment Method:");
             paymentMethodLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             paymentMethodLabel.setBackground(new Color(0xfcf8ff));
-            paymentMethodLabel.setForeground(new Color(0x251779));
+            paymentMethodLabel.setForeground(new Color(0x897cce));
             paymentMethodLabel.setBorder(null);
             paymentMethodLabel.setFocusable(false);
             paymentMethodLabel.setEditable(false);
@@ -511,6 +687,36 @@ public class PaymentConfirmationForm extends JPanel {
                 scrollPane1.setViewportView(cartTable);
             }
 
+            //---- discountCodeLabel ----
+            discountCodeLabel.setText("Discount Code:");
+            discountCodeLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+            discountCodeLabel.setBackground(new Color(0xfcf8ff));
+            discountCodeLabel.setForeground(new Color(0x897cce));
+            discountCodeLabel.setBorder(null);
+            discountCodeLabel.setFocusable(false);
+            discountCodeLabel.setEditable(false);
+
+            //---- discountCodeField ----
+            discountCodeField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
+            discountCodeField.setBackground(new Color(0xe8e7f4));
+            discountCodeField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
+            //---- applyDiscountButton ----
+            applyDiscountButton.setText("APPLY");
+            applyDiscountButton.setBackground(new Color(0x6c39c1));
+            applyDiscountButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            applyDiscountButton.setForeground(new Color(0xfcf8ff));
+            applyDiscountButton.setFocusable(false);
+            applyDiscountButton.addActionListener(e -> applyDiscountButton(e));
+
+            //---- cancelDiscountButton ----
+            cancelDiscountButton.setText("REMOVE");
+            cancelDiscountButton.setBackground(new Color(0x6c39c1));
+            cancelDiscountButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            cancelDiscountButton.setForeground(new Color(0xfcf8ff));
+            cancelDiscountButton.setFocusable(false);
+            cancelDiscountButton.addActionListener(e -> cancelDiscountButton(e));
+
             GroupLayout panel2Layout = new GroupLayout(panel2);
             panel2.setLayout(panel2Layout);
             panel2Layout.setHorizontalGroup(
@@ -520,8 +726,16 @@ public class PaymentConfirmationForm extends JPanel {
                         .addGroup(panel2Layout.createParallelGroup()
                             .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
                             .addGroup(panel2Layout.createSequentialGroup()
-                                .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 441, Short.MAX_VALUE)))
+                                .addGroup(panel2Layout.createParallelGroup()
+                                    .addComponent(discountCodeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 394, Short.MAX_VALUE))
+                            .addGroup(panel2Layout.createSequentialGroup()
+                                .addComponent(discountCodeField, GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
+                                .addGap(20, 20, 20)
+                                .addComponent(applyDiscountButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                .addGap(20, 20, 20)
+                                .addComponent(cancelDiscountButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))
                         .addGap(20, 20, 20))
             );
             panel2Layout.setVerticalGroup(
@@ -530,8 +744,15 @@ public class PaymentConfirmationForm extends JPanel {
                         .addGap(21, 21, 21)
                         .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
-                        .addGap(20, 20, 20))
+                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
+                        .addGap(20, 20, 20)
+                        .addComponent(discountCodeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(panel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(cancelDiscountButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(applyDiscountButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(discountCodeField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
+                        .addGap(21, 21, 21))
             );
         }
 
@@ -591,11 +812,15 @@ public class PaymentConfirmationForm extends JPanel {
     private JTextField cartLabel;
     private JScrollPane scrollPane1;
     private JTable cartTable;
+    private JTextField discountCodeLabel;
+    private JTextField discountCodeField;
+    private JButton applyDiscountButton;
+    private JButton cancelDiscountButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     private void setupCartTable(Object[][] cartData) {
-        // Set up table model with columns
-        String[] columns = {"Item ID", "Item Name", "Category", "Unit Price", "Quantity", "Subtotal"};
+        // Set up cart table model with columns
+        String[] columns = {"Item ID", "Item Name", "Category", "Unit Price", "VAT Type", "VAT Price", "Quantity", "Subtotal"};
         cartTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -603,7 +828,7 @@ public class PaymentConfirmationForm extends JPanel {
             }
         };
 
-        // Add the cart data to the table model
+        // Add the cart data
         for (Object[] row : cartData) {
             cartTableModel.addRow(row);
         }
@@ -641,6 +866,13 @@ public class PaymentConfirmationForm extends JPanel {
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                 }
 
+                // Format numeric values
+                if (value != null) {
+                    if (column == 3 || column == 5 || column == 7) { // Price columns
+                        label.setText(String.format("%.2f", Double.parseDouble(value.toString())));
+                    }
+                }
+
                 return label;
             }
         };
@@ -670,10 +902,11 @@ public class PaymentConfirmationForm extends JPanel {
 
         // Set column widths
         TableColumnModel columnModel = cartTable.getColumnModel();
-        int[] columnWidths = {100, 200, 150, 120, 100, 120};
+        int[] columnWidths = {100, 200, 150, 120, 100, 120, 100, 120};
         for (int i = 0; i < columnWidths.length; i++) {
             TableColumn column = columnModel.getColumn(i);
-            column.setPreferredWidth(columnWidths[i]); // Set only preferred width
+            column.setPreferredWidth(columnWidths[i]);
+            column.setMinWidth(100);
         }
 
         // Enable table scrolling
@@ -685,16 +918,9 @@ public class PaymentConfirmationForm extends JPanel {
         // Set preferred size for the table
         cartTable.setPreferredScrollableViewportSize(new Dimension(totalWidth, 400));
 
-        // Set scroll pane properties with unified scroll bar appearance
+        // Set scroll pane properties
         scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        // Set minimum and preferred column widths
-        for (int i = 0; i < cartTable.getColumnCount(); i++) {
-            TableColumn column = columnModel.getColumn(i);
-            column.setMinWidth(100);  // Minimum width for each column
-            column.setPreferredWidth(150);  // Preferred width for each column
-        }
 
         // Make the table fill the viewport
         cartTable.setFillsViewportHeight(true);
@@ -706,5 +932,21 @@ public class PaymentConfirmationForm extends JPanel {
         scrollPane1.getHorizontalScrollBar().setUI(new ModernScrollBarUI());
         scrollPane1.getVerticalScrollBar().setUI(new ModernScrollBarUI());
         scrollPane1.setBorder(BorderFactory.createEmptyBorder());
+
+        // Calculate and update total amount
+        double total = 0.0;
+        for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+            Object subtotalObj = cartTableModel.getValueAt(i, 7);
+            if (subtotalObj != null) {
+                // Convert subtotal to string and remove any currency symbols or commas
+                String subtotalStr = subtotalObj.toString().replaceAll("[^\\d.]", "");
+                try {
+                    double subtotal = Double.parseDouble(subtotalStr);
+                    total += subtotal;
+                } catch (NumberFormatException ex) {
+                    System.err.println("Error parsing subtotal: " + subtotalObj);
+                }
+            }
+        }
     }
 }

@@ -158,7 +158,7 @@ new FormModel {
 					"text": "Total Amount:"
 					"font": #Font2
 					"background": #Color0
-					"foreground": &Color6 new java.awt.Color( 37, 23, 121, 255 )
+					"foreground": &Color6 new java.awt.Color( 137, 124, 206, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -168,7 +168,7 @@ new FormModel {
 					"border": #MatteBorder0
 					"editable": false
 					"focusable": false
-					"background": new java.awt.Color( 232, 231, 244, 255 )
+					"background": &Color7 new java.awt.Color( 232, 231, 244, 255 )
 					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
@@ -192,7 +192,7 @@ new FormModel {
 					"text": "Payment Method:"
 					"font": #Font2
 					"background": #Color0
-					"foreground": #Color6
+					"foreground": new java.awt.Color( 137, 124, 206, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -210,8 +210,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp scrollPane1::::505:x, seq {comp cartLabel:::p::p, space :0:441:x}}, space :p:20:p}}"
-				"$verticalGroup": "par l {seq l {space :p:21:p, comp cartLabel:::p::p, space s:::p, comp scrollPane1::::527:x, space :p:20:p}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp scrollPane1::::505:x, seq {par l {comp discountCodeLabel:::p::p, comp cartLabel:::p::p}, space :0:394:x}, seq l {comp discountCodeField::::265:x, space :p:20:p, comp applyDiscountButton:::p:100:p, space :p:20:p, comp cancelDiscountButton:::p:100:p}}, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:21:p, comp cartLabel:::p::p, space s:::p, comp scrollPane1::::440:x, space :p:20:p, comp discountCodeLabel:::p::p, space :::p, par b {comp cancelDiscountButton::b:p:38:p, comp applyDiscountButton::b:p:38:p, comp discountCodeField::b:p:35:p}, space :p:21:p}}"
 			} ) {
 				name: "panel2"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -231,6 +231,40 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JTable" ) {
 						name: "cartTable"
 					} )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "discountCodeLabel"
+					"text": "Discount Code:"
+					"font": #Font2
+					"background": #Color0
+					"foreground": #Color6
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "discountCodeField"
+					"border": #MatteBorder0
+					"background": #Color7
+					"font": #Font1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "applyDiscountButton"
+					"text": "APPLY"
+					"background": #Color1
+					"font": #Font0
+					"foreground": #Color2
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "applyDiscountButton", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "cancelDiscountButton"
+					"text": "REMOVE"
+					"background": #Color1
+					"font": #Font0
+					"foreground": #Color2
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelDiscountButton", true ) )
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {

@@ -39,6 +39,14 @@ public class AddItemForm extends JPanel {
                 categoryField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+        vatableField.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JComponent comp = (JComponent) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                return comp;
+            }
+        });
     }
 
     private void cancel(ActionEvent e) {
@@ -68,13 +76,14 @@ public class AddItemForm extends JPanel {
                 return;
             }
 
-            String sql = "INSERT INTO inventory (item_id, item_name, category, quantity, price) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO inventory (item_id, item_name, category, quantity, price, vat_type) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, itemID);
             pstmt.setString(2, itemName);
             pstmt.setString(3, category);
             pstmt.setInt(4, quantity);
             pstmt.setDouble(5, price);
+            pstmt.setString(6, vatableField.getSelectedItem().toString());
 
             int rowsInserted = pstmt.executeUpdate();
 
@@ -112,6 +121,8 @@ public class AddItemForm extends JPanel {
         cancelButton = new JButton();
         categoryLabel = new JTextField();
         categoryField = new JTextField();
+        vatableLabel = new JTextField();
+        vatableField = new JComboBox<>();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -132,7 +143,7 @@ public class AddItemForm extends JPanel {
             );
             sidePanelLayout.setVerticalGroup(
                 sidePanelLayout.createParallelGroup()
-                    .addGap(0, 380, Short.MAX_VALUE)
+                    .addGap(0, 450, Short.MAX_VALUE)
             );
         }
 
@@ -156,7 +167,7 @@ public class AddItemForm extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(720, Short.MAX_VALUE))
+                        .addContainerGap(721, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
@@ -252,6 +263,26 @@ public class AddItemForm extends JPanel {
             categoryField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
             categoryField.setBackground(new Color(0xe8e7f4));
 
+            //---- vatableLabel ----
+            vatableLabel.setText("VAT Type:");
+            vatableLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+            vatableLabel.setBackground(new Color(0xfcf8ff));
+            vatableLabel.setForeground(new Color(0x897cce));
+            vatableLabel.setBorder(null);
+            vatableLabel.setFocusable(false);
+            vatableLabel.setEditable(false);
+
+            //---- vatableField ----
+            vatableField.setModel(new DefaultComboBoxModel<>(new String[] {
+                "VATABLE",
+                "ZERO-RATED",
+                "VAT EXEMPT"
+            }));
+            vatableField.setFocusable(false);
+            vatableField.setBorder(null);
+            vatableField.setBackground(new Color(0xe8e7f4));
+            vatableField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
             GroupLayout panel1Layout = new GroupLayout(panel1);
             panel1.setLayout(panel1Layout);
             panel1Layout.setHorizontalGroup(
@@ -266,15 +297,18 @@ public class AddItemForm extends JPanel {
                             .addComponent(categoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                             .addComponent(categoryField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE))
                         .addGap(50, 50, 50)
-                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                            .addComponent(quantityLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(priceLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(priceField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
-                            .addComponent(quantityField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(addButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(panel1Layout.createParallelGroup()
+                            .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                .addComponent(quantityLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(priceLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(priceField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                                .addComponent(quantityField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                                .addGroup(panel1Layout.createSequentialGroup()
+                                    .addComponent(addButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(vatableLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(vatableField, GroupLayout.PREFERRED_SIZE, 220, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(25, Short.MAX_VALUE))
             );
             panel1Layout.setVerticalGroup(
@@ -301,13 +335,18 @@ public class AddItemForm extends JPanel {
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(quantityField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
-                        .addComponent(categoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addGap(3, 3, 3)
-                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addGroup(panel1Layout.createParallelGroup()
+                            .addComponent(categoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(vatableLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(panel1Layout.createParallelGroup()
                             .addComponent(categoryField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(vatableField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
                             .addComponent(addButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(21, Short.MAX_VALUE))
+                        .addGap(20, 20, 20))
             );
         }
 
@@ -331,7 +370,7 @@ public class AddItemForm extends JPanel {
                     .addGap(25, 25, 25)
                     .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGap(25, 25, 25))
-                .addComponent(sidePanel, GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                .addComponent(sidePanel, GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
         );
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
@@ -353,5 +392,7 @@ public class AddItemForm extends JPanel {
     private JButton cancelButton;
     private JTextField categoryLabel;
     private JTextField categoryField;
+    private JTextField vatableLabel;
+    private JComboBox<String> vatableField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

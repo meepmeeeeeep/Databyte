@@ -5,14 +5,14 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :p:25:p, comp panel1:::::x, space :p:25:p}}}}"
-			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::380:x}"
+			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::450:x}"
 		} ) {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			"minimumSize": new java.awt.Dimension( 850, 380 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 				"$horizontalGroup": "par l {space :0:30:x}"
-				"$verticalGroup": "par l {space :0:380:x}"
+				"$verticalGroup": "par l {space :0:450:x}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -21,7 +21,7 @@ new FormModel {
 				"preferredSize": new java.awt.Dimension( 30, 820 )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::720:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::721:x}}"
 				"$verticalGroup": "par l {seq l {space :p:17:p, comp dashboardLabel:::p::p, space ::17:x}}"
 			} ) {
 				name: "windowTitleContainer"
@@ -38,8 +38,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:25:p, par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p}, space :p:50:p, par l:::p {comp quantityLabel:::p::p, comp priceLabel:::p::p, comp priceField::l::220:x, comp quantityField::l::220:x, seq l {comp addButton:::p:100:p, space :::x, comp cancelButton:::p:100:p}}, space ::25:x}}"
-				"$verticalGroup": "par l {seq l {space :p:25:p, par t {seq {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space s:::p, par l {seq {comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p}, seq {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, space s:::p, comp categoryLabel:::p::p, space :3:3:p, par b {comp categoryField::b:p:35:p, comp cancelButton::b:p:38:p, comp addButton::b:p:38:p}, space ::21:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:25:p, par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p}, space :p:50:p, par l {par l:::p {comp quantityLabel:::p::p, comp priceLabel:::p::p, comp priceField::l::220:x, comp quantityField::l::220:x, seq l {comp addButton:::p:100:p, space :::x, comp cancelButton:::p:100:p}}, comp vatableLabel:::p::p, comp vatableField:::p:220:p}, space ::25:x}}"
+				"$verticalGroup": "par l {seq l {space :p:25:p, par t {seq {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space s:::p, par l {seq {comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p}, seq {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, space s:::p, par l {comp categoryLabel:::p::p, comp vatableLabel:::p::p}, space :::p, par l {comp categoryField:::p:35:p, comp vatableField:::p:35:p}, space ::33:x, par b {comp cancelButton::b:p:38:p, comp addButton::b:p:38:p}, space :p:20:p}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -136,10 +136,33 @@ new FormModel {
 					"border": #MatteBorder0
 					"background": #Color2
 				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "vatableLabel"
+					"text": "VAT Type:"
+					"font": #Font0
+					"background": #Color0
+					"foreground": #Color1
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "vatableField"
+					"model": new javax.swing.DefaultComboBoxModel {
+						selectedItem: "VATABLE"
+						addElement( "VATABLE" )
+						addElement( "ZERO-RATED" )
+						addElement( "VAT EXEMPT" )
+					}
+					"focusable": false
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+					"font": new java.awt.Font( "Segoe UI", 0, 14 )
+				} )
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 10, 5 )
-			"size": new java.awt.Dimension( 850, 380 )
+			"size": new java.awt.Dimension( 850, 450 )
 		} )
 	}
 }

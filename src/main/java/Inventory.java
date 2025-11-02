@@ -802,32 +802,28 @@ public class Inventory extends JPanel {
         });
 
         // Set Table Column Size
-        // First Column
-        TableColumn firstColumn = inventoryTable.getColumnModel().getColumn(0);
-        firstColumn.setPreferredWidth(35);
-        firstColumn.setMinWidth(35);
-        firstColumn.setMaxWidth(35);
-        firstColumn.setResizable(false);
-        // Second Column
-        TableColumn secondColumn = inventoryTable.getColumnModel().getColumn(1);
-        secondColumn.setPreferredWidth(60);
-        secondColumn.setMinWidth(60);
-        // Third Column
-        TableColumn thirdColumn = inventoryTable.getColumnModel().getColumn(2);
-        thirdColumn.setPreferredWidth(215);
-        thirdColumn.setMinWidth(215);
-        // Fourth Column
-        TableColumn fourthColumn = inventoryTable.getColumnModel().getColumn(3);
-        fourthColumn.setPreferredWidth(50);
-        fourthColumn.setMinWidth(50);
-        // Fifth Column
-        TableColumn fifthColumn = inventoryTable.getColumnModel().getColumn(4);
-        fifthColumn.setPreferredWidth(50);
-        fifthColumn.setMinWidth(50);
-        // Sixth Column
-        TableColumn sixthColumn = inventoryTable.getColumnModel().getColumn(5);
-        sixthColumn.setPreferredWidth(50);
-        sixthColumn.setMinWidth(50);
+        TableColumn[] columns = {
+                inventoryTable.getColumnModel().getColumn(0), // #
+                inventoryTable.getColumnModel().getColumn(1), // Item ID
+                inventoryTable.getColumnModel().getColumn(2), // Item Name
+                inventoryTable.getColumnModel().getColumn(3), // Category
+                inventoryTable.getColumnModel().getColumn(4), // Quantity
+                inventoryTable.getColumnModel().getColumn(5), // Price
+                inventoryTable.getColumnModel().getColumn(6), // VAT Type
+                inventoryTable.getColumnModel().getColumn(7)  // VAT Inclusive
+        };
+
+        int[] preferredWidths = {35, 60, 215, 50, 50, 50, 80, 80};
+        int[] minWidths = {35, 60, 215, 50, 50, 50, 80, 80};
+
+        for (int i = 0; i < columns.length; i++) {
+            columns[i].setPreferredWidth(preferredWidths[i]);
+            columns[i].setMinWidth(minWidths[i]);
+            if (i == 0) {
+                columns[i].setMaxWidth(35);
+                columns[i].setResizable(false);
+            }
+        }
 
         // Lock Column Re-order
         inventoryTable.getTableHeader().setReorderingAllowed(false);
@@ -842,16 +838,18 @@ public class Inventory extends JPanel {
     }
 
     void populateTable(String searchQuery) {
-        String sql = "SELECT item_no, item_id, item_name, category, quantity, price FROM inventory " +
-                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ? " +
+        String sql = "SELECT item_no, item_id, item_name, category, quantity, price, vat_type, vat_inclusive_price " +
+                "FROM inventory " +
+                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ? OR vat_type LIKE ? " +
                 "ORDER BY item_no";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
-             PreparedStatement pst = conn.prepareStatement(sql)){
+             PreparedStatement pst = conn.prepareStatement(sql)) {
             String wildcardQuery = "%" + searchQuery + "%";
             pst.setString(1, wildcardQuery);
             pst.setString(2, wildcardQuery);
             pst.setString(3, wildcardQuery);
+            pst.setString(4, wildcardQuery); // Add the missing parameter for vat_type search
 
             ResultSet rs = pst.executeQuery();
 
@@ -862,7 +860,7 @@ public class Inventory extends JPanel {
                 }
             };
 
-            model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price"});
+            model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price", "VAT Type", "VAT Inclusive"});
 
             while (rs.next()) {
                 model.addRow(new Object[]{
@@ -871,7 +869,9 @@ public class Inventory extends JPanel {
                         rs.getString("item_name"),
                         rs.getString("category"),
                         rs.getInt("quantity"),
-                        rs.getDouble("price")
+                        rs.getDouble("price"),
+                        rs.getString("vat_type"),
+                        rs.getDouble("vat_inclusive_price")
                 });
             }
 
@@ -954,5 +954,12 @@ public class Inventory extends JPanel {
                 }, SEARCH_DELAY);
             }
         });
+    }
+
+    private double calculateVATInclusivePrice(double price, String vatType) {
+        return switch (vatType) {
+            case "VATABLE" -> price * 1.12; // 12% VAT
+            default -> price; // Zero-rated and VAT Exempt items
+        };
     }
 }

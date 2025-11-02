@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :25:25:p, comp panel1:::p::p, space :p:20:p, comp panel2:::::x, space :p:20:p}}}}"
-			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, par l {comp panel1:::::x, comp panel2:::::x}, space :p:25:p}, comp sidePanel::::780:x}"
+			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, par l {comp panel1:::::x, comp panel2::::676:x}, space :p:25:p}, comp sidePanel::::780:x}"
 		} ) {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
@@ -38,8 +38,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {par t:l {seq {par l {comp customerEmailLabel::l:p::p, comp customerEmailField::l:p:345:p}, space :p:30:p, par l {comp customerPhoneLabel:::p::p, comp customerPhoneField:::p:345:p}}, par l {comp customerInformationLabel:::p::p, comp customerAddressLabel::l:p::p, comp customeNameLabel:::p::p, comp customerNameField::l:p:720:p, comp customerAddressField::l:p:720:p, seq {par l {comp itemNameLabel::l:p::p, comp itemNameField::l:p:450:p, comp itemIDLabel::l:p::p, comp itemIDField::l:p:450:p, comp categoryLabel:::p::p, comp categoryField:::p:450:p}, space :p:50:p, par l:::p {comp quantityLabel:::p::p, comp priceLabel:::p::p, comp priceField::l:::x, comp quantityField::l:::x, seq l {comp addToCartButton:::p:100:p, space ::20:x, comp cancelCartButton:::p:100:p}}}}}, comp productInformationLabel::l:p::p}, space ::20:x}}"
-				"$verticalGroup": "par l {seq t {space :p:21:p, comp customerInformationLabel:::p::p, space u:::p, comp customeNameLabel:::p::p, space :::p, comp customerNameField:::p:35:p, space s:::p, comp customerAddressLabel:::p::p, space u:::p, comp customerAddressField:::p:105:p, space s:::p, par l {seq l {comp customerEmailLabel:::p::p, space :::p, comp customerEmailField:::p:35:p}, seq l {comp customerPhoneLabel:::p::p, space :6:6:p, comp customerPhoneField:::p:35:p}}, space ::43:x, comp productInformationLabel:::p::p, space u:::p, par t {seq t {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}, seq t {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}}, space :::p, par l {seq l {comp itemIDLabel:::p::p, space :6:6:p, comp itemIDField:::p:35:p}, seq l {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}, space s:::p, comp categoryLabel:::p::p, space :3:3:p, par b {comp categoryField::b:p:35:p, comp cancelCartButton::b:p:38:p, comp addToCartButton::b:p:38:p}, space :p:14:p}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {par t:l {seq {par l {comp customerEmailLabel::l:p::p, comp customerEmailField::l:p:345:p}, space :p:30:p, par l {comp customerPhoneLabel:::p::p, comp customerPhoneField:::p:345:p}}, par l {comp customerInformationLabel:::p::p, comp customerAddressLabel::l:p::p, comp customeNameLabel:::p::p, comp customerNameField::l:p:720:p, comp customerAddressField::l:p:720:p, seq {par l {seq {par l:::p {comp itemNameLabel::l:p::p, comp itemIDLabel::l:p::p, comp categoryLabel:::p::p, comp itemIDField::l::270:x, comp categoryField::l::270:x}, par l {seq {space s:::p, par l {comp quantityLabel:::p::p, comp quantityField::l:p:195:p}, space :17:17:p}, seq {space :p:17:p, par l {comp vatTypeField::l:::x, seq l {comp vatableLabel:::p::p, space :p:18:p}}, space :p:18:p}}}, seq {comp itemNameField:::::x, space s:::p}}, par l {comp vatPriceLabel:::p::p, comp priceField:::p:220:p, par l:::p {comp vatPriceField:::::x, seq {comp addToCartButton:::p:100:p, space :p:20:p, comp cancelCartButton:::p:100:p}}, comp priceLabel::l:p::p}}}}, comp productInformationLabel::l:p::p}, space :p:20:p}}"
+				"$verticalGroup": "par l {seq t {space :p:21:p, comp customerInformationLabel:::p::p, space u:::p, comp customeNameLabel:::p::p, space :::p, comp customerNameField:::p:35:p, space s:::p, comp customerAddressLabel:::p::p, space u:::p, comp customerAddressField:::p:105:p, space s:::p, par l {seq l {comp customerEmailLabel:::p::p, space :::p, comp customerEmailField:::p:35:p}, seq l {comp customerPhoneLabel:::p::p, space :6:6:p, comp customerPhoneField:::p:35:p}}, space ::43:x, comp productInformationLabel:::p::p, space u:::p, par t {seq {comp priceLabel:::p::p, space :::p, comp priceField:::p:35:p}, seq {comp itemNameLabel:::p::p, space :::p, comp itemNameField:::p:35:p}}, space :::p, par l {seq {par t:::p {seq {comp itemIDLabel:::p::p, space :p::p, comp itemIDField:::p:35:p}, seq {comp vatPriceLabel:::p::p, space :::x, comp vatPriceField:::p:35:p}}, space s:::p, par l {seq t {comp categoryLabel:::p::p, space :3:3:p, par b {comp cancelCartButton::b:p:38:p, comp addToCartButton::b:p:38:p, comp categoryField::b:p:35:p}}, seq t {comp quantityLabel:::p::p, space :::p, comp quantityField:::p:35:p}}}, seq {comp vatableLabel:::p::p, space :::p, comp vatTypeField:::p:35:p}}, space :p:14:p}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -124,7 +124,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "cancelCartButton"
-					"text": "CANCEL"
+					"text": "CLEAR"
 					"background": #Color3
 					"font": #Font2
 					"foreground": #Color4
@@ -232,10 +232,51 @@ new FormModel {
 					"focusable": false
 					"editable": false
 				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "vatPriceLabel"
+					"text": "VAT Inc. Price:"
+					"font": #Font0
+					"background": #Color0
+					"foreground": #Color1
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "vatPriceField"
+					"border": #MatteBorder0
+					"background": #Color2
+					"editable": false
+					"focusable": false
+					"font": #Font1
+				} )
+				add( new FormComponent( "javax.swing.JComboBox" ) {
+					name: "vatTypeField"
+					"model": new javax.swing.DefaultComboBoxModel {
+						selectedItem: "VATABLE"
+						addElement( "VATABLE" )
+						addElement( "ZERO-RATED" )
+						addElement( "VAT EXEMPT" )
+					}
+					"focusable": false
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"background": new java.awt.Color( 232, 231, 244, 255 )
+					"font": new java.awt.Font( "Segoe UI", 0, 14 )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "vatableLabel"
+					"text": "VAT Type:"
+					"font": new java.awt.Font( "Segoe UI Semibold", 1, 16 )
+					"background": new java.awt.Color( 252, 248, 255, 255 )
+					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq t {space :20:20:p, par t {comp scrollPane1::l::505:x, seq l {comp totalAmountLabel:::p::p, space :0:0:x}, seq {comp totalAmountField:::p:237:p, space ::48:x, comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}, seq t {comp cartLabel:::p::p, space ::341:x, comp removeItemButton:::p:100:p}}, space :p:20:p}}"
-				"$verticalGroup": "par l {seq l {space :p:20:p, par b {comp removeItemButton::b:p:38:p, comp cartLabel::b:p::p}, space s:::p, comp scrollPane1::::503:x, space :p:20:p, comp totalAmountLabel:::p::p, space :p:6:p, par b {comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p, comp totalAmountField::b:p:35:p}, space :p:11:p}}"
+				"$horizontalGroup": "par l {seq l {space :20:20:p, par l {seq t {comp vatAmountField:::p:237:p, space ::48:x, comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}, seq t {comp cartLabel:::p::p, space ::341:x, comp removeItemButton:::p:100:p}, comp scrollPane1::l::505:x, seq {comp vatAmountLabel:::p::p, space :0:406:x}, seq {par l {comp totalAmountLabel2::l:p::p, comp totalAmountField::l:p:237:p}, space :p:20:p, par l {comp grandTotalAmountLabel:::p::p, comp grandTotalField::::248:x}}}, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {par l {seq {space :p:20:p, par b {comp removeItemButton::b:p:38:p, comp cartLabel::b:p::p}, space s:::p, comp scrollPane1:::p:423:p, space s:::x, comp totalAmountLabel2:::p::p, space :8:8:p, comp totalAmountField:::p:35:p}, seq {space :::x, comp grandTotalAmountLabel:::p::p, space :p:8:p, comp grandTotalField:::p:35:p}}, space s:::p, comp vatAmountLabel:::p::p, space :p:6:p, par b {comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p, comp vatAmountField::b:p:35:p}, space :p:11:p}}"
 			} ) {
 				name: "panel2"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -278,7 +319,34 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancel", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "totalAmountLabel"
+					name: "vatAmountLabel"
+					"text": "VAT Amount:"
+					"font": #Font0
+					"background": #Color0
+					"foreground": #Color1
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "vatAmountField"
+					"border": #MatteBorder0
+					"background": #Color2
+					"font": #Font1
+					"editable": false
+					"focusable": false
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "removeItemButton"
+					"text": "REMOVE"
+					"background": #Color3
+					"font": #Font2
+					"foreground": #Color4
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "removeFromCart", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "totalAmountLabel2"
 					"text": "Total Amount:"
 					"font": #Font0
 					"background": #Color0
@@ -293,15 +361,25 @@ new FormModel {
 					"background": #Color2
 					"font": #Font1
 					"editable": false
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "removeItemButton"
-					"text": "REMOVE"
-					"background": #Color3
-					"font": #Font2
-					"foreground": #Color4
 					"focusable": false
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "removeFromCart", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "grandTotalAmountLabel"
+					"text": "Grand Total Amount:"
+					"font": #Font0
+					"background": #Color0
+					"foreground": #Color1
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"focusable": false
+					"editable": false
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "grandTotalField"
+					"border": #MatteBorder0
+					"background": #Color2
+					"font": #Font1
+					"editable": false
+					"focusable": false
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {
