@@ -237,7 +237,7 @@ public class Sales extends JPanel {
         frame.setContentPane(new CreateOrderForm(this));
         frame.pack();
         frame.setLocationRelativeTo(null);
-        frame.setResizable(false);          // Disable window resizing
+        frame.setResizable(true);          // Disable window resizing
         frame.setVisible(true);
     }
 
@@ -638,41 +638,22 @@ public class Sales extends JPanel {
             }
         });
 
-        // Set Table Column Size
-        // First Column
-        TableColumn firstColumn = transactionHistoryTable.getColumnModel().getColumn(0);
-        firstColumn.setPreferredWidth(110);
-        firstColumn.setMinWidth(110);
-        firstColumn.setMaxWidth(110);
-        firstColumn.setResizable(false);
-        // Second Column
-        TableColumn secondColumn = transactionHistoryTable.getColumnModel().getColumn(1);
-        secondColumn.setPreferredWidth(70);
-        secondColumn.setMinWidth(70);
-        // Third Column
-        TableColumn thirdColumn = transactionHistoryTable.getColumnModel().getColumn(2);
-        thirdColumn.setPreferredWidth(100);
-        thirdColumn.setMinWidth(100);
-        // Fourth Column
-        TableColumn fourthColumn = transactionHistoryTable.getColumnModel().getColumn(3);
-        fourthColumn.setPreferredWidth(60);
-        fourthColumn.setMinWidth(60);
-        // Fifth Column
-        TableColumn fifthColumn = transactionHistoryTable.getColumnModel().getColumn(4);
-        fifthColumn.setPreferredWidth(150);
-        fifthColumn.setMinWidth(150);
-        // Sixth Column
-        TableColumn sixthColumn = transactionHistoryTable.getColumnModel().getColumn(5);
-        sixthColumn.setPreferredWidth(50);
-        sixthColumn.setMinWidth(50);
-        // Seventh Column
-        TableColumn seventhColumn = transactionHistoryTable.getColumnModel().getColumn(6);
-        seventhColumn.setPreferredWidth(50);
-        seventhColumn.setMinWidth(50);
-        // Eight Column
-        TableColumn eightColumn = transactionHistoryTable.getColumnModel().getColumn(7);
-        eightColumn.setPreferredWidth(50);
-        eightColumn.setMinWidth(50);
+        // Adjust column widths
+        TableColumn transactionIdColumn = transactionHistoryTable.getColumnModel().getColumn(0);
+        transactionIdColumn.setPreferredWidth(150);
+        transactionIdColumn.setMinWidth(150);
+
+        TableColumn dateColumn = transactionHistoryTable.getColumnModel().getColumn(1);
+        dateColumn.setPreferredWidth(200);
+        dateColumn.setMinWidth(200);
+
+        TableColumn customerNameColumn = transactionHistoryTable.getColumnModel().getColumn(2);
+        customerNameColumn.setPreferredWidth(300);
+        customerNameColumn.setMinWidth(300);
+
+        TableColumn totalPriceColumn = transactionHistoryTable.getColumnModel().getColumn(3);
+        totalPriceColumn.setPreferredWidth(150);
+        totalPriceColumn.setMinWidth(150);
 
         // Lock Column Re-order
         transactionHistoryTable.getTableHeader().setReorderingAllowed(false);
@@ -686,10 +667,11 @@ public class Sales extends JPanel {
     }
 
     void populateTableSales(String searchQuery) {
-        String sql = "SELECT transaction_id, date, customer_name, item_id, item_name, quantity, price, total_price " +
+        String sql = "SELECT transaction_id, date, customer_name, total_price " +
                 "FROM transaction_history " +
-                "WHERE transaction_id LIKE ? OR customer_name LIKE ? OR item_id LIKE ? OR item_name LIKE ? " +
-                "ORDER BY date";
+                "WHERE transaction_id LIKE ? OR " +
+                "customer_name LIKE ? " +
+                "ORDER BY date DESC";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)) {
@@ -697,8 +679,6 @@ public class Sales extends JPanel {
             String wildcardQuery = "%" + searchQuery + "%";
             pst.setString(1, wildcardQuery);
             pst.setString(2, wildcardQuery);
-            pst.setString(3, wildcardQuery);
-            pst.setString(4, wildcardQuery);
 
             ResultSet rs = pst.executeQuery();
 
@@ -709,23 +689,20 @@ public class Sales extends JPanel {
                 }
             };
 
-            model.setColumnIdentifiers(new String[]{"Sale ID", "Date", "Customer Name", "Item ID", "Item Name", "Quantity", "Unit Price", "Total Price"});
+            model.setColumnIdentifiers(new String[]{"Transaction ID", "Date", "Customer Name", "Total Price"});
 
             while (rs.next()) {
                 model.addRow(new Object[]{
                         rs.getString("transaction_id"),
                         rs.getTimestamp("date"),
                         rs.getString("customer_name"),
-                        rs.getString("item_id"),
-                        rs.getString("item_name"),
-                        rs.getInt("quantity"),
-                        rs.getDouble("price"),
-                        rs.getDouble("total_price")
+                        String.format("₱%.2f", rs.getDouble("total_price")) // Format price with peso sign
                 });
             }
 
             transactionHistoryTable.setModel(model);
             setTableTheme();
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error loading transaction history: " + ex.getMessage());
         }

@@ -13,6 +13,7 @@ public class DBConnection {
         createUsersTable(); // Ensure users table exists at startup
         createInventoryTable(); // Ensure inventory table exists at startup
         createTransactionTable(); // Ensure sales table exists at startup
+        createCartTable(); // Ensure cart table exists at startup
     }
 
     private void createUsersTable() {
@@ -66,11 +67,6 @@ public class DBConnection {
     private void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS transaction_history ("
                 + "transaction_id VARCHAR(20) PRIMARY KEY, "
-                + "item_id VARCHAR(100) NOT NULL, "
-                + "item_name VARCHAR(100) NOT NULL, "
-                + "category VARCHAR(50) NOT NULL, "
-                + "quantity INT NOT NULL, "
-                + "price DECIMAL(10,2) NOT NULL, "
                 + "total_price DECIMAL(10,2) NOT NULL, "
                 + "date TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, "
                 + "customer_name VARCHAR(100), "
@@ -86,6 +82,25 @@ public class DBConnection {
             stmt.executeUpdate(createTableSQL);
         } catch (SQLException e) {
             System.out.println("Error creating transaction table: " + e.getMessage());
+        }
+    }
+
+    private void createCartTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS cart_items ("
+                + "id int(11) NOT NULL, "
+                + "transaction_id varchar(50) DEFAULT NULL, "
+                + "item_id varchar(50) DEFAULT NULL, "
+                + "item_name varchar(100) DEFAULT NULL, "
+                + "category varchar(50) DEFAULT NULL, "
+                + "price decimal(10,2) DEFAULT NULL, "
+                + "quantity int(11) DEFAULT NULL"
+                + ")";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            System.out.println("Error creating cart table: " + e.getMessage());
         }
     }
 

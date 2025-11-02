@@ -2,23 +2,37 @@
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 
 public class PaymentConfirmationForm extends JPanel {
     private final Sales sales;
-    public PaymentConfirmationForm(
-            String customerName, String customerAddress, String customerEmail, String customerPhone,
-            String itemID, String itemName, String category, double price, int quantity, double totalAmount,
-            Sales sales) {
+    private final String transactionId;
+    private final double totalAmount;
+    private final String customerName;
+    private final String customerAddress;
+    private final String customerEmail;
+    private final String customerPhone;
+    private DefaultTableModel cartTableModel;
+    private Map<String, Integer> itemQuantityMap;
+    public PaymentConfirmationForm(Sales sales, String transactionId, Object[][] cartData, double totalAmount,
+                                   String customerName, String customerAddress, String customerEmail, String customerPhone) {
         this.sales = sales;
+        this.transactionId = transactionId;
+        this.totalAmount = totalAmount;
+        this.customerName = customerName;
+        this.customerAddress = customerAddress;
+        this.customerEmail = customerEmail;
+        this.customerPhone = customerPhone;
+
         initComponents();
+        setupCartTable(cartData);
 
         // Add Left-Padding to Text Fields
         //---- Customer Information ----
@@ -38,27 +52,6 @@ public class PaymentConfirmationForm extends JPanel {
                 customerPhoneField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
-        //---- Product Information ----
-        itemNameField.setBorder(BorderFactory.createCompoundBorder(
-                itemNameField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
-        ));
-        itemIDField.setBorder(BorderFactory.createCompoundBorder(
-                itemIDField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
-        ));
-        priceField.setBorder(BorderFactory.createCompoundBorder(
-                priceField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
-        ));
-        quantityField.setBorder(BorderFactory.createCompoundBorder(
-                quantityField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
-        ));
-        categoryField.setBorder(BorderFactory.createCompoundBorder(
-                categoryField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
-        ));
         //---- Payment Details ----
         totalAmountField.setBorder(BorderFactory.createCompoundBorder(
                 totalAmountField.getBorder(),
@@ -75,14 +68,15 @@ public class PaymentConfirmationForm extends JPanel {
         customerAddressField.setText(customerAddress);
         customerEmailField.setText(customerEmail);
         customerPhoneField.setText(customerPhone);
-        // ---- Product Information ----
-        itemIDField.setText(itemID);
-        itemNameField.setText(itemName);
-        categoryField.setText(category);
-        priceField.setText(String.valueOf(price));
-        quantityField.setText(String.valueOf(quantity));
         // ---- Payment Details ----
-        totalAmountField.setText(String.valueOf(totalAmount));
+        totalAmountField.setText(String.format("%.2f", totalAmount));
+
+        // Make table rows non-selectable
+        cartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        cartTable.setRowSelectionAllowed(false);
+        cartTable.setCellSelectionEnabled(false);
+        cartTable.getTableHeader().setReorderingAllowed(false);
+        cartTable.setFocusable(false);
     }
 
     private void cancel(ActionEvent e) {
@@ -115,58 +109,67 @@ public class PaymentConfirmationForm extends JPanel {
             String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
             try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-                String sql = "INSERT INTO transaction_history (transaction_id, item_id, item_name, category, quantity, price, total_price, date, customer_name, customer_address, customer_email, customer_phone, payment_amount, payment_method) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                PreparedStatement stmt = conn.prepareStatement(sql);
+                // Begin transaction
+                conn.setAutoCommit(false);
 
-                stmt.setString(1, transactionID);
-                stmt.setString(2, itemIDField.getText().trim());
-                stmt.setString(3, itemNameField.getText().trim());
-                stmt.setString(4, categoryField.getText().trim());
-                stmt.setInt(5, Integer.parseInt(quantityField.getText()));
-                stmt.setDouble(6, Double.parseDouble(priceField.getText()));
-                stmt.setDouble(7, total);
-                stmt.setString(8, date);
-                stmt.setString(9, customerNameField.getText().trim());
-                stmt.setString(10, customerAddressField.getText().trim());
-                stmt.setString(11, customerEmailField.getText().trim());
-                stmt.setString(12, customerPhoneField.getText().trim());
-                stmt.setDouble(13, payment);
-                stmt.setString(14, paymentMethod);
+                try {
+                    String sql = "INSERT INTO transaction_history (transaction_id, total_price, date, customer_name, " +
+                            "customer_address, customer_email, customer_phone, payment_amount, payment_method) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    PreparedStatement stmt = conn.prepareStatement(sql);
 
-                stmt.executeUpdate();
+                    // Insert one transaction record with total amount
+                    stmt.setString(1, transactionID);
+                    stmt.setDouble(2, total);
+                    stmt.setString(3, date);
+                    stmt.setString(4, customerNameField.getText().trim());
+                    stmt.setString(5, customerAddressField.getText().trim());
+                    stmt.setString(6, customerEmailField.getText().trim());
+                    stmt.setString(7, customerPhoneField.getText().trim());
+                    stmt.setDouble(8, payment);
+                    stmt.setString(9, paymentMethod);
 
-                // Update inventory quantity
-                String updateSql = "UPDATE inventory SET quantity = quantity - ? WHERE item_id = ?";
-                PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-                updateStmt.setInt(1, Integer.parseInt(quantityField.getText().trim()));
-                updateStmt.setString(2, itemIDField.getText().trim());
-                updateStmt.executeUpdate();
+                    stmt.executeUpdate();
 
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(null, "Error saving transaction: " + ex.getMessage());
-                return;
+                    // Update inventory for each item
+                    for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+                        String updateSql = "UPDATE inventory SET quantity = quantity - ? WHERE item_id = ?";
+                        PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                        updateStmt.setInt(1, Integer.parseInt(cartTableModel.getValueAt(i, 4).toString()));
+                        updateStmt.setString(2, cartTableModel.getValueAt(i, 0).toString());
+                        updateStmt.executeUpdate();
+                    }
+
+                    // Commit transaction
+                    conn.commit();
+
+                    // Show payment details
+                    String totalAmount = totalAmountField.getText();
+                    String paymentAmount = paymentAmountField.getText();
+                    String paymentChoice = (String) paymentMethodField.getSelectedItem();
+
+                    PaymentDetails paymentDetails = new PaymentDetails(totalAmount, paymentAmount, paymentChoice, change, sales);
+
+                    JFrame frame = new JFrame("Payment Details");
+                    frame.setContentPane(paymentDetails);
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setResizable(false);
+                    frame.setVisible(true);
+
+                    SwingUtilities.getWindowAncestor(this).dispose();
+
+                } catch (SQLException ex) {
+                    // Rollback transaction on error
+                    conn.rollback();
+                    throw ex;
+                }
             }
-
-            // Show payment details in new window
-            String totalAmount = totalAmountField.getText();
-            String paymentAmount = paymentAmountField.getText();
-            String paymentChoice = (String) paymentMethodField.getSelectedItem();
-
-            PaymentDetails paymentDetails = new PaymentDetails(totalAmount, paymentAmount, paymentChoice, change, sales);
-
-            // Open PaymentConfirmationForm
-            JFrame frame = new JFrame("Payment Details");
-            frame.setContentPane(paymentDetails);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-            frame.setResizable(false);          // Disable window resizing
-            frame.setVisible(true);
-
-            SwingUtilities.getWindowAncestor(this).dispose();
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(null, "Please enter valid numeric values.");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error saving transaction: " + ex.getMessage());
         }
     }
 
@@ -176,18 +179,8 @@ public class PaymentConfirmationForm extends JPanel {
         windowTitleContainer = new JPanel();
         dashboardLabel = new JTextField();
         panel1 = new JPanel();
-        itemNameLabel = new JTextField();
-        itemNameField = new JTextField();
-        itemIDLabel = new JTextField();
-        itemIDField = new JTextField();
-        priceField = new JTextField();
-        priceLabel = new JTextField();
-        quantityField = new JTextField();
-        quantityLabel = new JTextField();
         confirmButton = new JButton();
         cancelButton = new JButton();
-        categoryLabel = new JTextField();
-        categoryField = new JTextField();
         customerNameField = new JTextField();
         customeNameLabel = new JTextField();
         customerAddressLabel = new JTextField();
@@ -197,7 +190,6 @@ public class PaymentConfirmationForm extends JPanel {
         customerPhoneField = new JTextField();
         customerPhoneLabel = new JTextField();
         customerInformationLabel = new JTextField();
-        productInformationLabel = new JTextField();
         paymentDetailsLabel = new JTextField();
         totalAmountLabel = new JTextField();
         totalAmountField = new JTextField();
@@ -205,6 +197,10 @@ public class PaymentConfirmationForm extends JPanel {
         paymentAmountField = new JTextField();
         paymentMethodLabel = new JTextField();
         paymentMethodField = new JComboBox<>();
+        panel2 = new JPanel();
+        cartLabel = new JTextField();
+        scrollPane1 = new JScrollPane();
+        cartTable = new JTable();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -249,7 +245,7 @@ public class PaymentConfirmationForm extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(607, Short.MAX_VALUE))
+                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
@@ -263,70 +259,6 @@ public class PaymentConfirmationForm extends JPanel {
         //======== panel1 ========
         {
             panel1.setBackground(new Color(0xfcf8ff));
-
-            //---- itemNameLabel ----
-            itemNameLabel.setText("Item Name:");
-            itemNameLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            itemNameLabel.setBackground(new Color(0xfcf8ff));
-            itemNameLabel.setForeground(new Color(0x897cce));
-            itemNameLabel.setBorder(null);
-            itemNameLabel.setFocusable(false);
-            itemNameLabel.setEditable(false);
-
-            //---- itemNameField ----
-            itemNameField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            itemNameField.setBackground(new Color(0xe8e7f4));
-            itemNameField.setEditable(false);
-            itemNameField.setFocusable(false);
-            itemNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            //---- itemIDLabel ----
-            itemIDLabel.setText("Item ID:");
-            itemIDLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            itemIDLabel.setBackground(new Color(0xfcf8ff));
-            itemIDLabel.setForeground(new Color(0x897cce));
-            itemIDLabel.setBorder(null);
-            itemIDLabel.setFocusable(false);
-            itemIDLabel.setEditable(false);
-
-            //---- itemIDField ----
-            itemIDField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            itemIDField.setBackground(new Color(0xe8e7f4));
-            itemIDField.setEditable(false);
-            itemIDField.setFocusable(false);
-            itemIDField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            //---- priceField ----
-            priceField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            priceField.setBackground(new Color(0xe8e7f4));
-            priceField.setEditable(false);
-            priceField.setFocusable(false);
-            priceField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            //---- priceLabel ----
-            priceLabel.setText("Price:");
-            priceLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            priceLabel.setBackground(new Color(0xfcf8ff));
-            priceLabel.setForeground(new Color(0x897cce));
-            priceLabel.setBorder(null);
-            priceLabel.setFocusable(false);
-            priceLabel.setEditable(false);
-
-            //---- quantityField ----
-            quantityField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            quantityField.setBackground(new Color(0xe8e7f4));
-            quantityField.setEditable(false);
-            quantityField.setFocusable(false);
-            quantityField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            //---- quantityLabel ----
-            quantityLabel.setText("Quantity:");
-            quantityLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            quantityLabel.setBackground(new Color(0xfcf8ff));
-            quantityLabel.setForeground(new Color(0x897cce));
-            quantityLabel.setBorder(null);
-            quantityLabel.setFocusable(false);
-            quantityLabel.setEditable(false);
 
             //---- confirmButton ----
             confirmButton.setText("CONFIRM");
@@ -343,22 +275,6 @@ public class PaymentConfirmationForm extends JPanel {
             cancelButton.setForeground(new Color(0xfcf8ff));
             cancelButton.setFocusable(false);
             cancelButton.addActionListener(e -> cancel(e));
-
-            //---- categoryLabel ----
-            categoryLabel.setText("Category:");
-            categoryLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            categoryLabel.setBackground(new Color(0xfcf8ff));
-            categoryLabel.setForeground(new Color(0x897cce));
-            categoryLabel.setBorder(null);
-            categoryLabel.setFocusable(false);
-            categoryLabel.setEditable(false);
-
-            //---- categoryField ----
-            categoryField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            categoryField.setBackground(new Color(0xe8e7f4));
-            categoryField.setEditable(false);
-            categoryField.setFocusable(false);
-            categoryField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- customerNameField ----
             customerNameField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
@@ -433,15 +349,6 @@ public class PaymentConfirmationForm extends JPanel {
             customerInformationLabel.setFocusable(false);
             customerInformationLabel.setEditable(false);
 
-            //---- productInformationLabel ----
-            productInformationLabel.setText("Product Information");
-            productInformationLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-            productInformationLabel.setBackground(new Color(0xfcf8ff));
-            productInformationLabel.setForeground(new Color(0x251779));
-            productInformationLabel.setBorder(null);
-            productInformationLabel.setFocusable(false);
-            productInformationLabel.setEditable(false);
-
             //---- paymentDetailsLabel ----
             paymentDetailsLabel.setText("Payment Details");
             paymentDetailsLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
@@ -508,33 +415,29 @@ public class PaymentConfirmationForm extends JPanel {
                         .addGroup(panel1Layout.createParallelGroup()
                             .addGroup(panel1Layout.createSequentialGroup()
                                 .addGroup(panel1Layout.createParallelGroup()
-                                    .addComponent(totalAmountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(totalAmountField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(paymentAmountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(paymentAmountField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE))
-                                .addGap(50, 50, 50)
-                                .addGroup(panel1Layout.createParallelGroup()
-                                    .addGroup(panel1Layout.createSequentialGroup()
-                                        .addComponent(paymentMethodLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                        .addContainerGap(119, Short.MAX_VALUE))
-                                    .addGroup(panel1Layout.createSequentialGroup()
-                                        .addGroup(panel1Layout.createParallelGroup()
-                                            .addComponent(paymentMethodField, GroupLayout.PREFERRED_SIZE, 220, GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(panel1Layout.createSequentialGroup()
-                                                .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                                                .addGap(20, 20, 20)
-                                                .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))
-                                        .addGap(0, 30, Short.MAX_VALUE))))
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addGroup(panel1Layout.createParallelGroup()
                                     .addComponent(customerInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(customerAddressLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(customeNameLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(customerNameField, GroupLayout.PREFERRED_SIZE, 720, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(customerAddressField, GroupLayout.PREFERRED_SIZE, 720, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap())
+                                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(panel1Layout.createSequentialGroup()
                                 .addGroup(panel1Layout.createParallelGroup()
+                                    .addGroup(panel1Layout.createSequentialGroup()
+                                        .addGroup(panel1Layout.createParallelGroup()
+                                            .addComponent(totalAmountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(totalAmountField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(paymentAmountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(paymentAmountField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE))
+                                        .addGap(50, 50, 50)
+                                        .addGroup(panel1Layout.createParallelGroup()
+                                            .addComponent(paymentMethodLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(paymentMethodField, GroupLayout.PREFERRED_SIZE, 220, GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(panel1Layout.createSequentialGroup()
+                                                .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                                .addGap(20, 20, 20)
+                                                .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(paymentDetailsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addGroup(panel1Layout.createSequentialGroup()
                                         .addGroup(panel1Layout.createParallelGroup()
                                             .addComponent(customerEmailLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -542,24 +445,8 @@ public class PaymentConfirmationForm extends JPanel {
                                         .addGap(30, 30, 30)
                                         .addGroup(panel1Layout.createParallelGroup()
                                             .addComponent(customerPhoneLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(customerPhoneField, GroupLayout.PREFERRED_SIZE, 345, GroupLayout.PREFERRED_SIZE)))
-                                    .addComponent(paymentDetailsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(productInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(panel1Layout.createSequentialGroup()
-                                        .addGroup(panel1Layout.createParallelGroup()
-                                            .addComponent(itemNameLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(itemNameField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(itemIDLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(itemIDField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(categoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(categoryField, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE))
-                                        .addGap(50, 50, 50)
-                                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(quantityLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(priceLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(priceField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
-                                            .addComponent(quantityField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE))))
-                                .addGap(0, 0, Short.MAX_VALUE))))
+                                            .addComponent(customerPhoneField, GroupLayout.PREFERRED_SIZE, 345, GroupLayout.PREFERRED_SIZE))))
+                                .addGap(0, 20, Short.MAX_VALUE))))
             );
             panel1Layout.setVerticalGroup(
                 panel1Layout.createParallelGroup()
@@ -584,33 +471,7 @@ public class PaymentConfirmationForm extends JPanel {
                                 .addComponent(customerPhoneLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addGap(6, 6, 6)
                                 .addComponent(customerPhoneField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addComponent(productInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(itemNameLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(itemNameField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(priceLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(priceField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addGroup(panel1Layout.createParallelGroup()
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(itemIDLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(6, 6, 6)
-                                .addComponent(itemIDField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(quantityLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(quantityField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
-                        .addComponent(categoryLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addGap(3, 3, 3)
-                        .addComponent(categoryField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addGap(43, 43, 43)
                         .addComponent(paymentDetailsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -627,7 +488,50 @@ public class PaymentConfirmationForm extends JPanel {
                             .addComponent(paymentAmountField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
                             .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
                             .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(20, Short.MAX_VALUE))
+                        .addContainerGap(22, Short.MAX_VALUE))
+            );
+        }
+
+        //======== panel2 ========
+        {
+            panel2.setBackground(new Color(0xfcf8ff));
+
+            //---- cartLabel ----
+            cartLabel.setText("Cart");
+            cartLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
+            cartLabel.setBackground(new Color(0xfcf8ff));
+            cartLabel.setForeground(new Color(0x251779));
+            cartLabel.setBorder(null);
+            cartLabel.setFocusable(false);
+            cartLabel.setEditable(false);
+
+            //======== scrollPane1 ========
+            {
+                scrollPane1.setBackground(new Color(0xfcf8ff));
+                scrollPane1.setViewportView(cartTable);
+            }
+
+            GroupLayout panel2Layout = new GroupLayout(panel2);
+            panel2.setLayout(panel2Layout);
+            panel2Layout.setHorizontalGroup(
+                panel2Layout.createParallelGroup()
+                    .addGroup(panel2Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(panel2Layout.createParallelGroup()
+                            .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
+                            .addGroup(panel2Layout.createSequentialGroup()
+                                .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 441, Short.MAX_VALUE)))
+                        .addGap(20, 20, 20))
+            );
+            panel2Layout.setVerticalGroup(
+                panel2Layout.createParallelGroup()
+                    .addGroup(panel2Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 527, Short.MAX_VALUE)
+                        .addGap(20, 20, 20))
             );
         }
 
@@ -641,17 +545,21 @@ public class PaymentConfirmationForm extends JPanel {
                         .addComponent(windowTitleContainer, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createSequentialGroup()
                             .addGap(25, 25, 25)
-                            .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGap(25, 25, 25))))
+                            .addComponent(panel1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addGap(20, 20, 20)
+                            .addComponent(panel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGap(20, 20, 20))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                     .addComponent(windowTitleContainer, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(25, 25, 25)
-                    .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup()
+                        .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(panel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGap(25, 25, 25))
-                .addComponent(sidePanel, GroupLayout.DEFAULT_SIZE, 980, Short.MAX_VALUE)
+                .addComponent(sidePanel, GroupLayout.DEFAULT_SIZE, 725, Short.MAX_VALUE)
         );
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
     }
@@ -661,18 +569,8 @@ public class PaymentConfirmationForm extends JPanel {
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JPanel panel1;
-    private JTextField itemNameLabel;
-    private JTextField itemNameField;
-    private JTextField itemIDLabel;
-    private JTextField itemIDField;
-    private JTextField priceField;
-    private JTextField priceLabel;
-    private JTextField quantityField;
-    private JTextField quantityLabel;
     private JButton confirmButton;
     private JButton cancelButton;
-    private JTextField categoryLabel;
-    private JTextField categoryField;
     private JTextField customerNameField;
     private JTextField customeNameLabel;
     private JTextField customerAddressLabel;
@@ -682,7 +580,6 @@ public class PaymentConfirmationForm extends JPanel {
     private JTextField customerPhoneField;
     private JTextField customerPhoneLabel;
     private JTextField customerInformationLabel;
-    private JTextField productInformationLabel;
     private JTextField paymentDetailsLabel;
     private JTextField totalAmountLabel;
     private JTextField totalAmountField;
@@ -690,5 +587,124 @@ public class PaymentConfirmationForm extends JPanel {
     private JTextField paymentAmountField;
     private JTextField paymentMethodLabel;
     private JComboBox<String> paymentMethodField;
+    private JPanel panel2;
+    private JTextField cartLabel;
+    private JScrollPane scrollPane1;
+    private JTable cartTable;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    private void setupCartTable(Object[][] cartData) {
+        // Set up table model with columns
+        String[] columns = {"Item ID", "Item Name", "Category", "Unit Price", "Quantity", "Subtotal"};
+        cartTableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        // Add the cart data to the table model
+        for (Object[] row : cartData) {
+            cartTableModel.addRow(row);
+        }
+
+        cartTable.setModel(cartTableModel);
+
+        // Set table properties
+        cartTable.setShowGrid(false);
+        cartTable.setRowHeight(40);
+        cartTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cartTable.setFocusable(false);
+        cartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        cartTable.getTableHeader().setReorderingAllowed(false);
+
+        // Custom cell renderer for alternating row colors and padding
+        DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (isSelected) {
+                    label.setBackground(Color.decode("#A59BDA"));
+                    label.setForeground(Color.BLACK);
+                } else {
+                    label.setBackground(row % 2 == 0 ? Color.decode("#D4CFED") : Color.WHITE);
+                    label.setForeground(Color.BLACK);
+                }
+
+                // Apply left padding (except first column)
+                if (column != 0) {
+                    label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                    label.setHorizontalAlignment(SwingConstants.LEFT);
+                } else {
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+
+                return label;
+            }
+        };
+
+        // Apply renderer to all columns
+        for (int i = 0; i < cartTable.getColumnCount(); i++) {
+            cartTable.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        // Style the header
+        JTableHeader header = cartTable.getTableHeader();
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                label.setBorder(BorderFactory.createEmptyBorder());
+                label.setBackground(Color.decode("#6c39c1"));
+                label.setForeground(Color.WHITE);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                return label;
+            }
+        });
+
+        // Set column widths
+        TableColumnModel columnModel = cartTable.getColumnModel();
+        int[] columnWidths = {100, 200, 150, 120, 100, 120};
+        for (int i = 0; i < columnWidths.length; i++) {
+            TableColumn column = columnModel.getColumn(i);
+            column.setPreferredWidth(columnWidths[i]); // Set only preferred width
+        }
+
+        // Enable table scrolling
+        cartTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+        // Calculate total width
+        int totalWidth = Arrays.stream(columnWidths).sum();
+
+        // Set preferred size for the table
+        cartTable.setPreferredScrollableViewportSize(new Dimension(totalWidth, 400));
+
+        // Set scroll pane properties with unified scroll bar appearance
+        scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // Set minimum and preferred column widths
+        for (int i = 0; i < cartTable.getColumnCount(); i++) {
+            TableColumn column = columnModel.getColumn(i);
+            column.setMinWidth(100);  // Minimum width for each column
+            column.setPreferredWidth(150);  // Preferred width for each column
+        }
+
+        // Make the table fill the viewport
+        cartTable.setFillsViewportHeight(true);
+
+        // Set preferred size for the scroll pane
+        scrollPane1.setPreferredSize(new Dimension(505, 400));
+
+        // Modern scroll bar styling
+        scrollPane1.getHorizontalScrollBar().setUI(new ModernScrollBarUI());
+        scrollPane1.getVerticalScrollBar().setUI(new ModernScrollBarUI());
+        scrollPane1.setBorder(BorderFactory.createEmptyBorder());
+    }
 }

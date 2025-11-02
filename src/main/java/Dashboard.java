@@ -1008,10 +1008,6 @@ public class Dashboard extends JPanel {
         TableColumn fourthColumn = transactionHistoryTable.getColumnModel().getColumn(3);
         fourthColumn.setPreferredWidth(60);
         fourthColumn.setMinWidth(60);
-        // Fifth Column
-        TableColumn fifthColumn = transactionHistoryTable.getColumnModel().getColumn(4);
-        fifthColumn.setPreferredWidth(60);
-        fifthColumn.setMinWidth(60);
 
         // Lock Column Re-order
         transactionHistoryTable.getTableHeader().setReorderingAllowed(false);
@@ -1021,7 +1017,7 @@ public class Dashboard extends JPanel {
     // SQL Functionalities Section
     //
     void populateTableRecentSales() {
-        String sql = "SELECT date, item_name, quantity, price, total_price " +
+        String sql = "SELECT transaction_id, date, customer_name, total_price " +
                 "FROM transaction_history " +
                 "ORDER BY date DESC LIMIT 20";
 
@@ -1033,19 +1029,19 @@ public class Dashboard extends JPanel {
             DefaultTableModel model = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return false; // Make all cells non-editable
+                    return false;
                 }
             };
 
-            model.setColumnIdentifiers(new String[]{"Date", "Item Name", "Quantity", "Unit Price", "Total Price"});
+            // Update column names to match requested fields
+            model.setColumnIdentifiers(new String[]{"Transaction ID", "Date", "Customer Name", "Total Price"});
 
             while (rs.next()) {
                 model.addRow(new Object[]{
+                        rs.getString("transaction_id"), // Changed from getInt to getString
                         rs.getTimestamp("date"),
-                        rs.getString("item_name"),
-                        rs.getInt("quantity"),
-                        rs.getDouble("price"),
-                        rs.getDouble("total_price")
+                        rs.getString("customer_name"),
+                        String.format("%.2f", rs.getDouble("total_price"))
                 });
             }
 

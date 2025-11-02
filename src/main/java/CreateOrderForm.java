@@ -3,20 +3,27 @@
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class CreateOrderForm extends JPanel {
     private final Sales sales;
+    private DefaultTableModel cartTableModel;
+    private double totalPrice = 0.0;
+    private Map<String, Integer> itemQuantityMap = new HashMap<>(); // To track quantities in cart
     public CreateOrderForm(Sales sales) {
         this.sales = sales;
 
         typingTimer = new Timer(); // Initialize typingTimer
 
         initComponents();
+        setupCartTable();
 
         // Add Left-Padding to Text Fields
         //---- Customer Information ----
@@ -57,94 +64,40 @@ public class CreateOrderForm extends JPanel {
                 categoryField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+        totalAmountField.setBorder(BorderFactory.createCompoundBorder(
+                totalAmountField.getBorder(),
+                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
+        ));
     }
 
-    private void cancel(ActionEvent e) {
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Create Order Form
+    private void cancelCart(ActionEvent e) {
+        clearProductFields();
     }
 
-    private void confirm(ActionEvent e) {
-        fieldsValidation();
-    }
+    private void removeFromCart(ActionEvent e) {
+        int selectedRow = cartTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            String itemName = (String) cartTableModel.getValueAt(selectedRow, 1);
 
-    private void fieldsValidation() {
-        String itemID = itemIDField.getText().trim();
-        String itemName = itemNameField.getText().trim();
-        String category = categoryField.getText().trim();
-        String priceText = priceField.getText().trim();
-        String quantityText = quantityField.getText().trim();
-        String customerName = customerNameField.getText().trim();
+            // Show confirmation dialog
+            int result = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to remove '" + itemName + "' from the cart?",
+                    "Confirm Remove",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
 
-        // Check required fields
-        if (itemID.isEmpty() || itemName.isEmpty() || category.isEmpty() || priceText.isEmpty() || quantityText.isEmpty() || customerName.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill in all required fields.", "Missing Data", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Check quantity is a number
-        int quantity;
-        try {
-            quantity = Integer.parseInt(quantityText);
-            if (quantity <= 0) {
-                JOptionPane.showMessageDialog(this, "Quantity must be greater than 0.", "Invalid Quantity", JOptionPane.WARNING_MESSAGE);
-                return;
+            // Only remove if user clicks Yes
+            if (result == JOptionPane.YES_OPTION) {
+                String itemId = (String) cartTableModel.getValueAt(selectedRow, 0);
+                itemQuantityMap.remove(itemId);
+                cartTableModel.removeRow(selectedRow);
+                updateTotalPrice();
             }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Quantity must be a valid number.", "Invalid Quantity", JOptionPane.WARNING_MESSAGE);
-            return;
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Please select an item to remove",
+                    "Selection Required", JOptionPane.WARNING_MESSAGE);
         }
-
-        // Check price is a number
-        double price;
-        try {
-            price = Double.parseDouble(priceText);
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Price must be a valid number.", "Invalid Price", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Check available stock in database
-        int availableStock = getAvailableStock(itemID);
-        if (quantity > availableStock) {
-            JOptionPane.showMessageDialog(this, "Insufficient stock. Available: " + availableStock, "Stock Error", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        PaymentConfirmationForm paymentForm = getPaymentConfirmationForm();
-
-        // Open PaymentConfirmationForm
-        JFrame frame = new JFrame("Payment Confirmation");
-        frame.setContentPane(paymentForm);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setResizable(false);          // Disable window resizing
-        frame.setVisible(true);
-
-        SwingUtilities.getWindowAncestor(this).dispose();
-    }
-
-    private PaymentConfirmationForm getPaymentConfirmationForm() {
-        // Collecting data from fields
-        // ---- Customer Information ----
-        String customerName = customerNameField.getText();
-        String customerAddress = customerAddressField.getText();
-        String customerPhone = customerPhoneField.getText();
-        String customerEmail = customerEmailField.getText();
-        // ---- Product Information ----
-        String itemID = itemIDField.getText();
-        String itemName = itemNameField.getText();
-        String category = categoryField.getText();
-        double price = Double.parseDouble(priceField.getText());
-        int quantity = Integer.parseInt(quantityField.getText());
-
-        // Calculate totalAmount
-        double totalAmount = price * quantity;
-
-        // Create the PaymentConfirmationForm and pass data
-        return new PaymentConfirmationForm(
-                customerName, customerAddress,  customerEmail, customerPhone,
-                itemID, itemName, category, price, quantity, totalAmount,
-                sales);
     }
 
     // Check available stock in Inventory
@@ -218,6 +171,114 @@ public class CreateOrderForm extends JPanel {
         }
     }
 
+    private void confirm(ActionEvent e) {
+        if (cartTableModel.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Cart is empty",
+                    "Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Create cart data for PaymentConfirmationForm
+        Object[][] cartData = new Object[cartTableModel.getRowCount()][6];
+        for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+            for (int j = 0; j < 6; j++) {
+                cartData[i][j] = cartTableModel.getValueAt(i, j);
+            }
+        }
+
+        // Generate transaction ID
+        String transactionId = generateTransactionId();
+
+        // Create and show PaymentConfirmationForm
+        PaymentConfirmationForm paymentForm = new PaymentConfirmationForm(
+                sales,
+                transactionId,
+                cartData,
+                totalPrice,
+                customerNameField.getText(),
+                customerAddressField.getText(),
+                customerEmailField.getText(),
+                customerPhoneField.getText()
+        );
+
+        // Create and show the frame
+        JFrame frame = new JFrame("Payment Confirmation");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.getContentPane().add(paymentForm);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+
+        // Dispose current frame
+        JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+        currentFrame.dispose();
+    }
+
+    private void cancel(ActionEvent e) {
+        SwingUtilities.getWindowAncestor(this).dispose();
+    }
+
+    private void addToCart(ActionEvent e) {
+        if (!validateFields()) return;
+
+        String itemId = itemIDField.getText();
+        String itemName = itemNameField.getText();
+        String category = categoryField.getText();
+        double price = Double.parseDouble(priceField.getText());
+        int quantity = Integer.parseInt(quantityField.getText());
+
+        // Check available stock
+        int availableStock = getAvailableStock(itemId);
+        int currentCartQuantity = itemQuantityMap.getOrDefault(itemId, 0);
+
+        if (quantity + currentCartQuantity > availableStock) {
+            JOptionPane.showMessageDialog(this,
+                    "Insufficient stock. Available: " + (availableStock - currentCartQuantity),
+                    "Stock Error", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check if item already exists in cart
+        int existingRow = findItemInCart(itemId);
+        if (existingRow >= 0) {
+            int result = JOptionPane.showConfirmDialog(this,
+                    "This item is already in the cart. Would you like to merge quantities?",
+                    "Merge Items", JOptionPane.YES_NO_OPTION);
+
+            if (result == JOptionPane.YES_OPTION) {
+                int newQuantity = quantity + (int) cartTableModel.getValueAt(existingRow, 4);
+                double subtotal = price * newQuantity;
+                cartTableModel.setValueAt(newQuantity, existingRow, 4);
+                cartTableModel.setValueAt(subtotal, existingRow, 5);
+                itemQuantityMap.put(itemId, newQuantity);
+            }
+        } else {
+            // Add new item to cart
+            double subtotal = price * quantity;
+            Object[] row = {itemId, itemName, category, price, quantity, subtotal};
+            cartTableModel.addRow(row);
+            itemQuantityMap.put(itemId, quantity);
+
+            // Disable Customer Information Fields
+            customerNameField.setEditable(false);
+            customerNameField.setFocusable(false);
+            customerNameField.setBackground(Color.getColor("#fcf8ff"));
+            customerPhoneField.setEditable(false);
+            customerPhoneField.setFocusable(false);
+            customerPhoneField.setBackground(Color.getColor("#fcf8ff"));
+            customerEmailField.setEditable(false);
+            customerEmailField.setFocusable(false);
+            customerEmailField.setBackground(Color.getColor("#fcf8ff"));
+            customerAddressField.setEditable(false);
+            customerAddressField.setFocusable(false);
+            customerAddressField.setBackground(Color.getColor("#fcf8ff"));
+        }
+
+        updateTotalPrice();
+        clearProductFields();
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -232,8 +293,8 @@ public class CreateOrderForm extends JPanel {
         priceLabel = new JTextField();
         quantityField = new JTextField();
         quantityLabel = new JTextField();
-        confirmButton = new JButton();
-        cancelButton = new JButton();
+        addToCartButton = new JButton();
+        cancelCartButton = new JButton();
         categoryLabel = new JTextField();
         categoryField = new JTextField();
         customerNameField = new JTextField();
@@ -246,10 +307,19 @@ public class CreateOrderForm extends JPanel {
         customerPhoneLabel = new JTextField();
         customerInformationLabel = new JTextField();
         productInformationLabel = new JTextField();
+        panel2 = new JPanel();
+        cartLabel = new JTextField();
+        scrollPane1 = new JScrollPane();
+        cartTable = new JTable();
+        confirmButton = new JButton();
+        cancelButton = new JButton();
+        totalAmountLabel = new JTextField();
+        totalAmountField = new JTextField();
+        removeItemButton = new JButton();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
-        setMinimumSize(new Dimension(850, 380));
+        setMinimumSize(new Dimension(1400, 780));
 
         //======== sidePanel ========
         {
@@ -290,14 +360,14 @@ public class CreateOrderForm extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(690, Short.MAX_VALUE))
+                        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(17, 17, 17)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(17, Short.MAX_VALUE))
+                        .addContainerGap(12, Short.MAX_VALUE))
             );
         }
 
@@ -387,21 +457,21 @@ public class CreateOrderForm extends JPanel {
             quantityLabel.setFocusable(false);
             quantityLabel.setEditable(false);
 
-            //---- confirmButton ----
-            confirmButton.setText("CONFIRM");
-            confirmButton.setBackground(new Color(0x6c39c1));
-            confirmButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            confirmButton.setForeground(new Color(0xfcf8ff));
-            confirmButton.setFocusable(false);
-            confirmButton.addActionListener(e -> confirm(e));
+            //---- addToCartButton ----
+            addToCartButton.setText("ADD");
+            addToCartButton.setBackground(new Color(0x6c39c1));
+            addToCartButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            addToCartButton.setForeground(new Color(0xfcf8ff));
+            addToCartButton.setFocusable(false);
+            addToCartButton.addActionListener(e -> addToCart(e));
 
-            //---- cancelButton ----
-            cancelButton.setText("CANCEL");
-            cancelButton.setBackground(new Color(0x6c39c1));
-            cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            cancelButton.setForeground(new Color(0xfcf8ff));
-            cancelButton.setFocusable(false);
-            cancelButton.addActionListener(e -> cancel(e));
+            //---- cancelCartButton ----
+            cancelCartButton.setText("CANCEL");
+            cancelCartButton.setBackground(new Color(0x6c39c1));
+            cancelCartButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            cancelCartButton.setForeground(new Color(0xfcf8ff));
+            cancelCartButton.setFocusable(false);
+            cancelCartButton.addActionListener(e -> cancelCart(e));
 
             //---- categoryLabel ----
             categoryLabel.setText("Category:");
@@ -504,7 +574,6 @@ public class CreateOrderForm extends JPanel {
                     .addGroup(panel1Layout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addGroup(panel1Layout.createParallelGroup()
-                            .addComponent(productInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                             .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                                 .addGroup(panel1Layout.createSequentialGroup()
                                     .addGroup(panel1Layout.createParallelGroup()
@@ -532,13 +601,14 @@ public class CreateOrderForm extends JPanel {
                                         .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                                             .addComponent(quantityLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                             .addComponent(priceLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(priceField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
-                                            .addComponent(quantityField, GroupLayout.DEFAULT_SIZE, 220, Short.MAX_VALUE)
+                                            .addComponent(priceField)
+                                            .addComponent(quantityField)
                                             .addGroup(panel1Layout.createSequentialGroup()
-                                                .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))))))
-                        .addGap(0, 30, Short.MAX_VALUE))
+                                                .addComponent(addToCartButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                                                .addComponent(cancelCartButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE))))))
+                            .addComponent(productInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(20, Short.MAX_VALUE))
             );
             panel1Layout.setVerticalGroup(
                 panel1Layout.createParallelGroup()
@@ -563,7 +633,7 @@ public class CreateOrderForm extends JPanel {
                                 .addComponent(customerPhoneLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addGap(6, 6, 6)
                                 .addComponent(customerPhoneField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 43, Short.MAX_VALUE)
                         .addComponent(productInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
@@ -575,7 +645,7 @@ public class CreateOrderForm extends JPanel {
                                 .addComponent(priceLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(priceField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
-                        .addGap(18, 18, 18)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(panel1Layout.createParallelGroup()
                             .addGroup(panel1Layout.createSequentialGroup()
                                 .addComponent(itemIDLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -590,9 +660,115 @@ public class CreateOrderForm extends JPanel {
                         .addGap(3, 3, 3)
                         .addGroup(panel1Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                             .addComponent(categoryField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
+                            .addComponent(cancelCartButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(addToCartButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
                         .addGap(14, 14, 14))
+            );
+        }
+
+        //======== panel2 ========
+        {
+            panel2.setBackground(new Color(0xfcf8ff));
+
+            //---- cartLabel ----
+            cartLabel.setText("Cart");
+            cartLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
+            cartLabel.setBackground(new Color(0xfcf8ff));
+            cartLabel.setForeground(new Color(0x251779));
+            cartLabel.setBorder(null);
+            cartLabel.setFocusable(false);
+            cartLabel.setEditable(false);
+
+            //======== scrollPane1 ========
+            {
+                scrollPane1.setBackground(new Color(0xfcf8ff));
+                scrollPane1.setPreferredSize(new Dimension(800, 400));
+
+                //---- cartTable ----
+                cartTable.setFillsViewportHeight(true);
+                cartTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                scrollPane1.setViewportView(cartTable);
+            }
+
+            //---- confirmButton ----
+            confirmButton.setText("CONFIRM");
+            confirmButton.setBackground(new Color(0x6c39c1));
+            confirmButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            confirmButton.setForeground(new Color(0xfcf8ff));
+            confirmButton.setFocusable(false);
+            confirmButton.addActionListener(e -> confirm(e));
+
+            //---- cancelButton ----
+            cancelButton.setText("CANCEL");
+            cancelButton.setBackground(new Color(0x6c39c1));
+            cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            cancelButton.setForeground(new Color(0xfcf8ff));
+            cancelButton.setFocusable(false);
+            cancelButton.addActionListener(e -> cancel(e));
+
+            //---- totalAmountLabel ----
+            totalAmountLabel.setText("Total Amount:");
+            totalAmountLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+            totalAmountLabel.setBackground(new Color(0xfcf8ff));
+            totalAmountLabel.setForeground(new Color(0x897cce));
+            totalAmountLabel.setBorder(null);
+            totalAmountLabel.setFocusable(false);
+            totalAmountLabel.setEditable(false);
+
+            //---- totalAmountField ----
+            totalAmountField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
+            totalAmountField.setBackground(new Color(0xe8e7f4));
+            totalAmountField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            totalAmountField.setEditable(false);
+
+            //---- removeItemButton ----
+            removeItemButton.setText("REMOVE");
+            removeItemButton.setBackground(new Color(0x6c39c1));
+            removeItemButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            removeItemButton.setForeground(new Color(0xfcf8ff));
+            removeItemButton.setFocusable(false);
+            removeItemButton.addActionListener(e -> removeFromCart(e));
+
+            GroupLayout panel2Layout = new GroupLayout(panel2);
+            panel2.setLayout(panel2Layout);
+            panel2Layout.setHorizontalGroup(
+                panel2Layout.createParallelGroup()
+                    .addGroup(GroupLayout.Alignment.TRAILING, panel2Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(panel2Layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                            .addComponent(scrollPane1, GroupLayout.Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE)
+                            .addGroup(GroupLayout.Alignment.LEADING, panel2Layout.createSequentialGroup()
+                                .addComponent(totalAmountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(panel2Layout.createSequentialGroup()
+                                .addComponent(totalAmountField, GroupLayout.PREFERRED_SIZE, 237, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                                .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
+                                .addGap(20, 20, 20)
+                                .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE))
+                            .addGroup(panel2Layout.createSequentialGroup()
+                                .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 341, Short.MAX_VALUE)
+                                .addComponent(removeItemButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))
+                        .addGap(20, 20, 20))
+            );
+            panel2Layout.setVerticalGroup(
+                panel2Layout.createParallelGroup()
+                    .addGroup(panel2Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addGroup(panel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(removeItemButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE)
+                        .addGap(20, 20, 20)
+                        .addComponent(totalAmountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addGroup(panel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                            .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(totalAmountField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
+                        .addGap(11, 11, 11))
             );
         }
 
@@ -606,15 +782,19 @@ public class CreateOrderForm extends JPanel {
                         .addComponent(windowTitleContainer, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createSequentialGroup()
                             .addGap(25, 25, 25)
-                            .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGap(25, 25, 25))))
+                            .addComponent(panel1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .addGap(20, 20, 20)
+                            .addComponent(panel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGap(20, 20, 20))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                     .addComponent(windowTitleContainer, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(25, 25, 25)
-                    .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createParallelGroup()
+                        .addComponent(panel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(panel2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGap(25, 25, 25))
                 .addComponent(sidePanel, GroupLayout.DEFAULT_SIZE, 780, Short.MAX_VALUE)
         );
@@ -634,8 +814,8 @@ public class CreateOrderForm extends JPanel {
     private JTextField priceLabel;
     private JTextField quantityField;
     private JTextField quantityLabel;
-    private JButton confirmButton;
-    private JButton cancelButton;
+    private JButton addToCartButton;
+    private JButton cancelCartButton;
     private JTextField categoryLabel;
     private JTextField categoryField;
     private JTextField customerNameField;
@@ -648,6 +828,15 @@ public class CreateOrderForm extends JPanel {
     private JTextField customerPhoneLabel;
     private JTextField customerInformationLabel;
     private JTextField productInformationLabel;
+    private JPanel panel2;
+    private JTextField cartLabel;
+    private JScrollPane scrollPane1;
+    private JTable cartTable;
+    private JButton confirmButton;
+    private JButton cancelButton;
+    private JTextField totalAmountLabel;
+    private JTextField totalAmountField;
+    private JButton removeItemButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     //
@@ -773,4 +962,208 @@ public class CreateOrderForm extends JPanel {
         }
     }
 
+    private void clearProductFields() {
+        itemNameField.setText("");
+        itemIDField.setText("");
+        categoryField.setText("");
+        priceField.setText("");
+        quantityField.setText("");
+    }
+
+    private void updateTotalPrice() {
+        totalPrice = 0.0;
+        for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+            totalPrice += (double) cartTableModel.getValueAt(i, 5);
+        }
+        totalAmountField.setText(String.format("%.2f", totalPrice));
+    }
+
+    private int findItemInCart(String itemId) {
+        for (int i = 0; i < cartTableModel.getRowCount(); i++) {
+            if (itemId.equals(cartTableModel.getValueAt(i, 0))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void updateInventory(Connection conn, String itemId, int quantity) throws SQLException {
+        String sql = "UPDATE inventory SET quantity = quantity - ? WHERE item_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setString(2, itemId);
+            stmt.executeUpdate();
+        }
+    }
+
+    private String generateTransactionId() {
+        return "TXN" + System.currentTimeMillis();
+    }
+
+    private void setupCartTable() {
+        // Set up cart table model with columns
+        String[] columns = {"Item ID", "Item Name", "Category", "Unit Price", "Quantity", "Subtotal"};
+        cartTableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Make all cells non-editable
+            }
+        };
+        cartTable.setModel(cartTableModel);
+
+        // Set table properties
+        cartTable.setShowGrid(false);
+        cartTable.setRowHeight(40);
+        cartTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cartTable.setFocusable(false);
+        cartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        cartTable.getTableHeader().setReorderingAllowed(false);
+
+        // Custom cell renderer for alternating row colors and padding
+        DefaultTableCellRenderer customRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                if (isSelected) {
+                    label.setBackground(Color.decode("#A59BDA"));
+                    label.setForeground(Color.BLACK);
+                } else {
+                    label.setBackground(row % 2 == 0 ? Color.decode("#D4CFED") : Color.WHITE);
+                    label.setForeground(Color.BLACK);
+                }
+
+                // Apply left padding (except first column)
+                if (column != 0) {
+                    label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+                    label.setHorizontalAlignment(SwingConstants.LEFT);
+                } else {
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                }
+
+                return label;
+            }
+        };
+
+        // Apply renderer to all columns
+        for (int i = 0; i < cartTable.getColumnCount(); i++) {
+            cartTable.getColumnModel().getColumn(i).setCellRenderer(customRenderer);
+        }
+
+        // Style the header
+        JTableHeader header = cartTable.getTableHeader();
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 40));
+        header.setDefaultRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel label = (JLabel) super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                label.setBorder(BorderFactory.createEmptyBorder());
+                label.setBackground(Color.decode("#6c39c1"));
+                label.setForeground(Color.WHITE);
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                return label;
+            }
+        });
+
+        // Modern scroll bar styling
+        scrollPane1.getHorizontalScrollBar().setUI(new ModernScrollBarUI());
+        scrollPane1.getVerticalScrollBar().setUI(new ModernScrollBarUI());
+        scrollPane1.setBorder(BorderFactory.createEmptyBorder());
+
+        // Set column widths
+        int[] columnWidths = {100, 200, 150, 120, 100, 120};
+        TableColumnModel columnModel = cartTable.getColumnModel();
+        for (int i = 0; i < columnWidths.length; i++) {
+            TableColumn column = columnModel.getColumn(i);
+            column.setMinWidth(columnWidths[i]);
+            column.setPreferredWidth(columnWidths[i]);
+            column.setMaxWidth(columnWidths[i]);
+        }
+
+        // Calculate total width
+        int totalWidth = 0;
+        for (int width : columnWidths) {
+            totalWidth += width;
+        }
+
+        // Set preferred size for the table
+        cartTable.setPreferredScrollableViewportSize(new Dimension(totalWidth, 400));
+
+        // Set scroll pane properties with unified scroll bar appearance
+        scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // Set minimum and preferred column widths
+        for (int i = 0; i < cartTable.getColumnCount(); i++) {
+            TableColumn column = columnModel.getColumn(i);
+            column.setMinWidth(100);  // Minimum width for each column
+            column.setPreferredWidth(150);  // Preferred width for each column
+        }
+
+        // Make the table fill the viewport
+        cartTable.setFillsViewportHeight(true);
+
+        // Set preferred size for the scroll pane
+        scrollPane1.setPreferredSize(new Dimension(430, 400));
+    }
+
+    private boolean validateFields() {
+        // Validate customer name (required)
+        if (customerNameField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Customer name is required",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // Validate product fields
+        if (itemIDField.getText().trim().isEmpty() ||
+                itemNameField.getText().trim().isEmpty() ||
+                categoryField.getText().trim().isEmpty() ||
+                priceField.getText().trim().isEmpty() ||
+                quantityField.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "All product fields are required",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // Validate quantity is a positive number
+        try {
+            int quantity = Integer.parseInt(quantityField.getText().trim());
+            if (quantity <= 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Quantity must be greater than 0",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Quantity must be a valid number",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        // Validate price is a positive number
+        try {
+            double price = Double.parseDouble(priceField.getText().trim());
+            if (price <= 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Price must be greater than 0",
+                        "Validation Error", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Price must be a valid number",
+                    "Validation Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        return true;
+    }
 }
