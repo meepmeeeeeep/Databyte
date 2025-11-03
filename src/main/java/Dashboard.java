@@ -27,9 +27,9 @@ public class Dashboard extends JPanel {
         Image salesBg = new ImageIcon(getClass().getResource("/assets/images/salesButton.png")).getImage();
         salesButton = new ImageButton(salesBg, "");
 
-//        //---- financialsButton ----
-//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
-//        financialsButton = new ImageButton(financialsBg, "");
+        //---- financialsButton ----
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
+        financialsButton = new ImageButton(financialsBg, "");
 
         //---- resupplyButton ----
         Image resupplyBg = new ImageIcon(getClass().getResource("/assets/images/resupplyButton.png")).getImage();
@@ -172,29 +172,35 @@ public class Dashboard extends JPanel {
         frame.setVisible(true);
     }
 
-
-//    //
-//    // Financials Button Event Listener Methods
-//    //
-//    // Hover Effects - Mouse Enter
-//    private void financialsButtonMouseEntered(MouseEvent e) {
-//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonActive.png")).getImage();
-//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-//    }
-//    // Hover Effects - Mouse Exit
-//    private void financialsButtonMouseExited(MouseEvent e) {
-//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
-//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-//    }
-//    // Hover Effects - Mouse Press
-//    private void financialsButtonMousePressed(MouseEvent e) {
-//        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonPressed.png")).getImage();
-//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-//    }
-    
+    //
+    // Financials Button Event Listener Methods
+    //
+    // Hover Effects - Mouse Enter
+    private void financialsButtonMouseEntered(MouseEvent e) {
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonActive.png")).getImage();
+        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void financialsButtonMouseExited(MouseEvent e) {
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
+        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+    }
+    // Hover Effects - Mouse Press
+    private void financialsButtonMousePressed(MouseEvent e) {
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonPressed.png")).getImage();
+        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+    }
     // Action Listener Method
     private void financials(ActionEvent e) {
-        // TODO
+        // Open Financials
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
+
+        JFrame frame = new JFrame("Financials");
+        frame.setContentPane(new Financials());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
     //
@@ -227,8 +233,6 @@ public class Dashboard extends JPanel {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
-
-
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
@@ -409,6 +413,31 @@ public class Dashboard extends JPanel {
             });
             exitButton.addActionListener(e -> exit(e));
 
+            //---- financialsButton ----
+            financialsButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            financialsButton.setForeground(new Color(0x6c39c1));
+            financialsButton.setBackground(new Color(0x6c39c1));
+            financialsButton.setBorder(null);
+            financialsButton.setHorizontalAlignment(SwingConstants.LEFT);
+            financialsButton.setFocusable(false);
+            financialsButton.setBorderPainted(false);
+            financialsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            financialsButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    financialsButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    financialsButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    financialsButtonMousePressed(e);
+                }
+            });
+            financialsButton.addActionListener(e -> financials(e));
+
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
             sidePanelLayout.setHorizontalGroup(
@@ -423,7 +452,8 @@ public class Dashboard extends JPanel {
                                 .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
                                 .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
                             .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
+                            .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(19, Short.MAX_VALUE))
             );
             sidePanelLayout.setVerticalGroup(
@@ -441,7 +471,9 @@ public class Dashboard extends JPanel {
                         .addComponent(salesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resupplyButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 366, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -477,7 +509,7 @@ public class Dashboard extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 776, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 782, Short.MAX_VALUE)
                         .addComponent(dateLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -534,7 +566,7 @@ public class Dashboard extends JPanel {
                                 .addGroup(totalSalesPanelLayout.createParallelGroup()
                                     .addComponent(totalSalesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(totalSalesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(60, Short.MAX_VALUE))
+                                .addContainerGap(66, Short.MAX_VALUE))
                     );
                     totalSalesPanelLayout.setVerticalGroup(
                         totalSalesPanelLayout.createParallelGroup()
@@ -602,7 +634,7 @@ public class Dashboard extends JPanel {
                                 .addGroup(totalExpensesPanelLayout.createParallelGroup()
                                     .addComponent(totalExpensesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(totalExpensesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(35, Short.MAX_VALUE))
+                                .addContainerGap(42, Short.MAX_VALUE))
                     );
                     totalExpensesPanelLayout.setVerticalGroup(
                         totalExpensesPanelLayout.createParallelGroup()
@@ -670,7 +702,7 @@ public class Dashboard extends JPanel {
                                 .addGroup(totalOrdersPanelLayout.createParallelGroup()
                                     .addComponent(totalOrdersPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(totalOrdersLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(128, Short.MAX_VALUE))
+                                .addContainerGap(130, Short.MAX_VALUE))
                     );
                     totalOrdersPanelLayout.setVerticalGroup(
                         totalOrdersPanelLayout.createParallelGroup()
@@ -738,7 +770,7 @@ public class Dashboard extends JPanel {
                                 .addGroup(totalProductsPanelLayout.createParallelGroup()
                                     .addComponent(totalProductsPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(totalProductsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(100, Short.MAX_VALUE))
+                                .addContainerGap(102, Short.MAX_VALUE))
                     );
                     totalProductsPanelLayout.setVerticalGroup(
                         totalProductsPanelLayout.createParallelGroup()
@@ -804,7 +836,7 @@ public class Dashboard extends JPanel {
                             .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 694, Short.MAX_VALUE)
                             .addGroup(salesExpensesPanelLayout.createSequentialGroup()
                                 .addComponent(dashboardLabel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 473, Short.MAX_VALUE)))
+                                .addGap(0, 479, Short.MAX_VALUE)))
                         .addGap(20, 20, 20))
             );
             salesExpensesPanelLayout.setVerticalGroup(
@@ -908,6 +940,7 @@ public class Dashboard extends JPanel {
     private JButton salesButton;
     private JButton resupplyButton;
     private JButton exitButton;
+    private JButton financialsButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JTextField dateLabel;

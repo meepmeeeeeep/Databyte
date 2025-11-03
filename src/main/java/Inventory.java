@@ -32,9 +32,9 @@ public class Inventory extends JPanel {
         Image salesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/salesButton.png"))).getImage();
         salesButton = new ImageButton(salesBg, "");
 
-//        //---- financialsButton ----
-//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
-//        financialsButton = new ImageButton(financialsBg, "");
+        //---- financialsButton ----
+        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
+        financialsButton = new ImageButton(financialsBg, "");
 
         //---- resupplyButton ----
         Image resupplyBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/resupplyButton.png"))).getImage();
@@ -177,29 +177,35 @@ public class Inventory extends JPanel {
         frame.setVisible(true);
     }
 
-
-//    //
-//    // Financials Button Event Listener Methods
-//    //
-//    // Hover Effects - Mouse Enter
-//    private void financialsButtonMouseEntered(MouseEvent e) {
-//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonActive.png"))).getImage();
-//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-//    }
-//    // Hover Effects - Mouse Exit
-//    private void financialsButtonMouseExited(MouseEvent e) {
-//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButton.png"))).getImage();
-//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-//    }
-//    // Hover Effects - Mouse Press
-//    private void financialsButtonMousePressed(MouseEvent e) {
-//        Image financialsBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/financialsButtonPressed.png"))).getImage();
-//        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
-//    }
-
+    //
+    // Financials Button Event Listener Methods
+    //
+    // Hover Effects - Mouse Enter
+    private void financialsButtonMouseEntered(MouseEvent e) {
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonActive.png")).getImage();
+        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void financialsButtonMouseExited(MouseEvent e) {
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButton.png")).getImage();
+        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+    }
+    // Hover Effects - Mouse Press
+    private void financialsButtonMousePressed(MouseEvent e) {
+        Image financialsBg = new ImageIcon(getClass().getResource("/assets/images/financialsButtonPressed.png")).getImage();
+        ((ImageButton) financialsButton).setBackgroundImage(financialsBg);
+    }
     // Action Listener Method
     private void financials(ActionEvent e) {
-        // TODO
+        // Open Financials
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Inventory
+
+        JFrame frame = new JFrame("Financials");
+        frame.setContentPane(new Financials());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
     //
@@ -223,7 +229,7 @@ public class Inventory extends JPanel {
     // Action Listener Method
     private void resupply(ActionEvent e) {
         // Open Resupply
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Inventory
 
         JFrame frame = new JFrame("Resupply");
         frame.setContentPane(new Resupply());
@@ -501,6 +507,31 @@ public class Inventory extends JPanel {
             });
             exitButton.addActionListener(e -> exit(e));
 
+            //---- financialsButton ----
+            financialsButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            financialsButton.setForeground(new Color(0x6c39c1));
+            financialsButton.setBackground(new Color(0x6c39c1));
+            financialsButton.setBorder(null);
+            financialsButton.setHorizontalAlignment(SwingConstants.LEFT);
+            financialsButton.setFocusable(false);
+            financialsButton.setBorderPainted(false);
+            financialsButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            financialsButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    financialsButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    financialsButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    financialsButtonMousePressed(e);
+                }
+            });
+            financialsButton.addActionListener(e -> financials(e));
+
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
             sidePanelLayout.setHorizontalGroup(
@@ -515,7 +546,8 @@ public class Inventory extends JPanel {
                                 .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
                                 .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
                             .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
+                            .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(19, Short.MAX_VALUE))
             );
             sidePanelLayout.setVerticalGroup(
@@ -533,7 +565,9 @@ public class Inventory extends JPanel {
                         .addComponent(salesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(resupplyButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 417, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 366, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -559,7 +593,7 @@ public class Inventory extends JPanel {
                     .addGroup(windowTitleContainerLayout.createSequentialGroup()
                         .addGap(20, 20, 20)
                         .addComponent(dashboardLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(1036, Short.MAX_VALUE))
+                        .addContainerGap(1039, Short.MAX_VALUE))
             );
             windowTitleContainerLayout.setVerticalGroup(
                 windowTitleContainerLayout.createParallelGroup()
@@ -733,6 +767,7 @@ public class Inventory extends JPanel {
     private JButton salesButton;
     private JButton resupplyButton;
     private JButton exitButton;
+    private JButton financialsButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JPanel controlsPanel;
