@@ -5,15 +5,49 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class DBConnection {
+    public static final String ROOT_DB_URL = "jdbc:mysql://localhost:3306"; // Root DB URL
+    public static final String DB_NAME = "inventory_system"; // Database name
     public static final String DB_URL = "jdbc:mysql://localhost:3306/inventory_system"; // DB URL
     public static final String DB_USER = "root"; // DB username
     public static final String DB_PASSWORD = ""; // DB password
 
     public void initDatabase() {
+        createDatabaseSchema(); // Create database schema if not exists
         createUsersTable(); // Ensure users table exists at startup
         createInventoryTable(); // Ensure inventory table exists at startup
         createTransactionTable(); // Ensure sales table exists at startup
         createCartTable(); // Ensure cart table exists at startup
+        createResupplyHistoryTable(); // Ensure resupply history table exists at startup
+        createDiscountCodesTable(); // Ensure discount codes table exists at startup
+    }
+
+    private void createDatabaseSchema() {
+        try (Connection conn = DriverManager.getConnection(ROOT_DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+
+            // Check if database exists
+            ResultSet resultSet = conn.getMetaData().getCatalogs();
+            boolean dbExists = false;
+
+            while (resultSet.next()) {
+                String databaseName = resultSet.getString(1);
+                if (databaseName.equals(DB_NAME)) {
+                    dbExists = true;
+                    break;
+                }
+            }
+
+            if (!dbExists) {
+                // Create database if it doesn't exist
+                stmt.executeUpdate("CREATE DATABASE " + DB_NAME);
+            }
+
+            // Use the database
+            stmt.executeUpdate("USE " + DB_NAME);
+
+        } catch (SQLException e) {
+            System.out.println("Error creating database: " + e.getMessage());
+        }
     }
 
     private void createUsersTable() {
@@ -115,6 +149,47 @@ public class DBConnection {
             stmt.executeUpdate(createTableSQL);
         } catch (SQLException e) {
             System.out.println("Error creating cart table: " + e.getMessage());
+        }
+    }
+
+    private void createDiscountCodesTable() {
+        String createTableSQL = "CREATE TABLE discount_codes ( "
+                + "code varchar(20) NOT NULL, "
+                + "discount_percentage decimal(5,2) NOT NULL, "
+                + "valid_from date NOT NULL, "
+                + "valid_until date NOT NULL, "
+                + "max_uses int(11) NOT NULL, "
+                + "current_uses int(11) DEFAULT 0, "
+                + "is_active tinyint(1) DEFAULT 1, "
+                + "minimum_purchase decimal(10,2) NOT NULL DEFAULT 0.00"
+                + ")";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+                Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            System.out.println("Error creating discount codes table: " + e.getMessage());
+        }
+    }
+
+    private void createResupplyHistoryTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS resupply_history ("
+                + "resupply_id INT AUTO_INCREMENT PRIMARY KEY, "
+                + "item_id VARCHAR(20) NOT NULL, "
+                + "item_name VARCHAR(100) NOT NULL, "
+                + "quantity INT NOT NULL, "
+                + "supplier_name VARCHAR(100) NOT NULL, "
+                + "supplier_address VARCHAR(200) DEFAULT NULL, "
+                + "supplier_contact VARCHAR(50) DEFAULT NULL, "
+                + "unit_cost DECIMAL(10,2) NOT NULL, "
+                + "total_cost DECIMAL(10,2) NOT NULL, "
+                + "resupply_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                + ")";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(createTableSQL);
+        } catch (SQLException e) {
+            System.out.println("Error creating resupply history table: " + e.getMessage());
         }
     }
 
