@@ -1,11 +1,21 @@
 // DBConnection.java
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class DBConnection {
+    private static final String APP_NAME = "Databyte";
+    private static final String BACKUP_DIR = "database_backups";
     public static final String ROOT_DB_URL = "jdbc:mysql://localhost:3306"; // Root DB URL
+    public static final String DB_HOST = "localhost";
+    public static final String DB_PORT = "3306";
     public static final String DB_NAME = "inventory_system"; // Database name
     public static final String DB_URL = "jdbc:mysql://localhost:3306/inventory_system"; // DB URL
     public static final String DB_USER = "root"; // DB username
@@ -153,7 +163,7 @@ public class DBConnection {
     }
 
     private void createDiscountCodesTable() {
-        String createTableSQL = "CREATE TABLE discount_codes ( "
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS discount_codes ( "
                 + "code varchar(20) NOT NULL, "
                 + "discount_percentage decimal(5,2) NOT NULL, "
                 + "valid_from date NOT NULL, "
@@ -258,5 +268,124 @@ public class DBConnection {
             System.out.println(e.getMessage());
         }
         return role;
+    }
+
+    public static String getBackupDirectory() throws IOException {
+        String appData = System.getenv("APPDATA");
+        Path backupPath = Paths.get(appData, APP_NAME, BACKUP_DIR);
+
+        if (!Files.exists(backupPath)) {
+            Files.createDirectories(backupPath);
+        }
+
+        return backupPath.toString();
+    }
+
+    public static void backupDatabase(String backupPath) throws IOException, InterruptedException {
+        StringBuilder backup = new StringBuilder();
+
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            DatabaseMetaData metaData = conn.getMetaData();
+
+            // Get all tables
+            ResultSet tables = metaData.getTables(DB_NAME, null, "%", new String[]{"TABLE"});
+
+            while (tables.next()) {
+                String tableName = tables.getString("TABLE_NAME");
+
+                // Get table structure first
+                try (Statement stmt = conn.createStatement()) {
+                    ResultSet rs = stmt.executeQuery("SHOW CREATE TABLE " + tableName);
+                    if (rs.next()) {
+                        backup.append(rs.getString(2)).append(";\n\n");
+                    }
+                }
+
+                // Get table data excluding generated columns
+                try (Statement stmt = conn.createStatement()) {
+                    // Get column info to exclude generated columns
+                    ResultSet columns = metaData.getColumns(DB_NAME, null, tableName, null);
+                    List<String> normalColumns = new ArrayList<>();
+
+                    while (columns.next()) {
+                        String columnName = columns.getString("COLUMN_NAME");
+                        String isGenerated = columns.getString("IS_GENERATEDCOLUMN");
+                        if (!"YES".equals(isGenerated)) {
+                            normalColumns.add(columnName);
+                        }
+                    }
+
+                    if (!normalColumns.isEmpty()) {
+                        // Build column list for SELECT
+                        String columnList = String.join(", ", normalColumns);
+                        ResultSet rs = stmt.executeQuery("SELECT " + columnList + " FROM " + tableName);
+                        ResultSetMetaData rsmd = rs.getMetaData();
+                        int columnCount = rsmd.getColumnCount();
+
+                        while (rs.next()) {
+                            backup.append("INSERT INTO ").append(tableName)
+                                    .append(" (").append(columnList).append(") VALUES (");
+
+                            for (int i = 1; i <= columnCount; i++) {
+                                if (i > 1) backup.append(", ");
+                                Object value = rs.getObject(i);
+                                if (value == null) {
+                                    backup.append("NULL");
+                                } else if (value instanceof String || value instanceof Date ||
+                                        value instanceof Timestamp || value instanceof Time) {
+                                    backup.append("'").append(value.toString().replace("'", "\\'")).append("'");
+                                } else {
+                                    backup.append(value.toString());
+                                }
+                            }
+                            backup.append(");\n");
+                        }
+                        backup.append("\n");
+                    }
+                }
+            }
+
+            // Write to file
+            Path backupFilePath = Paths.get(backupPath);
+            Files.createDirectories(backupFilePath.getParent());
+            Files.write(backupFilePath, backup.toString().getBytes());
+
+        } catch (SQLException e) {
+            System.out.println("Error during backup: " + e.getMessage());
+        }
+    }
+
+    public static void restoreDatabase(String backupPath) throws IOException, InterruptedException {
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+
+            // First, disable foreign key checks
+            stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+
+            // Get all existing tables and drop them
+            DatabaseMetaData metaData = conn.getMetaData();
+            ResultSet tables = metaData.getTables(DB_NAME, null, "%", new String[]{"TABLE"});
+            while (tables.next()) {
+                String tableName = tables.getString("TABLE_NAME");
+                stmt.execute("DROP TABLE IF EXISTS " + tableName);
+            }
+
+            // Read and execute SQL statements from backup
+            String[] statements = new String(Files.readAllBytes(Paths.get(backupPath)))
+                    .split(";");
+
+            for (String statement : statements) {
+                statement = statement.trim();
+                if (!statement.isEmpty()) {
+                    stmt.execute(statement);
+                }
+            }
+
+            // Re-enable foreign key checks
+            stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
+        catch (SQLException e) {
+            System.out.println("Error during restore: " + e.getMessage());
+        }
     }
 }

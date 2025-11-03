@@ -10,8 +10,8 @@ new FormModel {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq {space ::19:x, par t {comp discountCodesButton:::p:222:p, comp userManagementButton:::p:222:p, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p, comp financialsButton::t:p:222:p}}, space ::19:x}}"
-				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp userManagementButton:::p:45:p, space :::p, comp discountCodesButton:::p:45:p, space ::264:x, comp exitButton:::p:45:p, space :p:20:p}}"
+				"$horizontalGroup": "par l {seq {space ::19:x, par t {comp discountCodesButton:::p:222:p, comp userManagementButton:::p:222:p, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p, comp financialsButton::t:p:222:p}, seq l {space :p:24:p, comp backupDatabaseButton:::p:45:p, space :::p, comp restoreDatabaseButton:::p:45:p}}, space ::19:x}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp userManagementButton:::p:45:p, space :::p, comp discountCodesButton:::p:45:p, space ::207:x, par l {comp backupDatabaseButton:::p:45:p, comp restoreDatabaseButton:::p:45:p}, space u:::p, comp exitButton:::p:45:p, space :p:20:p}}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -137,18 +137,48 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "discountCodesButton"
-					"font": new java.awt.Font( "Segoe UI Semibold", 0, 16 )
-					"foreground": new java.awt.Color( 108, 57, 193, 255 )
-					"background": new java.awt.Color( 108, 57, 193, 255 )
+					"font": &Font1 new java.awt.Font( "Segoe UI Semibold", 0, 16 )
+					"foreground": &Color3 new java.awt.Color( 108, 57, 193, 255 )
+					"background": &Color4 new java.awt.Color( 108, 57, 193, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"horizontalAlignment": 2
 					"focusable": false
 					"borderPainted": false
-					"cursor": new java.awt.Cursor( 12 )
+					"cursor": &Cursor1 new java.awt.Cursor( 12 )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "discountCodesButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "discountCodesButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "discountCodesButtonMousePressed", true ) )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "discountCodes", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "backupDatabaseButton"
+					"font": #Font1
+					"foreground": #Color3
+					"background": #Color4
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": #Cursor1
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "backupDatabase", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "backupDatabaseButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "backupDatabaseButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "backupDatabaseButtonMousePressed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "restoreDatabaseButton"
+					"font": #Font1
+					"foreground": #Color3
+					"background": #Color4
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": #Cursor1
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "restoreDatabase", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "restoreDatabaseButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "restoreDatabaseButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "restoreDatabaseButtonMousePressed", true ) )
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
@@ -160,9 +190,9 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel"
 					"text": "Dashboard Overview"
-					"font": &Font1 new java.awt.Font( "Segoe UI", 1, 18 )
-					"background": &Color3 new java.awt.Color( 252, 248, 255, 255 )
-					"foreground": &Color4 new java.awt.Color( 37, 23, 121, 255 )
+					"font": &Font2 new java.awt.Font( "Segoe UI", 1, 18 )
+					"background": &Color5 new java.awt.Color( 252, 248, 255, 255 )
+					"foreground": &Color6 new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -170,9 +200,9 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dateLabel"
 					"text": "Date Placeholder"
-					"font": #Font1
-					"background": #Color3
-					"foreground": #Color4
+					"font": #Font2
+					"background": #Color5
+					"foreground": #Color6
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -189,32 +219,32 @@ new FormModel {
 				} ) {
 					name: "dashboardPanel1Container1"
 					"preferredSize": new java.awt.Dimension( 274, 238 )
-					"background": &Color5 new java.awt.Color( 252, 248, 255, 255 )
+					"background": &Color7 new java.awt.Color( 252, 248, 255, 255 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalSalesLabel:::p::p, comp totalSalesPlaceholder:::p::p}, space ::66:x}}"
 						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalSalesLabel:::p::p, space :p:40:p, comp totalSalesPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalSalesPanel"
-						"background": &Color6 new java.awt.Color( 232, 231, 244, 255 )
+						"background": &Color8 new java.awt.Color( 232, 231, 244, 255 )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalSalesLabel"
 							"text": "Total Sales (Today)"
-							"font": #Font1
-							"foreground": #Color4
+							"font": #Font2
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
-							"background": &Color7 new java.awt.Color( 232, 231, 244, 255 )
+							"background": &Color9 new java.awt.Color( 232, 231, 244, 255 )
 						} )
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalSalesPlaceholder"
 							"text": "0"
 							"font": new java.awt.Font( "Segoe UI", 1, 36 )
-							"foreground": #Color4
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
-							"background": #Color7
+							"background": #Color9
 						} )
 					} )
 				} )
@@ -223,19 +253,19 @@ new FormModel {
 					"$verticalGroup": "par l {seq {space :p:20:p, comp totalExpensesPanel:::::x, space :p:20:p}}"
 				} ) {
 					name: "dashboardPanel1Container2"
-					"background": #Color5
+					"background": #Color7
 					"preferredSize": new java.awt.Dimension( 274, 238 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalExpensesPlaceholder:::p::p, comp totalExpensesLabel:::p::p}, space ::42:x}}"
 						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalExpensesLabel:::p::p, space :p:40:p, comp totalExpensesPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalExpensesPanel"
-						"background": #Color6
+						"background": #Color8
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalExpensesLabel"
 							"text": "Total Expenses (Today)"
-							"font": #Font1
-							"foreground": #Color4
+							"font": #Font2
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
@@ -245,11 +275,11 @@ new FormModel {
 							name: "totalExpensesPlaceholder"
 							"text": "0"
 							"font": new java.awt.Font( "Segoe UI", 1, 36 )
-							"foreground": #Color4
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
-							"background": #Color7
+							"background": #Color9
 						} )
 					} )
 				} )
@@ -259,18 +289,18 @@ new FormModel {
 				} ) {
 					name: "dashboardPanel1Container3"
 					"preferredSize": new java.awt.Dimension( 274, 238 )
-					"background": #Color5
+					"background": #Color7
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalOrdersPlaceholder:::p::p, comp totalOrdersLabel:::p::p}, space ::130:x}}"
 						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalOrdersLabel:::p::p, space :p:40:p, comp totalOrdersPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalOrdersPanel"
-						"background": #Color6
+						"background": #Color8
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalOrdersLabel"
 							"text": "Total Orders"
-							"font": #Font1
-							"foreground": #Color4
+							"font": #Font2
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
@@ -280,11 +310,11 @@ new FormModel {
 							name: "totalOrdersPlaceholder"
 							"text": "0"
 							"font": new java.awt.Font( "Segoe UI", 1, 36 )
-							"foreground": #Color4
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
-							"background": #Color7
+							"background": #Color9
 						} )
 					} )
 				} )
@@ -293,20 +323,20 @@ new FormModel {
 					"$verticalGroup": "par l {seq {space :p:20:p, comp totalProductsPanel:::::x, space :p:20:p}}"
 				} ) {
 					name: "dashboardPanel1Container4"
-					"background": #Color5
+					"background": #Color7
 					"preferredSize": new java.awt.Dimension( 274, 238 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalProductsPlaceholder:::p::p, comp totalProductsLabel:::p::p}, space ::102:x}}"
 						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalProductsLabel:::p::p, space :p:40:p, comp totalProductsPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalProductsPanel"
-						"background": #Color6
+						"background": #Color8
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalProductsLabel"
 							"text": "Total Products"
-							"font": #Font1
+							"font": #Font2
 							"background": new java.awt.Color( 232, 231, 244, 255 )
-							"foreground": #Color4
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
@@ -315,11 +345,11 @@ new FormModel {
 							name: "totalProductsPlaceholder"
 							"text": "0"
 							"font": new java.awt.Font( "Segoe UI", 1, 36 )
-							"foreground": #Color4
+							"foreground": #Color6
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
 							"editable": false
-							"background": #Color7
+							"background": #Color9
 						} )
 					} )
 				} )
@@ -329,13 +359,13 @@ new FormModel {
 				"$verticalGroup": "par l {seq t {space :p:20:p, comp dashboardLabel2:::p::p, space u:::p, comp scrollPane1::::0:x, space :p:20:p}}"
 			} ) {
 				name: "salesExpensesPanel"
-				"background": &Color8 new java.awt.Color( 252, 248, 255, 255 )
+				"background": &Color10 new java.awt.Color( 252, 248, 255, 255 )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel2"
 					"text": "Most Recent Transactions"
-					"font": #Font1
-					"background": #Color3
-					"foreground": #Color4
+					"font": #Font2
+					"background": #Color5
+					"foreground": #Color6
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -345,7 +375,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JTable" ) {
 						name: "transactionHistoryTable"
 						"rowHeight": 40
-						"font": &Font2 new java.awt.Font( "Segoe UI", 0, 14 )
+						"font": &Font3 new java.awt.Font( "Segoe UI", 0, 14 )
 						"focusable": false
 					} )
 				} )
@@ -355,22 +385,22 @@ new FormModel {
 				"$verticalGroup": "par l {seq t {space :p:20:p, comp dashboardLabel3:::p::p, space u:::p, comp scrollPane2::::370:x, space :p:20:p}}"
 			} ) {
 				name: "stockAlertPanel"
-				"background": #Color8
+				"background": #Color10
 				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 					name: "scrollPane2"
 					add( new FormComponent( "javax.swing.JTable" ) {
 						name: "lowStockTable"
 						"rowHeight": 40
-						"font": #Font2
+						"font": #Font3
 						"focusable": false
 					} )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel3"
 					"text": "Low Stock Alerts"
-					"font": #Font1
-					"background": #Color3
-					"foreground": #Color4
+					"font": #Font2
+					"background": #Color5
+					"foreground": #Color6
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -382,3 +412,4 @@ new FormModel {
 		} )
 	}
 }
+

@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -12,8 +13,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.Timer;
 
 public class Resupply extends JPanel {
@@ -60,6 +65,14 @@ public class Resupply extends JPanel {
         Image refreshBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/refreshButton.png"))).getImage();
         refreshButton = new ImageButton(refreshBg, "");
 
+        //---- backupDatabaseButton ----
+        Image backupDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/backupDatabaseButton.png")).getImage();
+        backupDatabaseButton = new ImageButton(backupDatabaseBg, "");
+
+        //---- restoreDatabaseButton ----
+        Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButton.png")).getImage();
+        restoreDatabaseButton = new ImageButton(restoreDatabaseBg, "");
+
         initComponents();
         populateTable(); // Refresh the table
         populateResupplyHistory(); // Refresh the resupply history table
@@ -83,15 +96,18 @@ public class Resupply extends JPanel {
 
         // Define button access for each role using arrays
         Map<String, JButton[]> restrictedButtons = new HashMap<>();
-        restrictedButtons.put("MANAGER", new JButton[]{userManagementButton});
+        restrictedButtons.put("MANAGER", new JButton[]{
+                userManagementButton, backupDatabaseButton, restoreDatabaseButton});
         restrictedButtons.put("STOCK CLERK", new JButton[]{
                 dashboardButton, userManagementButton, financialsButton,
-                inventoryButton, salesButton
+                inventoryButton, salesButton, discountCodesButton,
+                backupDatabaseButton, restoreDatabaseButton
         });
 
         // Get buttons to restrict based on role, default to admin-only buttons for non-admin roles
         JButton[] buttonsToRestrict = restrictedButtons.getOrDefault(userRole, new JButton[]{
-                dashboardButton, userManagementButton, financialsButton, resupplyButton
+                dashboardButton, userManagementButton, financialsButton, resupplyButton,
+                discountCodesButton, backupDatabaseButton, restoreDatabaseButton
         });
 
         // Only apply restrictions if not an admin
@@ -393,6 +409,158 @@ public class Resupply extends JPanel {
         frame.setVisible(true);
     }
 
+    //
+    // Backup Database Button Event Listener Methods
+    //
+    // Action Listener Method
+    private void backupDatabase(ActionEvent e) {
+        try {
+            String backupDir = DBConnection.getBackupDirectory();
+
+            // Create file chooser dialog
+            JFileChooser fileChooser = new JFileChooser(backupDir);
+            fileChooser.setDialogTitle("Save Database Backup");
+
+            // Set file extension filter
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("SQL Files (*.sql)", "sql");
+            fileChooser.setFileFilter(filter);
+
+            // Set default file name with timestamp
+            String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            fileChooser.setSelectedFile(new File("backup_" + timestamp + ".sql"));
+
+            // Show save dialog
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+
+                // Append .sql extension if not present
+                if (!file.getName().toLowerCase().endsWith(".sql")) {
+                    file = new File(file.getAbsolutePath() + ".sql");
+                }
+
+                // Confirm overwrite if file exists
+                if (file.exists()) {
+                    int result = JOptionPane.showConfirmDialog(this,
+                            "File already exists. Do you want to overwrite it?",
+                            "Confirm Overwrite",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+
+                    if (result != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                }
+
+                try {
+                    // Show wait cursor during backup
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+                    // Perform backup
+                    DBConnection.backupDatabase(file.getAbsolutePath());
+
+                    // Show success message
+                    JOptionPane.showMessageDialog(this,
+                            "Database backup completed successfully!",
+                            "Backup Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+
+                } catch (IOException | InterruptedException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Error creating backup: " + ex.getMessage(),
+                            "Backup Error",
+                            JOptionPane.ERROR_MESSAGE);
+                } finally {
+                    setCursor(Cursor.getDefaultCursor());
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error accessing backup directory: " + ex.getMessage(),
+                    "Directory Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    // Hover Effects - Mouse Enter
+    private void backupDatabaseButtonMouseEntered(MouseEvent e) {
+        Image backupDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/backupDatabaseButtonActive.png")).getImage();
+        ((ImageButton) backupDatabaseButton).setBackgroundImage(backupDatabaseBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void backupDatabaseButtonMouseExited(MouseEvent e) {
+        Image backupDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/backupDatabaseButton.png")).getImage();
+        ((ImageButton) backupDatabaseButton).setBackgroundImage(backupDatabaseBg);
+    }
+    // Hover Effects - Mouse Press
+    private void backupDatabaseButtonMousePressed(MouseEvent e) {
+        Image backupDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/backupDatabaseButtonPressed.png")).getImage();
+        ((ImageButton) backupDatabaseButton).setBackgroundImage(backupDatabaseBg);
+    }
+
+    //
+    // Restore Database Button Event Listener Methods
+    //
+    // Action Listener Method
+    private void restoreDatabase(ActionEvent e) {
+        try {
+            String backupDir = DBConnection.getBackupDirectory();
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Warning: This will overwrite the current database with the backup.\n" +
+                            "Make sure you have a backup of your current data before proceeding.\n\n" +
+                            "Do you want to continue?",
+                    "Confirm Restore",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                JFileChooser fileChooser = new JFileChooser(backupDir);
+                fileChooser.setDialogTitle("Select Backup File to Restore");
+                fileChooser.setFileFilter(new FileNameExtensionFilter("SQL Files (*.sql)", "sql"));
+
+                if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        DBConnection.restoreDatabase(fileChooser.getSelectedFile().getAbsolutePath());
+
+                        JOptionPane.showMessageDialog(this,
+                                "Database restored successfully!\nThe application will now close. Please restart it.",
+                                "Restore Success",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        System.exit(0);
+                    } catch (IOException | InterruptedException ex) {
+                        JOptionPane.showMessageDialog(this,
+                                "Error restoring backup: " + ex.getMessage(),
+                                "Restore Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    } finally {
+                        setCursor(Cursor.getDefaultCursor());
+                    }
+                }
+            }
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Error accessing backup directory: " + ex.getMessage(),
+                    "Directory Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    // Hover Effects - Mouse Enter
+    private void restoreDatabaseButtonMouseEntered(MouseEvent e) {
+        Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButtonActive.png")).getImage();
+        ((ImageButton) restoreDatabaseButton).setBackgroundImage(restoreDatabaseBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void restoreDatabaseButtonMouseExited(MouseEvent e) {
+        Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButton.png")).getImage();
+        ((ImageButton) restoreDatabaseButton).setBackgroundImage(restoreDatabaseBg);
+    }
+    // Hover Effects - Mouse Press
+    private void restoreDatabaseButtonMousePressed(MouseEvent e) {
+        Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButtonPressed.png")).getImage();
+        ((ImageButton) restoreDatabaseButton).setBackgroundImage(restoreDatabaseBg);
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -628,6 +796,56 @@ public class Resupply extends JPanel {
             });
             discountCodesButton.addActionListener(e -> discountCodes(e));
 
+            //---- backupDatabaseButton ----
+            backupDatabaseButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            backupDatabaseButton.setForeground(new Color(0x6c39c1));
+            backupDatabaseButton.setBackground(new Color(0x6c39c1));
+            backupDatabaseButton.setBorder(null);
+            backupDatabaseButton.setHorizontalAlignment(SwingConstants.LEFT);
+            backupDatabaseButton.setFocusable(false);
+            backupDatabaseButton.setBorderPainted(false);
+            backupDatabaseButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            backupDatabaseButton.addActionListener(e -> backupDatabase(e));
+            backupDatabaseButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    backupDatabaseButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    backupDatabaseButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    backupDatabaseButtonMousePressed(e);
+                }
+            });
+
+            //---- restoreDatabaseButton ----
+            restoreDatabaseButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            restoreDatabaseButton.setForeground(new Color(0x6c39c1));
+            restoreDatabaseButton.setBackground(new Color(0x6c39c1));
+            restoreDatabaseButton.setBorder(null);
+            restoreDatabaseButton.setHorizontalAlignment(SwingConstants.LEFT);
+            restoreDatabaseButton.setFocusable(false);
+            restoreDatabaseButton.setBorderPainted(false);
+            restoreDatabaseButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            restoreDatabaseButton.addActionListener(e -> restoreDatabase(e));
+            restoreDatabaseButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    restoreDatabaseButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    restoreDatabaseButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    restoreDatabaseButtonMousePressed(e);
+                }
+            });
+
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
             sidePanelLayout.setHorizontalGroup(
@@ -648,6 +866,12 @@ public class Resupply extends JPanel {
                                 .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                                 .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(19, Short.MAX_VALUE))
+                    .addGroup(sidePanelLayout.createSequentialGroup()
+                        .addGap(44, 44, 44)
+                        .addComponent(backupDatabaseButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addGap(6, 6, 6)
+                        .addComponent(restoreDatabaseButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(120, Short.MAX_VALUE))
             );
             sidePanelLayout.setVerticalGroup(
                 sidePanelLayout.createParallelGroup()
@@ -670,7 +894,11 @@ public class Resupply extends JPanel {
                         .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(discountCodesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
+                        .addGroup(sidePanelLayout.createParallelGroup()
+                            .addComponent(backupDatabaseButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(restoreDatabaseButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -861,6 +1089,8 @@ public class Resupply extends JPanel {
     private JButton financialsButton;
     private JButton userManagementButton;
     private JButton discountCodesButton;
+    private JButton backupDatabaseButton;
+    private JButton restoreDatabaseButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JPanel controlsPanel;
