@@ -83,7 +83,7 @@ public class EditUserForm extends JPanel {
 
     // Update the edit method
     private void edit(ActionEvent e) {
-        // Validate fields
+// Validate fields
         if (employeeNameField.getText().trim().isEmpty() ||
                 usernameField.getText().trim().isEmpty() ||
                 passwordField.getText().trim().isEmpty() ||
@@ -97,33 +97,72 @@ public class EditUserForm extends JPanel {
             return;
         }
 
-        // Update user in database
-        String sql = "UPDATE users SET username = ?, password = ?, role = ?, email = ?, contact_number = ? WHERE username = ?";
+        // Validate email format
+        if (!isValidEmail(emailField.getText().trim())) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter a valid email address",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        // Validate contact number format
+        if (!isValidContactNumber(contactNumberField.getText().trim())) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter a valid contact number format:\n" +
+                            "- 11 digits (###########)\n" +
+                            "- ####-###-####\n" +
+                            "- #### ### ####\n" +
+                            "- ###-####\n" +
+                            "- ### ####\n" +
+                            "- #######",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check if new username already exists (excluding current user)
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
-             PreparedStatement pst = conn.prepareStatement(sql)) {
+             PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM users WHERE username = ? AND username != ?")) {
 
-            pst.setString(1, usernameField.getText().trim());
-            pst.setString(2, passwordField.getText().trim());
-            pst.setString(3, roleField.getSelectedItem().toString());
-            pst.setString(4, emailField.getText().trim());
-            pst.setString(5, contactNumberField.getText().trim());
-            pst.setString(6, username); // Original username for WHERE clause
-
-            int affectedRows = pst.executeUpdate();
-
-            if (affectedRows > 0) {
-                JOptionPane.showMessageDialog(this, "User updated successfully!");
-                parent.populateTable(); // Refresh the users table
-                // Close the edit form window
-                SwingUtilities.getWindowAncestor(this).dispose();
-            } else {
+            checkStmt.setString(1, usernameField.getText().trim());
+            checkStmt.setString(2, username); // Original username
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            if (rs.getInt(1) > 0) {
                 JOptionPane.showMessageDialog(this,
-                        "Failed to update user. Please try again.",
-                        "Update Error",
-                        JOptionPane.ERROR_MESSAGE);
+                        "Username already exists. Please choose a different username.",
+                        "Duplicate Username",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
             }
 
+            // Update user in database
+            String sql = "UPDATE users SET username = ?, password = ?, role = ?, email = ?, contact_number = ? WHERE username = ?";
+
+            try (PreparedStatement pst = conn.prepareStatement(sql)) {
+
+                pst.setString(1, usernameField.getText().trim());
+                pst.setString(2, passwordField.getText().trim());
+                pst.setString(3, roleField.getSelectedItem().toString());
+                pst.setString(4, emailField.getText().trim());
+                pst.setString(5, contactNumberField.getText().trim());
+                pst.setString(6, username); // Original username for WHERE clause
+
+                int affectedRows = pst.executeUpdate();
+
+                if (affectedRows > 0) {
+                    JOptionPane.showMessageDialog(this, "User updated successfully!");
+                    parent.populateTable(); // Refresh the users table
+                    // Close the edit form window
+                    SwingUtilities.getWindowAncestor(this).dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Failed to update user. Please try again.",
+                            "Update Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
                     "Error updating user: " + ex.getMessage(),
@@ -155,7 +194,7 @@ public class EditUserForm extends JPanel {
         editButton = new JButton();
         cancelButton = new JButton();
         passwordLabel = new JTextField();
-        passwordField = new JTextField();
+        passwordField = new JPasswordField();
         roleLabel = new JTextField();
         roleField = new JComboBox<>();
 
@@ -427,8 +466,19 @@ public class EditUserForm extends JPanel {
     private JButton editButton;
     private JButton cancelButton;
     private JTextField passwordLabel;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
     private JTextField roleLabel;
     private JComboBox<String> roleField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    // Add these validation methods at class level in both forms
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email.matches(emailRegex);
+    }
+
+    private boolean isValidContactNumber(String contactNumber) {
+        String contactRegex = "^(\\d{11}|\\d{4}-\\d{3}-\\d{4}|\\d{4} \\d{3} \\d{4}|\\d{3}-\\d{4}|\\d{3} \\d{4}|\\d{7})$";
+        return contactNumber.matches(contactRegex);
+    }
 }

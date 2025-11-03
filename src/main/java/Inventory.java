@@ -6,9 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
-import java.util.Objects;
+import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.border.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -19,6 +18,7 @@ import javax.swing.table.TableColumn;
 
 public class Inventory extends JPanel {
     public Inventory() {
+
         // Use Custom Background Images for Side Panel Buttons
         //---- dashboardButton ----
         Image dashboardBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/dashboardButton.png"))).getImage();
@@ -74,6 +74,30 @@ public class Inventory extends JPanel {
                 searchField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+
+        // Check user role and manage button visibility
+        String userRole = UserSession.getRole();
+
+        // Define button access for each role using arrays
+        Map<String, JButton[]> restrictedButtons = new HashMap<>();
+        restrictedButtons.put("MANAGER", new JButton[]{userManagementButton});
+        restrictedButtons.put("STOCK CLERK", new JButton[]{
+                dashboardButton, userManagementButton, financialsButton,
+                inventoryButton, salesButton
+        });
+
+        // Get buttons to restrict based on role, default to admin-only buttons for non-admin roles
+        JButton[] buttonsToRestrict = restrictedButtons.getOrDefault(userRole, new JButton[]{
+                dashboardButton, userManagementButton, financialsButton, resupplyButton, addButton, deleteButton, editButton
+        });
+
+        // Only apply restrictions if not an admin
+        if (!"ADMIN".equals(userRole)) {
+            for (JButton button : buttonsToRestrict) {
+                button.setVisible(false);
+                button.setEnabled(false);
+            }
+        }
     }
 
     //

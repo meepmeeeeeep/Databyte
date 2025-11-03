@@ -169,4 +169,19 @@ public class DBConnection {
 
         return datePrefix + String.format("%04d", nextNumber); // e.g., 051320250001
     }
+
+    public static String getUserRole(String username) {
+        String role = "";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            PreparedStatement stmt = conn.prepareStatement("SELECT role FROM users WHERE username = ?");
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                role = rs.getString("role");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return role;
+    }
 }

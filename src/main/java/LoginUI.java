@@ -66,27 +66,44 @@ public class LoginUI extends JPanel {
         String username = usernameField.getText();
         String password = new String(passwordField.getPassword());
 
-        DBConnection.LoginResult result = DBConnection.validateLogin(username, password); // Returns User object if valid
+        DBConnection.LoginResult result = DBConnection.validateLogin(username, password);
 
         switch (result) {
             case SUCCESS:
-                // Login successful: Open Dashboard
-                SwingUtilities.getWindowAncestor(this).dispose();; // Close LoginUI
+                String role = DBConnection.getUserRole(username);
+                UserSession.setSession(username, role);
 
-                JFrame frame = new JFrame("Dashboard");
-                frame.setContentPane(new Dashboard());
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setVisible(true);
+                SwingUtilities.getWindowAncestor(this).dispose();
+                JFrame frame = null;
+
+                switch (role) {
+                    case "ADMIN":
+                    case "MANAGER":
+                        frame = new JFrame("Dashboard");
+                        frame.setContentPane(new Dashboard());
+                        break;
+                    case "CASHIER":
+                        frame = new JFrame("Inventory");
+                        frame.setContentPane(new Inventory());
+                        break;
+                    case "STOCK CLERK":
+                        frame = new JFrame("Resupply");
+                        frame.setContentPane(new Resupply());
+                        break;
+                }
+
+                if (frame != null) {
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.setVisible(true);
+                }
                 break;
             case INVALID_USERNAME:
                 errorLabel.setText("Username does not exist.");
                 break;
             case INVALID_PASSWORD:
                 errorLabel.setText("Incorrect password.");
-                break;
-            case null:
                 break;
             default:
                 errorLabel.setText("Login failed. Please try again.");

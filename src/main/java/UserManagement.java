@@ -1,9 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
-import java.util.Objects;
+import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle;
@@ -16,6 +15,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class UserManagement extends JPanel {
+    private String currentLoggedInUser;
     public UserManagement() {
         // Use Custom Background Images for Side Panel Buttons
         //---- dashboardButton ----
@@ -64,12 +64,55 @@ public class UserManagement extends JPanel {
         refreshButton = new ImageButton(refreshBg, "");
 
         initComponents();
+        populateTable();
 
         // Add Left-Padding to Search Field
         searchField.setBorder(BorderFactory.createCompoundBorder(
                 searchField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+
+        // Add a document listener to the search field for real-time filtering
+        searchField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                populateTable(searchField.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                populateTable(searchField.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                populateTable(searchField.getText());
+            }
+        });
+
+        // Check user role and manage button visibility
+        String userRole = UserSession.getRole();
+
+        // Define button access for each role using arrays
+        Map<String, JButton[]> restrictedButtons = new HashMap<>();
+        restrictedButtons.put("MANAGER", new JButton[]{userManagementButton});
+        restrictedButtons.put("STOCK CLERK", new JButton[]{
+                dashboardButton, userManagementButton, financialsButton,
+                inventoryButton, salesButton
+        });
+
+        // Get buttons to restrict based on role, default to admin-only buttons for non-admin roles
+        JButton[] buttonsToRestrict = restrictedButtons.getOrDefault(userRole, new JButton[]{
+                dashboardButton, userManagementButton, financialsButton, resupplyButton
+        });
+
+        // Only apply restrictions if not an admin
+        if (!"ADMIN".equals(userRole)) {
+            for (JButton button : buttonsToRestrict) {
+                button.setVisible(false);
+                button.setEnabled(false);
+            }
+        }
     }
 
     //
@@ -276,7 +319,7 @@ public class UserManagement extends JPanel {
     // Action Listener Method
     private void create(ActionEvent e) {
         JFrame frame = new JFrame("Create User");
-        frame.setContentPane(new CreateUserForm());
+        frame.setContentPane(new CreateUserForm(this));
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);          // Disable window resizing
@@ -329,6 +372,17 @@ public class UserManagement extends JPanel {
         int selectedRow = usersTable.getSelectedRow();
         if (selectedRow != -1) {
             String username = usersTable.getValueAt(selectedRow, 1).toString();
+
+            // Additional checks for current user and admin
+            if (username.equals(currentLoggedInUser)) {
+                JOptionPane.showMessageDialog(this, "You cannot edit your own account.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (username.equals("admin")) {
+                JOptionPane.showMessageDialog(this, "The admin account cannot be edited.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
             JFrame frame = new JFrame("Editing User " + username);
             frame.setContentPane(new EditUserForm(username, this));
@@ -868,7 +922,7 @@ public class UserManagement extends JPanel {
             DefaultTableModel model = new DefaultTableModel() {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return false; // Make all cells non-editable
+                    return false;
                 }
             };
 
@@ -885,9 +939,21 @@ public class UserManagement extends JPanel {
             }
 
             usersTable.setModel(model);
+
+            // Add custom selection model to prevent selecting current user's row
+            usersTable.setSelectionModel(new DefaultListSelectionModel() {
+                @Override
+                public void setSelectionInterval(int index0, int index1) {
+                    String username = (String) usersTable.getValueAt(index0, 1);
+                    if (!username.equals(currentLoggedInUser) && !username.equals("admin")) {
+                        super.setSelectionInterval(index0, index1);
+                    }
+                }
+            });
+
             setTableTheme();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error loading users: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Error loading users: " + ex.getMessage());
         }
     }
 
@@ -897,6 +963,19 @@ public class UserManagement extends JPanel {
 
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a user to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String username = (String) usersTable.getValueAt(selectedRow, 1);
+
+        // Additional checks for current user and admin
+        if (username.equals(currentLoggedInUser)) {
+            JOptionPane.showMessageDialog(this, "You cannot delete your own account.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (username.equals("admin")) {
+            JOptionPane.showMessageDialog(this, "The admin account cannot be deleted.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
             return;
         }
 

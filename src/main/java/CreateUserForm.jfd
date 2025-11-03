@@ -131,7 +131,7 @@ new FormModel {
 					"focusable": false
 					"editable": false
 				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
+				add( new FormComponent( "javax.swing.JPasswordField" ) {
 					name: "passwordField"
 					"border": #MatteBorder0
 					"background": #Color2

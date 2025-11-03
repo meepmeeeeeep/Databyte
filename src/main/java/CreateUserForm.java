@@ -1,16 +1,16 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle;
 import javax.swing.border.*;
 
 public class CreateUserForm extends JPanel {
-    public CreateUserForm() {
+    private UserManagement parent;
+    public CreateUserForm(UserManagement parent) {
+        this.parent = parent;
+
         initComponents();
 
         // Add Left-Padding to Text Fields
@@ -53,7 +53,7 @@ public class CreateUserForm extends JPanel {
         String contactNumber = contactNumberField.getText().trim();
         String role = (String) roleField.getSelectedItem();
 
-        // Validate input fields
+// Validate input fields
         if (employeeName.isEmpty() || username.isEmpty() || password.isEmpty() ||
                 email.isEmpty() || contactNumber.isEmpty()) {
             JOptionPane.showMessageDialog(this,
@@ -63,49 +63,74 @@ public class CreateUserForm extends JPanel {
             return;
         }
 
-        // SQL query to insert new user
-        String sql = "INSERT INTO users (username, password, role, email, contact_number) VALUES (?, ?, ?, ?, ?)";
+        // Validate email format
+        if (!isValidEmail(email)) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter a valid email address",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        // Validate contact number format
+        if (!isValidContactNumber(contactNumber)) {
+            JOptionPane.showMessageDialog(this,
+                    "Please enter a valid contact number format:\n" +
+                            "- 11 digits (###########)\n" +
+                            "- ####-###-####\n" +
+                            "- #### ### ####\n" +
+                            "- ###-####\n" +
+                            "- ### ####\n" +
+                            "- #######",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Check if username already exists
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM users WHERE username = ?")) {
 
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);  // Consider hashing the password in production
-            pstmt.setString(3, role);
-            pstmt.setString(4, email);
-            pstmt.setString(5, contactNumber);
-
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows > 0) {
+            checkStmt.setString(1, username);
+            ResultSet rs = checkStmt.executeQuery();
+            rs.next();
+            if (rs.getInt(1) > 0) {
                 JOptionPane.showMessageDialog(this,
-                        "User created successfully",
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE);
-
-                // Close the create user form
-                SwingUtilities.getWindowAncestor(this).dispose();
-
-                // Refresh the users table in UserManagement
-                Window[] windows = Window.getWindows();
-                for (Window window : windows) {
-                    if (window instanceof JFrame) {
-                        Component[] components = ((JFrame) window).getContentPane().getComponents();
-                        for (Component component : components) {
-                            if (component instanceof UserManagement) {
-                                ((UserManagement) component).populateTable();
-                                break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Failed to create user",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                        "Username already exists. Please choose a different username.",
+                        "Duplicate Username",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
             }
 
+            // Continue with insert if username is unique
+            // SQL query to insert new user
+            String sql = "INSERT INTO users (username, password, role, email, contact_number) VALUES (?, ?, ?, ?, ?)";
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setString(1, username);
+                pstmt.setString(2, password);  // Consider hashing the password in production
+                pstmt.setString(3, role);
+                pstmt.setString(4, email);
+                pstmt.setString(5, contactNumber);
+
+                int affectedRows = pstmt.executeUpdate();
+
+                if (affectedRows > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "User created successfully",
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    parent.populateTable(); // Refresh the users table
+                    // Close the edit form window
+                    SwingUtilities.getWindowAncestor(this).dispose();
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Failed to create user",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this,
                     "Error creating user: " + ex.getMessage(),
@@ -136,7 +161,7 @@ public class CreateUserForm extends JPanel {
         createButton = new JButton();
         cancelButton = new JButton();
         passwordLabel = new JTextField();
-        passwordField = new JTextField();
+        passwordField = new JPasswordField();
         roleLabel = new JTextField();
         roleField = new JComboBox<>();
 
@@ -408,8 +433,18 @@ public class CreateUserForm extends JPanel {
     private JButton createButton;
     private JButton cancelButton;
     private JTextField passwordLabel;
-    private JTextField passwordField;
+    private JPasswordField passwordField;
     private JTextField roleLabel;
     private JComboBox<String> roleField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        return email.matches(emailRegex);
+    }
+
+    private boolean isValidContactNumber(String contactNumber) {
+        String contactRegex = "^(\\d{11}|\\d{4}-\\d{3}-\\d{4}|\\d{4} \\d{3} \\d{4}|\\d{3}-\\d{4}|\\d{3} \\d{4}|\\d{7})$";
+        return contactNumber.matches(contactRegex);
+    }
 }

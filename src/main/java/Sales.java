@@ -6,10 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.border.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -65,6 +63,30 @@ public class Sales extends JPanel {
                 searchField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
+
+        // Check user role and manage button visibility
+        String userRole = UserSession.getRole();
+
+        // Define button access for each role using arrays
+        Map<String, JButton[]> restrictedButtons = new HashMap<>();
+        restrictedButtons.put("MANAGER", new JButton[]{userManagementButton});
+        restrictedButtons.put("STOCK CLERK", new JButton[]{
+                dashboardButton, userManagementButton, financialsButton,
+                inventoryButton, salesButton
+        });
+
+        // Get buttons to restrict based on role, default to admin-only buttons for non-admin roles
+        JButton[] buttonsToRestrict = restrictedButtons.getOrDefault(userRole, new JButton[]{
+                dashboardButton, userManagementButton, financialsButton, resupplyButton
+        });
+
+        // Only apply restrictions if not an admin
+        if (!"ADMIN".equals(userRole)) {
+            for (JButton button : buttonsToRestrict) {
+                button.setVisible(false);
+                button.setEnabled(false);
+            }
+        }
     }
 
     //

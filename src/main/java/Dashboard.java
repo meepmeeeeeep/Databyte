@@ -5,7 +5,8 @@ import java.awt.event.*;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -70,6 +71,30 @@ public class Dashboard extends JPanel {
         transactionHistoryTable.setCellSelectionEnabled(false);
         transactionHistoryTable.getTableHeader().setReorderingAllowed(false);
         transactionHistoryTable.setFocusable(false);
+
+        // Check user role and manage button visibility
+        String userRole = UserSession.getRole();
+
+        // Define button access for each role using arrays
+        Map<String, JButton[]> restrictedButtons = new HashMap<>();
+        restrictedButtons.put("MANAGER", new JButton[]{userManagementButton});
+        restrictedButtons.put("STOCK CLERK", new JButton[]{
+                dashboardButton, userManagementButton, financialsButton,
+                inventoryButton, salesButton
+        });
+
+        // Get buttons to restrict based on role, default to admin-only buttons for non-admin roles
+        JButton[] buttonsToRestrict = restrictedButtons.getOrDefault(userRole, new JButton[]{
+                dashboardButton, userManagementButton, financialsButton, resupplyButton
+        });
+
+        // Only apply restrictions if not an admin
+        if (!"ADMIN".equals(userRole)) {
+            for (JButton button : buttonsToRestrict) {
+                button.setVisible(false);
+                button.setEnabled(false);
+            }
+        }
     }
 
     //
