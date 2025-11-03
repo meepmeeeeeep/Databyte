@@ -10,8 +10,8 @@ new FormModel {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq {space ::19:x, par t {comp userManagementButton:::p:222:p, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p, comp financialsButton::t:p:222:p}}, space ::19:x}}"
-				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp userManagementButton:::p:45:p, space ::315:x, comp exitButton:::p:45:p, space :p:20:p}}"
+				"$horizontalGroup": "par l {seq {space ::19:x, par t {comp discountCodesButton:::p:222:p, comp userManagementButton:::p:222:p, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p, comp financialsButton::t:p:222:p}}, space ::19:x}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp userManagementButton:::p:45:p, space :::p, comp discountCodesButton:::p:45:p, space ::264:x, comp exitButton:::p:45:p, space :p:20:p}}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -135,6 +135,21 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "userManagementButtonMousePressed", true ) )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "userManagement", true ) )
 				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "discountCodesButton"
+					"font": new java.awt.Font( "Segoe UI Semibold", 0, 16 )
+					"foreground": new java.awt.Color( 108, 57, 193, 255 )
+					"background": new java.awt.Color( 108, 57, 193, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": new java.awt.Cursor( 12 )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "discountCodesButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "discountCodesButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "discountCodesButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "discountCodes", true ) )
+				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 				"$horizontalGroup": "par l {seq l {space :p:20:p, comp dashboardLabel:::p::p, space ::782:x, comp dateLabel:::p::p, space :p:20:p}}"
@@ -177,7 +192,7 @@ new FormModel {
 					"background": &Color5 new java.awt.Color( 252, 248, 255, 255 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalSalesLabel:::p::p, comp totalSalesPlaceholder:::p::p}, space ::66:x}}"
-						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalSalesLabel:::p::p, space :p:28:p, comp totalSalesPlaceholder:::p::p, space ::61:x}}"
+						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalSalesLabel:::p::p, space :p:40:p, comp totalSalesPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalSalesPanel"
 						"background": &Color6 new java.awt.Color( 232, 231, 244, 255 )
@@ -194,7 +209,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalSalesPlaceholder"
 							"text": "0"
-							"font": &Font2 new java.awt.Font( "Segoe UI", 1, 48 )
+							"font": new java.awt.Font( "Segoe UI", 1, 36 )
 							"foreground": #Color4
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
@@ -212,7 +227,7 @@ new FormModel {
 					"preferredSize": new java.awt.Dimension( 274, 238 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalExpensesPlaceholder:::p::p, comp totalExpensesLabel:::p::p}, space ::42:x}}"
-						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalExpensesLabel:::p::p, space :p:28:p, comp totalExpensesPlaceholder:::p::p, space ::61:x}}"
+						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalExpensesLabel:::p::p, space :p:40:p, comp totalExpensesPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalExpensesPanel"
 						"background": #Color6
@@ -229,7 +244,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalExpensesPlaceholder"
 							"text": "0"
-							"font": #Font2
+							"font": new java.awt.Font( "Segoe UI", 1, 36 )
 							"foreground": #Color4
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
@@ -247,7 +262,7 @@ new FormModel {
 					"background": #Color5
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalOrdersPlaceholder:::p::p, comp totalOrdersLabel:::p::p}, space ::130:x}}"
-						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalOrdersLabel:::p::p, space :p:28:p, comp totalOrdersPlaceholder:::p::p, space ::61:x}}"
+						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalOrdersLabel:::p::p, space :p:40:p, comp totalOrdersPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalOrdersPanel"
 						"background": #Color6
@@ -264,7 +279,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalOrdersPlaceholder"
 							"text": "0"
-							"font": #Font2
+							"font": new java.awt.Font( "Segoe UI", 1, 36 )
 							"foreground": #Color4
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
@@ -282,7 +297,7 @@ new FormModel {
 					"preferredSize": new java.awt.Dimension( 274, 238 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 						"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp totalProductsPlaceholder:::p::p, comp totalProductsLabel:::p::p}, space ::102:x}}"
-						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalProductsLabel:::p::p, space :p:28:p, comp totalProductsPlaceholder:::p::p, space ::61:x}}"
+						"$verticalGroup": "par l {seq l {space :p:20:p, comp totalProductsLabel:::p::p, space :p:40:p, comp totalProductsPlaceholder:::p::p, space ::65:x}}"
 					} ) {
 						name: "totalProductsPanel"
 						"background": #Color6
@@ -299,7 +314,7 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JTextField" ) {
 							name: "totalProductsPlaceholder"
 							"text": "0"
-							"font": #Font2
+							"font": new java.awt.Font( "Segoe UI", 1, 36 )
 							"foreground": #Color4
 							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 							"focusable": false
@@ -330,7 +345,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JTable" ) {
 						name: "transactionHistoryTable"
 						"rowHeight": 40
-						"font": &Font3 new java.awt.Font( "Segoe UI", 0, 14 )
+						"font": &Font2 new java.awt.Font( "Segoe UI", 0, 14 )
 						"focusable": false
 					} )
 				} )
@@ -346,7 +361,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JTable" ) {
 						name: "lowStockTable"
 						"rowHeight": 40
-						"font": #Font3
+						"font": #Font2
 						"focusable": false
 					} )
 				} )

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -40,6 +41,10 @@ public class Dashboard extends JPanel {
         //---- userManagementButton ----
         Image userManagementBg = new ImageIcon(getClass().getResource("/assets/images/UserManagementButton.png")).getImage();
         userManagementButton = new ImageButton(userManagementBg, "");
+
+        //---- discountCodesButton ----
+        Image discountCodesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/discountCodesButton.png"))).getImage();
+        discountCodesButton = new ImageButton(discountCodesBg, "");
 
         //---- exitButton ----
         Image exitBg = new ImageIcon(getClass().getResource("/assets/images/exitButton.png")).getImage();
@@ -295,6 +300,37 @@ public class Dashboard extends JPanel {
         frame.setVisible(true);
     }
 
+    //
+    // Discount Codes Button Event Listener Methods
+    //
+    // Hover Effects - Mouse Enter
+    private void discountCodesButtonMouseEntered(MouseEvent e) {
+        Image discountCodesBg = new ImageIcon(getClass().getResource("/assets/images/discountCodesButtonActive.png")).getImage();
+        ((ImageButton) discountCodesButton).setBackgroundImage(discountCodesBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void discountCodesButtonMouseExited(MouseEvent e) {
+        Image discountCodesBg = new ImageIcon(getClass().getResource("/assets/images/discountCodesButton.png")).getImage();
+        ((ImageButton) discountCodesButton).setBackgroundImage(discountCodesBg);
+    }
+    // Hover Effects - Mouse Press
+    private void discountCodesButtonMousePressed(MouseEvent e) {
+        Image discountCodesBg = new ImageIcon(getClass().getResource("/assets/images/discountCodesButtonPressed.png")).getImage();
+        ((ImageButton) discountCodesButton).setBackgroundImage(discountCodesBg);
+    }
+    // Action Listener Method
+    private void discountCodes(ActionEvent e) {
+        // Open Discount Codes
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Dashboard
+
+        JFrame frame = new JFrame("Discount Codes");
+        frame.setContentPane(new DiscountCodes());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -524,6 +560,31 @@ public class Dashboard extends JPanel {
             });
             userManagementButton.addActionListener(e -> userManagement(e));
 
+            //---- discountCodesButton ----
+            discountCodesButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            discountCodesButton.setForeground(new Color(0x6c39c1));
+            discountCodesButton.setBackground(new Color(0x6c39c1));
+            discountCodesButton.setBorder(null);
+            discountCodesButton.setHorizontalAlignment(SwingConstants.LEFT);
+            discountCodesButton.setFocusable(false);
+            discountCodesButton.setBorderPainted(false);
+            discountCodesButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            discountCodesButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    discountCodesButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    discountCodesButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    discountCodesButtonMousePressed(e);
+                }
+            });
+            discountCodesButton.addActionListener(e -> discountCodes(e));
+
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
             sidePanelLayout.setHorizontalGroup(
@@ -531,6 +592,7 @@ public class Dashboard extends JPanel {
                     .addGroup(sidePanelLayout.createSequentialGroup()
                         .addContainerGap(19, Short.MAX_VALUE)
                         .addGroup(sidePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                            .addComponent(discountCodesButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addGroup(sidePanelLayout.createParallelGroup()
                                 .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
@@ -563,7 +625,9 @@ public class Dashboard extends JPanel {
                         .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(discountCodesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -640,7 +704,7 @@ public class Dashboard extends JPanel {
 
                     //---- totalSalesPlaceholder ----
                     totalSalesPlaceholder.setText("0");
-                    totalSalesPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalSalesPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 36));
                     totalSalesPlaceholder.setForeground(new Color(0x251779));
                     totalSalesPlaceholder.setBorder(null);
                     totalSalesPlaceholder.setFocusable(false);
@@ -663,9 +727,9 @@ public class Dashboard extends JPanel {
                             .addGroup(totalSalesPanelLayout.createSequentialGroup()
                                 .addGap(20, 20, 20)
                                 .addComponent(totalSalesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(28, 28, 28)
+                                .addGap(40, 40, 40)
                                 .addComponent(totalSalesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(61, Short.MAX_VALUE))
+                                .addContainerGap(65, Short.MAX_VALUE))
                     );
                 }
 
@@ -708,7 +772,7 @@ public class Dashboard extends JPanel {
 
                     //---- totalExpensesPlaceholder ----
                     totalExpensesPlaceholder.setText("0");
-                    totalExpensesPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalExpensesPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 36));
                     totalExpensesPlaceholder.setForeground(new Color(0x251779));
                     totalExpensesPlaceholder.setBorder(null);
                     totalExpensesPlaceholder.setFocusable(false);
@@ -731,9 +795,9 @@ public class Dashboard extends JPanel {
                             .addGroup(totalExpensesPanelLayout.createSequentialGroup()
                                 .addGap(20, 20, 20)
                                 .addComponent(totalExpensesLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(28, 28, 28)
+                                .addGap(40, 40, 40)
                                 .addComponent(totalExpensesPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(61, Short.MAX_VALUE))
+                                .addContainerGap(65, Short.MAX_VALUE))
                     );
                 }
 
@@ -776,7 +840,7 @@ public class Dashboard extends JPanel {
 
                     //---- totalOrdersPlaceholder ----
                     totalOrdersPlaceholder.setText("0");
-                    totalOrdersPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalOrdersPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 36));
                     totalOrdersPlaceholder.setForeground(new Color(0x251779));
                     totalOrdersPlaceholder.setBorder(null);
                     totalOrdersPlaceholder.setFocusable(false);
@@ -799,9 +863,9 @@ public class Dashboard extends JPanel {
                             .addGroup(totalOrdersPanelLayout.createSequentialGroup()
                                 .addGap(20, 20, 20)
                                 .addComponent(totalOrdersLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(28, 28, 28)
+                                .addGap(40, 40, 40)
                                 .addComponent(totalOrdersPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(61, Short.MAX_VALUE))
+                                .addContainerGap(65, Short.MAX_VALUE))
                     );
                 }
 
@@ -844,7 +908,7 @@ public class Dashboard extends JPanel {
 
                     //---- totalProductsPlaceholder ----
                     totalProductsPlaceholder.setText("0");
-                    totalProductsPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 48));
+                    totalProductsPlaceholder.setFont(new Font("Segoe UI", Font.BOLD, 36));
                     totalProductsPlaceholder.setForeground(new Color(0x251779));
                     totalProductsPlaceholder.setBorder(null);
                     totalProductsPlaceholder.setFocusable(false);
@@ -867,9 +931,9 @@ public class Dashboard extends JPanel {
                             .addGroup(totalProductsPanelLayout.createSequentialGroup()
                                 .addGap(20, 20, 20)
                                 .addComponent(totalProductsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(28, 28, 28)
+                                .addGap(40, 40, 40)
                                 .addComponent(totalProductsPlaceholder, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(61, Short.MAX_VALUE))
+                                .addContainerGap(65, Short.MAX_VALUE))
                     );
                 }
 
@@ -1032,6 +1096,7 @@ public class Dashboard extends JPanel {
     private JButton exitButton;
     private JButton financialsButton;
     private JButton userManagementButton;
+    private JButton discountCodesButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JTextField dateLabel;

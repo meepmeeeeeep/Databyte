@@ -43,6 +43,10 @@ public class Resupply extends JPanel {
         Image userManagementBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/UserManagementButton.png"))).getImage();
         userManagementButton = new ImageButton(userManagementBg, "");
 
+        //---- discountCodesButton ----
+        Image discountCodesBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/discountCodesButton.png"))).getImage();
+        discountCodesButton = new ImageButton(discountCodesBg, "");
+
         //---- exitButton ----
         Image exitBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/exitButton.png"))).getImage();
         exitButton = new ImageButton(exitBg, "");
@@ -358,6 +362,37 @@ public class Resupply extends JPanel {
         frame.setVisible(true);
     }
 
+    //
+    // Discount Codes Button Event Listener Methods
+    //
+    // Hover Effects - Mouse Enter
+    private void discountCodesButtonMouseEntered(MouseEvent e) {
+        Image discountCodesBg = new ImageIcon(getClass().getResource("/assets/images/discountCodesButtonActive.png")).getImage();
+        ((ImageButton) discountCodesButton).setBackgroundImage(discountCodesBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void discountCodesButtonMouseExited(MouseEvent e) {
+        Image discountCodesBg = new ImageIcon(getClass().getResource("/assets/images/discountCodesButton.png")).getImage();
+        ((ImageButton) discountCodesButton).setBackgroundImage(discountCodesBg);
+    }
+    // Hover Effects - Mouse Press
+    private void discountCodesButtonMousePressed(MouseEvent e) {
+        Image discountCodesBg = new ImageIcon(getClass().getResource("/assets/images/discountCodesButtonPressed.png")).getImage();
+        ((ImageButton) discountCodesButton).setBackgroundImage(discountCodesBg);
+    }
+    // Action Listener Method
+    private void discountCodes(ActionEvent e) {
+        // Open Discount Codes
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Resupply
+
+        JFrame frame = new JFrame("Discount Codes");
+        frame.setContentPane(new DiscountCodes());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -568,6 +603,31 @@ public class Resupply extends JPanel {
             });
             userManagementButton.addActionListener(e -> userManagement(e));
 
+            //---- discountCodesButton ----
+            discountCodesButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            discountCodesButton.setForeground(new Color(0x6c39c1));
+            discountCodesButton.setBackground(new Color(0x6c39c1));
+            discountCodesButton.setBorder(null);
+            discountCodesButton.setHorizontalAlignment(SwingConstants.LEFT);
+            discountCodesButton.setFocusable(false);
+            discountCodesButton.setBorderPainted(false);
+            discountCodesButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            discountCodesButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    discountCodesButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    discountCodesButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    discountCodesButtonMousePressed(e);
+                }
+            });
+            discountCodesButton.addActionListener(e -> discountCodes(e));
+
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
             sidePanelLayout.setHorizontalGroup(
@@ -575,6 +635,7 @@ public class Resupply extends JPanel {
                     .addGroup(sidePanelLayout.createSequentialGroup()
                         .addContainerGap(19, Short.MAX_VALUE)
                         .addGroup(sidePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                            .addComponent(discountCodesButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
                             .addGroup(sidePanelLayout.createParallelGroup()
@@ -607,7 +668,9 @@ public class Resupply extends JPanel {
                         .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(discountCodesButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 264, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -797,6 +860,7 @@ public class Resupply extends JPanel {
     private JButton exitButton;
     private JButton financialsButton;
     private JButton userManagementButton;
+    private JButton discountCodesButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JPanel controlsPanel;

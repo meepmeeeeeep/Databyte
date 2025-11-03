@@ -10,8 +10,8 @@ new FormModel {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq {space ::19:x, par t {comp userManagementButton:::p:222:p, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p, comp financialsButton::t:p:222:p}}, space ::19:x}}"
-				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp userManagementButton:::p:45:p, space ::315:x, comp exitButton:::p:45:p, space :p:20:p}}"
+				"$horizontalGroup": "par l {seq {space ::19:x, par t {comp discountCodesButton:::p:222:p, comp userManagementButton:::p:222:p, par l {comp exitButton:::p:222:p, par l:::p {comp appNameLabel:::::x, comp appNameSubLabel:::::x, comp inventoryButton::l::222:x, comp dashboardButton::l::222:x}, comp salesButton::t:p:222:p, comp resupplyButton::t:p:222:p, comp financialsButton::t:p:222:p}}, space ::19:x}}"
+				"$verticalGroup": "par l {seq l {space :p:19:p, comp appNameLabel:::p::p, space :0:0:p, comp appNameSubLabel:::p::p, space :p:44:p, comp dashboardButton:::p:45:p, space :::p, comp inventoryButton:::p:45:p, space :::p, comp salesButton:::p:45:p, space :::p, comp resupplyButton:::p:45:p, space :::p, comp financialsButton:::p:45:p, space :::p, comp userManagementButton:::p:45:p, space :::p, comp discountCodesButton:::p:45:p, space ::264:x, comp exitButton:::p:45:p, space :p:20:p}}"
 			} ) {
 				name: "sidePanel"
 				"background": new java.awt.Color( 108, 57, 193, 255 )
@@ -134,6 +134,21 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "userManagementButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "userManagementButtonMousePressed", true ) )
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "userManagement", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "discountCodesButton"
+					"font": new java.awt.Font( "Segoe UI Semibold", 0, 16 )
+					"foreground": new java.awt.Color( 108, 57, 193, 255 )
+					"background": new java.awt.Color( 108, 57, 193, 255 )
+					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"horizontalAlignment": 2
+					"focusable": false
+					"borderPainted": false
+					"cursor": new java.awt.Cursor( 12 )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "discountCodesButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "discountCodesButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "discountCodesButtonMousePressed", true ) )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "discountCodes", true ) )
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
