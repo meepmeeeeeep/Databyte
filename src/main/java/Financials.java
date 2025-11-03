@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Objects;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle;
@@ -32,6 +33,10 @@ public class Financials extends JPanel {
         //---- resupplyButton ----
         Image resupplyBg = new ImageIcon(getClass().getResource("/assets/images/resupplyButton.png")).getImage();
         resupplyButton = new ImageButton(resupplyBg, "");
+
+        //---- userManagementButton ----
+        Image userManagementBg = new ImageIcon(getClass().getResource("/assets/images/UserManagementButton.png")).getImage();
+        userManagementButton = new ImageButton(userManagementBg, "");
 
         //---- exitButton ----
         Image exitBg = new ImageIcon(getClass().getResource("/assets/images/exitButton.png")).getImage();
@@ -223,6 +228,37 @@ public class Financials extends JPanel {
         updateCharts();
     }
 
+    //
+    // User Management Button Event Listener Methods
+    //
+    // Hover Effects - Mouse Enter
+    private void userManagementButtonMouseEntered(MouseEvent e) {
+        Image userManagementBg = new ImageIcon(getClass().getResource("/assets/images/UserManagementButtonActive.png")).getImage();
+        ((ImageButton) userManagementButton).setBackgroundImage(userManagementBg);
+    }
+    // Hover Effects - Mouse Exit
+    private void userManagementButtonMouseExited(MouseEvent e) {
+        Image userManagementBg = new ImageIcon(getClass().getResource("/assets/images/UserManagementButton.png")).getImage();
+        ((ImageButton) userManagementButton).setBackgroundImage(userManagementBg);
+    }
+    // Hover Effects - Mouse Press
+    private void userManagementButtonMousePressed(MouseEvent e) {
+        Image userManagementBg = new ImageIcon(getClass().getResource("/assets/images/UserManagementButtonPressed.png")).getImage();
+        ((ImageButton) userManagementButton).setBackgroundImage(userManagementBg);
+    }
+    // Action Listener Method
+    private void userManagement(ActionEvent e) {
+        // Open User Management
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Financials
+
+        JFrame frame = new JFrame("User Management");
+        frame.setContentPane(new UserManagement());
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -405,22 +441,49 @@ public class Financials extends JPanel {
                 }
             });
 
+            //---- userManagementButton ----
+            userManagementButton.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 16));
+            userManagementButton.setForeground(new Color(0x6c39c1));
+            userManagementButton.setBackground(new Color(0x6c39c1));
+            userManagementButton.setBorder(null);
+            userManagementButton.setHorizontalAlignment(SwingConstants.LEFT);
+            userManagementButton.setFocusable(false);
+            userManagementButton.setBorderPainted(false);
+            userManagementButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            userManagementButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    userManagementButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    userManagementButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    userManagementButtonMousePressed(e);
+                }
+            });
+            userManagementButton.addActionListener(e -> userManagement(e));
+
             GroupLayout sidePanelLayout = new GroupLayout(sidePanel);
             sidePanel.setLayout(sidePanelLayout);
             sidePanelLayout.setHorizontalGroup(
                 sidePanelLayout.createParallelGroup()
                     .addGroup(sidePanelLayout.createSequentialGroup()
                         .addContainerGap(19, Short.MAX_VALUE)
-                        .addGroup(sidePanelLayout.createParallelGroup()
-                            .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addGroup(sidePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                .addComponent(appNameLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(appNameSubLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
-                                .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
-                            .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE))
+                        .addGroup(sidePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                            .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
+                            .addGroup(sidePanelLayout.createParallelGroup()
+                                .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
+                                .addGroup(sidePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(appNameLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(appNameSubLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(inventoryButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE)
+                                    .addComponent(dashboardButton, GroupLayout.DEFAULT_SIZE, 222, Short.MAX_VALUE))
+                                .addComponent(salesButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(resupplyButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)
+                                .addComponent(financialsButton, GroupLayout.Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 222, GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(19, Short.MAX_VALUE))
             );
             sidePanelLayout.setVerticalGroup(
@@ -440,7 +503,9 @@ public class Financials extends JPanel {
                         .addComponent(resupplyButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(financialsButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 366, Short.MAX_VALUE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(userManagementButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
                         .addComponent(exitButton, GroupLayout.PREFERRED_SIZE, 45, GroupLayout.PREFERRED_SIZE)
                         .addGap(20, 20, 20))
             );
@@ -526,6 +591,7 @@ public class Financials extends JPanel {
 
         //======== chartsContainer ========
         {
+            chartsContainer.setBackground(new Color(0xe8e7f4));
             chartsContainer.setLayout(new GridLayout(2, 2, 20, 20));
         }
 
@@ -567,6 +633,7 @@ public class Financials extends JPanel {
     private JButton resupplyButton;
     private JButton exitButton;
     private JButton financialsButton;
+    private JButton userManagementButton;
     private JPanel windowTitleContainer;
     private JTextField dashboardLabel;
     private JPanel controlsPanel;

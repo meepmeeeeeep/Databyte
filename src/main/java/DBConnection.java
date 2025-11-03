@@ -19,9 +19,11 @@ public class DBConnection {
     private void createUsersTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS users ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY, "
-                + "username VARCHAR(50) NOT NULL, "
-                + "password VARCHAR(100) NOT NULL,"
-                + "role ENUM('Admin', 'Customer', 'View-Only') NOT NULL"
+                + "username VARCHAR(50) NOT NULL UNIQUE, "
+                + "password VARCHAR(100) NOT NULL, "
+                + "email VARCHAR(100), "
+                + "contact_number VARCHAR(20), "
+                + "role ENUM('ADMIN', 'MANAGER', 'CASHIER', 'STOCK CLERK') NOT NULL"
                 + ")";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -36,11 +38,12 @@ public class DBConnection {
 
             // Only insert if admin doesn't exist
             if (count == 0) {
-                String insertAdminSQL = "INSERT INTO users (username, password, role) VALUES ('admin', 'admin', 'Admin')";
+                String insertAdminSQL = "INSERT INTO users (username, password, email, role) "
+                        + "VALUES ('admin', 'admin', 'admin@databyte.com', 'ADMIN')";
                 stmt.executeUpdate(insertAdminSQL);
             }
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error creating users table: " + e.getMessage());
         }
     }
 
