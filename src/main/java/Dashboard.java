@@ -1663,7 +1663,7 @@ public class Dashboard extends JPanel {
     }
 
     private void populateLowStockItems() {
-        String sql = "SELECT item_name, quantity FROM inventory WHERE quantity < 20 ORDER BY quantity ASC";
+        String sql = "SELECT item_name, quantity FROM inventory WHERE quantity < 20 AND archived = FALSE ORDER BY quantity ASC";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement pst = conn.prepareStatement(sql)) {
