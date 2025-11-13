@@ -28,7 +28,7 @@ new FormModel {
 				"background": new java.awt.Color( 252, 248, 255, 255 )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "dashboardLabel"
-					"text": "Payment Confirmation"
+					"text": "Bank Account Information"
 					"font": new java.awt.Font( "Segoe UI", 1, 18 )
 					"background": &Color0 new java.awt.Color( 252, 248, 255, 255 )
 					"foreground": new java.awt.Color( 37, 23, 121, 255 )
@@ -38,8 +38,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {seq {par l {comp customerInformationLabel:::p::p, comp customerAddressLabel::l:p::p, comp customeNameLabel:::p::p, comp customerNameField::l:p:720:p, comp customerAddressField::l:p:720:p}, space :230::x}, seq {par l {seq l {par l {comp totalAmountLabel:::p::p, comp totalAmountField:::p:450:p, comp paymentAmountLabel:::p::p, comp paymentAmountField:::p:450:p}, space :p:50:p, par l {comp paymentMethodLabel::l:p::p, comp paymentMethodField:::p:220:p, seq l {comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}}}, comp paymentDetailsLabel::l:p::p, seq {par l {comp customerEmailLabel::l:p::p, comp customerEmailField::l:p:345:p}, space :p:30:p, par l {comp customerPhoneLabel:::p::p, comp customerPhoneField:::p:345:p}}}, space :0:20:x}}}}"
-				"$verticalGroup": "par l {seq t {space :p:21:p, comp customerInformationLabel:::p::p, space u:::p, comp customeNameLabel:::p::p, space :::p, comp customerNameField:::p:35:p, space s:::p, comp customerAddressLabel:::p::p, space u:::p, comp customerAddressField:::p:105:p, space :p:18:p, par l {seq l {comp customerEmailLabel:::p::p, space :::p, comp customerEmailField:::p:35:p}, seq l {comp customerPhoneLabel:::p::p, space :6:6:p, comp customerPhoneField:::p:35:p}}, space :p:43:p, comp paymentDetailsLabel:::p::p, space u:::p, par b {comp totalAmountLabel::b:p::p, comp paymentMethodLabel::b:p::p}, space :6:6:p, par b {comp totalAmountField::b:p:35:p, comp paymentMethodField::b:p:35:p}, space s:::p, comp paymentAmountLabel:::p::p, space :4:4:p, par b {comp paymentAmountField::b:p:35:p, comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p}, space ::17:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {seq {par l {comp customerInformationLabel:::p::p, comp bankAccountLabel::l:p::p, comp accountHolderLabel:::p::p, comp accountHolderField::l:p:720:p, comp bankAccountField::l:p:720:p}, space :230::x}, seq {par l {seq l {par l {comp totalAmountLabel:::p::p, comp totalAmountField:::p:450:p, comp paymentAmountLabel:::p::p, comp paymentAmountField:::p:450:p}, space :p:50:p, par l {comp paymentMethodLabel::l:p::p, comp paymentMethodField:::p:220:p, seq l {comp confirmButton:::p:100:p, space :p:20:p, comp cancelButton:::p:100:p}}}, comp paymentDetailsLabel::l:p::p, comp cvvLabel::l:p::p, comp cvvField::l:p:345:p}, space :0:20:x}}}}"
+				"$verticalGroup": "par l {seq t {space :p:21:p, comp customerInformationLabel:::p::p, space u:::p, comp accountHolderLabel:::p::p, space :::p, comp accountHolderField:::p:35:p, space s:::p, comp bankAccountLabel:::p::p, space u:::p, comp bankAccountField:::p:35:p, space :p:18:p, comp cvvLabel:::p::p, space :::p, comp cvvField:::p:35:p, space :p:43:p, comp paymentDetailsLabel:::p::p, space u:::p, par b {comp totalAmountLabel::b:p::p, comp paymentMethodLabel::b:p::p}, space :6:6:p, par b {comp totalAmountField::b:p:35:p, comp paymentMethodField::b:p:35:p}, space s:::p, comp paymentAmountLabel:::p::p, space :4:4:p, par b {comp paymentAmountField::b:p:35:p, comp cancelButton::b:p:38:p, comp confirmButton::b:p:38:p}, space ::87:x}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -62,16 +62,14 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancel", true ) )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerNameField"
+					name: "accountHolderField"
 					"border": &MatteBorder0 new javax.swing.border.MatteBorder( 0, 0, 1, 0, sfield java.awt.Color black )
 					"background": &Color3 new java.awt.Color( 232, 231, 244, 255 )
-					"editable": false
-					"focusable": false
 					"font": &Font1 new java.awt.Font( "Segoe UI", 0, 14 )
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customeNameLabel"
-					"text": "Customer Name:"
+					name: "accountHolderLabel"
+					"text": "Account Holder Name:"
 					"font": &Font2 new java.awt.Font( "Segoe UI Semibold", 1, 16 )
 					"background": #Color0
 					"foreground": &Color4 new java.awt.Color( 137, 124, 206, 255 )
@@ -80,8 +78,8 @@ new FormModel {
 					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerAddressLabel"
-					"text": "Customer Address: (Optional)"
+					name: "bankAccountLabel"
+					"text": "Bank Account Number:"
 					"font": #Font2
 					"background": #Color0
 					"foreground": #Color4
@@ -90,16 +88,14 @@ new FormModel {
 					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerAddressField"
+					name: "bankAccountField"
 					"border": #MatteBorder0
 					"background": #Color3
-					"editable": false
-					"focusable": false
 					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerEmailLabel"
-					"text": "Customer Email: (Optional)"
+					name: "cvvLabel"
+					"text": "CVV:"
 					"font": #Font2
 					"background": #Color0
 					"foreground": #Color4
@@ -108,34 +104,14 @@ new FormModel {
 					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerEmailField"
+					name: "cvvField"
 					"border": #MatteBorder0
 					"background": #Color3
-					"editable": false
-					"focusable": false
 					"font": #Font1
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerPhoneField"
-					"border": #MatteBorder0
-					"background": #Color3
-					"editable": false
-					"focusable": false
-					"font": #Font1
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "customerPhoneLabel"
-					"text": "Customer Phone Number: (Optional)"
-					"font": #Font2
-					"background": #Color0
-					"foreground": #Color4
-					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
-					"focusable": false
-					"editable": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "customerInformationLabel"
-					"text": "Customer Information"
+					"text": "Bank Account Information"
 					"font": &Font3 new java.awt.Font( "Segoe UI Semibold", 1, 22 )
 					"background": #Color0
 					"foreground": &Color5 new java.awt.Color( 37, 23, 121, 255 )
@@ -158,7 +134,7 @@ new FormModel {
 					"text": "Total Amount:"
 					"font": #Font2
 					"background": #Color0
-					"foreground": &Color6 new java.awt.Color( 137, 124, 206, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -168,7 +144,7 @@ new FormModel {
 					"border": #MatteBorder0
 					"editable": false
 					"focusable": false
-					"background": &Color7 new java.awt.Color( 232, 231, 244, 255 )
+					"background": &Color6 new java.awt.Color( 232, 231, 244, 255 )
 					"font": #Font1
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
@@ -176,7 +152,7 @@ new FormModel {
 					"text": "Payment Amount:"
 					"font": #Font2
 					"background": #Color0
-					"foreground": #Color4
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -192,7 +168,7 @@ new FormModel {
 					"text": "Payment Method:"
 					"font": #Font2
 					"background": #Color0
-					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -213,8 +189,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp scrollPane1::::505:x, seq {par l {comp discountCodeLabel:::p::p, comp cartLabel:::p::p}, space :0:394:x}, seq l {comp discountCodeField::::265:x, space :p:20:p, comp applyDiscountButton:::p:100:p, space :p:20:p, comp cancelDiscountButton:::p:100:p}}, space :p:20:p}}"
-				"$verticalGroup": "par l {seq l {space :p:21:p, comp cartLabel:::p::p, space s:::p, comp scrollPane1::::435:x, space :p:20:p, comp discountCodeLabel:::p::p, space :::p, par b {comp cancelDiscountButton::b:p:38:p, comp applyDiscountButton::b:p:38:p, comp discountCodeField::b:p:35:p}, space :p:21:p}}"
+				"$horizontalGroup": "par l {seq l {space :p:20:p, par l {comp scrollPane1::::505:x, seq {par l {comp discountCodeLabel:::p::p, comp cartLabel:::p::p}, space :0:394:x}, comp discountCodeField::l::505:x}, space :p:20:p}}"
+				"$verticalGroup": "par l {seq l {space :p:21:p, comp cartLabel:::p::p, space s:::p, comp scrollPane1::::437:x, space :p:20:p, comp discountCodeLabel:::p::p, space :::p, comp discountCodeField:::p:35:p, space :p:22:p}}"
 			} ) {
 				name: "panel2"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -240,7 +216,7 @@ new FormModel {
 					"text": "Discount Code:"
 					"font": #Font2
 					"background": #Color0
-					"foreground": #Color6
+					"foreground": new java.awt.Color( 137, 124, 206, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -248,26 +224,8 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "discountCodeField"
 					"border": #MatteBorder0
-					"background": #Color7
+					"background": #Color6
 					"font": #Font1
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "applyDiscountButton"
-					"text": "APPLY"
-					"background": #Color1
-					"font": #Font0
-					"foreground": #Color2
-					"focusable": false
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "applyDiscountButton", true ) )
-				} )
-				add( new FormComponent( "javax.swing.JButton" ) {
-					name: "cancelDiscountButton"
-					"text": "REMOVE"
-					"background": #Color1
-					"font": #Font0
-					"foreground": #Color2
-					"focusable": false
-					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelDiscountButton", true ) )
 				} )
 			} )
 		}, new FormLayoutConstraints( null ) {

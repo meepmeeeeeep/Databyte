@@ -18,6 +18,13 @@ public class AddItemForm extends JPanel {
 
         initComponents();
 
+        // Make itemIDField non-editable
+        itemIDField.setEditable(false);
+        itemIDField.setFocusable(false);
+
+        // Generate the Item ID
+        generateItemID();
+
         // Add Left-Padding to Text Fields
         itemNameField.setBorder(BorderFactory.createCompoundBorder(
                 itemNameField.getBorder(),
@@ -100,6 +107,40 @@ public class AddItemForm extends JPanel {
             JOptionPane.showMessageDialog(this, "Price and Quantity must be numeric.", "Input Error", JOptionPane.ERROR_MESSAGE);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage(), "SQL Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void generateItemID() {
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
+            // Get current year and month
+            java.time.LocalDate now = java.time.LocalDate.now();
+            String yearMonth = String.format("%04d%02d", now.getYear(), now.getMonthValue());
+            String prefix = "ITM" + yearMonth;
+
+            // Query for the highest item ID in current month
+            String sql = "SELECT item_id FROM inventory WHERE item_id LIKE ? ORDER BY item_id DESC LIMIT 1";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, prefix + "%");
+
+            var rs = pstmt.executeQuery();
+            int nextCounter = 1;
+
+            if (rs.next()) {
+                String lastID = rs.getString("item_id");
+                // Extract the counter from last ID (e.g., "ITM202501005" -> "005")
+                // The counter is the last 3 characters
+                String counterStr = lastID.substring(lastID.length() - 3);
+                nextCounter = Integer.parseInt(counterStr) + 1;
+            }
+
+            // Format the new ID (e.g., "ITM202501001")
+            String newItemID = String.format("%s%03d", prefix, nextCounter);
+            itemIDField.setText(newItemID);
+
+            rs.close();
+            pstmt.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error generating Item ID: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

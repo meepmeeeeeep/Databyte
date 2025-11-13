@@ -4,8 +4,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :25:25:p, comp panel1:::::x, space :p:25:p}}}}"
-			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, comp panel1:::::x, space :p:25:p}, comp sidePanel::::420:x}"
+			"$horizontalGroup": "par l {seq l {comp sidePanel:::p::p, par l {comp windowTitleContainer:::::x, seq {space :p:25:p, comp panel1:::p::p, space :p:25:p, comp panel2:::::x, space :p:25:p}}}}"
+			"$verticalGroup": "par l {seq {comp windowTitleContainer:::p::p, space :p:25:p, par l {comp panel1:::::x, comp panel2:::::x}, space :p:25:p}, comp sidePanel::::720:x}"
 		} ) {
 			name: "this"
 			"background": new java.awt.Color( 232, 231, 244, 255 )
@@ -38,8 +38,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:19:p, par l:::p {comp totalAmountLabel:::p::p, comp paymentAmountLabel:::p::p, comp paymentAmountField::::450:x, comp paymentDetailsLabel::l:p::p, comp changeLabel:::p::p, comp changeField::::450:x, comp totalAmountField::l::450:x}, space ::31:x, par l:::p {seq {comp printButton:::p:38:p, space :::p, comp confirmButton:::p:100:p, space :::p, comp cancelButton:::p:100:p}, comp paymentMethodLabel:::p::p, comp paymentMethodField::l:::x}, space :p:20:p}}"
-				"$verticalGroup": "par l {seq l {space :p:20:p, comp paymentDetailsLabel:::p::p, space u:::p, par t {seq {comp totalAmountLabel:::p::p, space :::p, comp totalAmountField:::p:35:p}, seq {comp paymentMethodLabel:::p::p, space :::p, comp paymentMethodField:::p:35:p}}, space s:::p, comp paymentAmountLabel:::p::p, space :6:6:p, comp paymentAmountField:::p:35:p, space s:::p, comp changeLabel:::p::p, space :p:3:p, par b {comp changeField::b:p:35:p, par b:b {comp printButton::t:p:38:p, comp confirmButton::b:p:38:p, comp cancelButton::b:p:38:p}}, space ::24:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:19:p, par l {seq {comp printButton:::p:38:p, space :::p, comp confirmButton:::p:100:p, space :::p, comp cancelButton:::p:100:p}, comp paymentMethodLabel:::p::p, par t:l::p {comp paymentMethodField::l::450:x, comp totalAmountLabel::l:p::p, comp paymentAmountLabel::l:p::p, comp paymentAmountField::l:::x, comp paymentDetailsLabel::l:p::p, comp changeLabel::l:p::p, comp changeField::l:::x, comp totalAmountField::l:::x}}, space ::31:x}}"
+				"$verticalGroup": "par l {seq l {space :p:20:p, comp paymentDetailsLabel:::p::p, space u:::p, comp totalAmountLabel:::p::p, space :::p, comp totalAmountField:::p:35:p, space s:::p, comp paymentAmountLabel:::p::p, space :6:6:p, comp paymentAmountField:::p:35:p, space s:::p, comp changeLabel:::p::p, space :p:6:p, comp changeField:::p:35:p, space s:::p, comp paymentMethodLabel:::p::p, space :::p, comp paymentMethodField:::p:35:p, space s:::p, par b {comp printButton::t:p:38:p, comp confirmButton::b:p:38:p, comp cancelButton::b:p:38:p}, space :::x}}"
 			} ) {
 				name: "panel1"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -76,7 +76,7 @@ new FormModel {
 					"text": "Total Amount:"
 					"font": &Font1 new java.awt.Font( "Segoe UI Semibold", 1, 16 )
 					"background": #Color0
-					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -93,7 +93,7 @@ new FormModel {
 					"text": "Payment Amount:"
 					"font": #Font1
 					"background": #Color0
-					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -110,7 +110,7 @@ new FormModel {
 					"text": "Payment Method:"
 					"font": #Font1
 					"background": #Color0
-					"foreground": new java.awt.Color( 137, 124, 206, 255 )
+					"foreground": new java.awt.Color( 37, 23, 121, 255 )
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"focusable": false
 					"editable": false
@@ -151,9 +151,26 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "printButtonMousePressed", true ) )
 				} )
 			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+				"$horizontalGroup": "par l {seq l {space :p:25:p, comp scrollPane1:::::x, space :p:25:p}}"
+				"$verticalGroup": "par l {seq l {space :p:25:p, comp scrollPane1:::::x, space :p:25:p}}"
+			} ) {
+				name: "panel2"
+				"background": new java.awt.Color( 252, 248, 255, 255 )
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "scrollPane1"
+					"background": new java.awt.Color( 252, 248, 255, 255 )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+						"$horizontalGroup": "par l {space :0:489:x}"
+						"$verticalGroup": "par l {space :0:555:x}"
+					} ) {
+						name: "receiptPlaceholder"
+					} )
+				} )
+			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 10, 5 )
-			"size": new java.awt.Dimension( 850, 420 )
+			"size": new java.awt.Dimension( 1150, 720 )
 		} )
 	}
 }

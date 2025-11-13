@@ -17,6 +17,10 @@ public class EditItemForm extends JPanel {
 
         initComponents();
 
+        // Make itemIDField non-editable
+        itemIDField.setEditable(false);
+        itemIDField.setFocusable(false);
+
         // Add Left-Padding to Text Fields
         itemNameField.setBorder(BorderFactory.createCompoundBorder(
                 itemNameField.getBorder(),

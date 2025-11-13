@@ -199,8 +199,8 @@ new FormModel {
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-				"$horizontalGroup": "par l {seq l {space :p:18:p, comp searchField:::p:400:p, space ::315:x, comp createButton:::p:115:p, space :::p, comp deleteButton:::p:115:p, space :::p, comp editButton:::p:115:p, space :::p, comp refreshButton:::p:38:p, space :::p}}"
-				"$verticalGroup": "par l {seq {space :10:10:p, par l {comp refreshButton::l:::x, comp editButton::l::38:x, comp deleteButton::l::38:x, comp createButton::l::38:x}, space :p:10:p}, seq l {space :p:12:p, comp searchField:::p:34:p, space ::12:x}}"
+				"$horizontalGroup": "par l {seq l {space :p:18:p, comp searchField:::p:400:p, space s:::p, comp archivedButton:::p:38:p, space ::259:x, comp createButton:::p:115:p, space :::p, comp deleteButton:::p:115:p, space :::p, comp editButton:::p:115:p, space :::p, comp refreshButton:::p:38:p, space :::p}}"
+				"$verticalGroup": "par l {seq {space :10:10:p, par l {comp refreshButton::l:::x, comp editButton::l::38:x, comp deleteButton::l::38:x, comp createButton::l::38:x}, space :p:10:p}, seq l {space :p:12:p, par l {comp archivedButton:::p:38:p, comp searchField:::p:34:p}, space ::8:x}}"
 			} ) {
 				name: "controlsPanel"
 				"background": new java.awt.Color( 252, 248, 255, 255 )
@@ -240,6 +240,14 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "createButtonMouseEntered", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "createButtonMouseExited", true ) )
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "createButtonMousePressed", true ) )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "archivedButton"
+					"focusable": false
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "archived", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseEntered", "archivedButtonMouseEntered", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseExited", "archivedButtonMouseExited", true ) )
+					addEvent( new FormEvent( "java.awt.event.MouseListener", "mousePressed", "archivedButtonMousePressed", true ) )
 				} )
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {

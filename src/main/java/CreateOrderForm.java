@@ -1023,7 +1023,7 @@ public class CreateOrderForm extends JPanel {
     private void showSuggestions(String input, JTextField targetField) {
         suggestionMenu.removeAll();
 
-        String sql = "SELECT item_id, item_name FROM inventory WHERE item_id LIKE ? OR item_name LIKE ?";
+        String sql = "SELECT item_id, item_name FROM inventory WHERE item_id LIKE ? OR item_name LIKE ? AND archived = FALSE";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -1064,7 +1064,7 @@ public class CreateOrderForm extends JPanel {
 
     // Fill text fields with the matching data from the DB (using item_id as reference)
     private void fillItemDetails(String itemId) {
-        String sql = "SELECT * FROM inventory WHERE item_id = ?";
+        String sql = "SELECT * FROM inventory WHERE item_id = ? AND archived = FALSE";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -1298,7 +1298,7 @@ public class CreateOrderForm extends JPanel {
     }
 
     private boolean validateItemDetails(String itemId) {
-        String sql = "SELECT * FROM inventory WHERE item_id = ?";
+        String sql = "SELECT * FROM inventory WHERE item_id = ? AND archived = FALSE";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {

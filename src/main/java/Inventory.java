@@ -22,6 +22,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class Inventory extends JPanel {
+    private boolean isArchived = false;
+
     public Inventory() {
 
         // Use Custom Background Images for Side Panel Buttons
@@ -81,6 +83,10 @@ public class Inventory extends JPanel {
         //---- restoreDatabaseButton ----
         Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButton.png")).getImage();
         restoreDatabaseButton = new ImageButton(restoreDatabaseBg, "");
+
+        //---- archivedButton ----
+        Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+        archivedButton = new ImageButton(archivedBg, "");
 
         initComponents();
         populateTable(); // Refresh the table
@@ -321,22 +327,41 @@ public class Inventory extends JPanel {
     //
     // Action Listener Method
     private void delete(ActionEvent e) {
-        deleteSelectedItem();
+        if (isArchived) {
+            restoreSelectedItem();
+        } else {
+            deleteSelectedItem();
+        }
     }
     // Hover Effects - Mouse Enter
     private void deleteButtonMouseEntered(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonActive.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        if (isArchived) {
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButtonActive.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+        } else {
+            Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonActive.png"))).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        }
     }
     // Hover Effects - Mouse Exit
     private void deleteButtonMouseExited(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButton.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        if (isArchived) {
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+        } else {
+            Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButton.png"))).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        }
     }
     // Hover Effects - Mouse Press
     private void deleteButtonMousePressed(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonPressed.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        if (isArchived) {
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButtonPressed.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+        } else {
+            Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonPressed.png"))).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        }
     }
 
     //
@@ -610,6 +635,58 @@ public class Inventory extends JPanel {
     private void restoreDatabaseButtonMousePressed(MouseEvent e) {
         Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButtonPressed.png")).getImage();
         ((ImageButton) restoreDatabaseButton).setBackgroundImage(restoreDatabaseBg);
+    }
+
+    private void archived(ActionEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+
+            Image deleteBg = new ImageIcon(getClass().getResource("/assets/images/deleteItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteBg);
+
+            populateTable(); // Populate Active Table
+            isArchived = false;
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+
+            populateArchivedTable(); // Populate Archived Table
+            isArchived = true;
+        }
+    }
+
+    private void archivedButtonMouseEntered(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
+    private void archivedButtonMouseExited(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
+    private void archivedButtonMousePressed(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonPressed.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
     }
 
 
@@ -1064,6 +1141,24 @@ public class Inventory extends JPanel {
                 }
             });
 
+            //---- archivedButton ----
+            archivedButton.setFocusable(false);
+            archivedButton.addActionListener(e -> archived(e));
+            archivedButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    archivedButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    archivedButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    archivedButtonMousePressed(e);
+                }
+            });
+
             GroupLayout controlsPanelLayout = new GroupLayout(controlsPanel);
             controlsPanel.setLayout(controlsPanelLayout);
             controlsPanelLayout.setHorizontalGroup(
@@ -1071,7 +1166,9 @@ public class Inventory extends JPanel {
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(archivedButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 259, Short.MAX_VALUE)
                         .addComponent(addButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
@@ -1087,14 +1184,16 @@ public class Inventory extends JPanel {
                         .addGap(10, 10, 10)
                         .addGroup(controlsPanelLayout.createParallelGroup()
                             .addComponent(refreshButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(editButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                            .addComponent(deleteButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-                            .addComponent(addButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
+                            .addComponent(editButton, GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                            .addComponent(deleteButton, GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE)
+                            .addComponent(addButton, GroupLayout.DEFAULT_SIZE, 40, Short.MAX_VALUE))
                         .addGap(10, 10, 10))
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(12, Short.MAX_VALUE))
+                        .addGroup(controlsPanelLayout.createParallelGroup()
+                            .addComponent(archivedButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(10, Short.MAX_VALUE))
             );
         }
 
@@ -1132,7 +1231,7 @@ public class Inventory extends JPanel {
                     .addGap(0, 0, 0)
                     .addComponent(controlsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .addGap(18, 18, 18)
-                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 645, Short.MAX_VALUE)
+                    .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 643, Short.MAX_VALUE)
                     .addGap(20, 20, 20))
         );
         // JFormDesigner - End of component initialization  //GEN-END:initComponents  @formatter:on
@@ -1160,6 +1259,7 @@ public class Inventory extends JPanel {
     private JButton editButton;
     private JButton deleteButton;
     private JButton addButton;
+    private JButton archivedButton;
     private JScrollPane scrollPane1;
     private JTable inventoryTable;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
@@ -1256,10 +1356,62 @@ public class Inventory extends JPanel {
         populateTable("");
     }
 
+    // Populate Items Table
     void populateTable(String searchQuery) {
         String sql = "SELECT item_no, item_id, item_name, category, quantity, price, vat_type, vat_exclusive_price, archived " +
                 "FROM inventory " +
                 "WHERE (archived = FALSE OR archived IS NULL) AND " +
+                "(item_no LIKE ? OR item_id LIKE ? OR item_name LIKE ? OR category LIKE ?) " +
+                "ORDER BY item_no";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            String wildcardQuery = "%" + searchQuery + "%";
+            pst.setString(1, wildcardQuery);
+            pst.setString(2, wildcardQuery);
+            pst.setString(3, wildcardQuery);
+            pst.setString(4, wildcardQuery);
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Make all cells non-editable
+                }
+            };
+
+            model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price", "VAT Type", "VAT Exclusive"});
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getInt("item_no"),
+                        rs.getString("item_id"),
+                        rs.getString("item_name"),
+                        rs.getString("category"),
+                        rs.getInt("quantity"),
+                        rs.getDouble("price"),
+                        rs.getString("vat_type"),
+                        rs.getDouble("vat_exclusive_price")
+                });
+            }
+
+            inventoryTable.setModel(model);
+            setTableTheme();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error loading inventory: " + ex.getMessage());
+        }
+    }
+
+    void populateArchivedTable() {
+        populateArchivedTable("");
+    }
+
+    // Populate Archived Items Table
+    void populateArchivedTable(String searchQuery) {
+        String sql = "SELECT item_no, item_id, item_name, category, quantity, price, vat_type, vat_exclusive_price, archived " +
+                "FROM inventory " +
+                "WHERE (archived = TRUE) AND " +
                 "(item_no LIKE ? OR item_id LIKE ? OR item_name LIKE ? OR category LIKE ?) " +
                 "ORDER BY item_no";
 
@@ -1335,6 +1487,43 @@ public class Inventory extends JPanel {
                 }
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error archiving item: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Restore Item
+    private void restoreSelectedItem() {
+        int selectedRow = inventoryTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an item to restore.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String itemId = (String) inventoryTable.getValueAt(selectedRow, 1);
+        String itemName = (String) inventoryTable.getValueAt(selectedRow, 2);
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to restore '" + itemName + "'?\nRestored items can be archived later.",
+                "Confirm Restore",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            String sql = "UPDATE inventory SET archived = FALSE WHERE item_id = ?";
+
+            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, itemId);
+                int affectedRows = pstmt.executeUpdate();
+
+                if (affectedRows > 0) {
+                    JOptionPane.showMessageDialog(this, "Item restored successfully.");
+                    populateArchivedTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Item could not be restored. Please try again.");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error restoring item: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

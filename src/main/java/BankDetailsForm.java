@@ -1,61 +1,55 @@
-// PaymentConfirmationForm.java
-
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.border.MatteBorder;
-import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.sql.*;
+import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
+import javax.swing.*;
+import javax.swing.GroupLayout;
+import javax.swing.LayoutStyle;
+import javax.swing.border.*;
+import javax.swing.table.*;
 
-public class PaymentConfirmationForm extends JPanel {
+public class BankDetailsForm extends JPanel {
     private final Sales sales;
-    private final String transactionId;
-    private final double totalAmount;
-    private final String customerName;
-    private final String customerAddress;
-    private final String customerEmail;
-    private final String customerPhone;
-    private double originalAmount = 0.0;
-    private boolean discountApplied = false;
     private DefaultTableModel cartTableModel;
-    private Map<String, Integer> itemQuantityMap;
-    private double discountedTotal;
+    private boolean discountApplied = false;
     private double paymentWithServiceFee;
+    private String customerPhone;
+    private String customerName;
+    private String customerAddress;
+    private String customerEmail;
 
-    public PaymentConfirmationForm(Sales sales, String transactionId, Object[][] cartData, double totalAmount,
-                                   String customerName, String customerAddress, String customerEmail, String customerPhone) {
-        this.sales = sales;
-        this.transactionId = transactionId;
-        this.totalAmount = totalAmount;
+    public BankDetailsForm(Sales sales, Object[][] cartData, double totalAmount,
+                           String customerName, String customerAddress, String customerEmail, String customerPhone,
+                           String paymentMethod, double payment, String discountCode, boolean discountApplied,
+                           DefaultTableModel cartTableModel) {
         this.customerName = customerName;
         this.customerAddress = customerAddress;
         this.customerEmail = customerEmail;
         this.customerPhone = customerPhone;
+        this.sales = sales;
+        this.cartTableModel = cartTableModel;
+        this.discountApplied = discountApplied;
+        this.paymentWithServiceFee = totalAmount;
 
         initComponents();
-        setupCartTable(cartData);
 
         // Add Left-Padding to Text Fields
         //---- Customer Information ----
-        customerNameField.setBorder(BorderFactory.createCompoundBorder(
-                customerNameField.getBorder(),
+        accountHolderField.setBorder(BorderFactory.createCompoundBorder(
+                accountHolderField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
-        customerAddressField.setBorder(BorderFactory.createCompoundBorder(
-                customerAddressField.getBorder(),
+        bankAccountField.setBorder(BorderFactory.createCompoundBorder(
+                bankAccountField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
-        customerEmailField.setBorder(BorderFactory.createCompoundBorder(
-                customerEmailField.getBorder(),
-                BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
-        ));
-        customerPhoneField.setBorder(BorderFactory.createCompoundBorder(
-                customerPhoneField.getBorder(),
+        cvvField.setBorder(BorderFactory.createCompoundBorder(
+                cvvField.getBorder(),
                 BorderFactory.createEmptyBorder(0, 10, 0, 10) // top, left, bottom, right
         ));
         //---- Payment Details ----
@@ -80,77 +74,25 @@ public class PaymentConfirmationForm extends JPanel {
             }
         });
 
-        // Set Text Fields Values
-        // ---- Customer Information ----
-        customerNameField.setText(customerName);
-        customerAddressField.setText(customerAddress);
-        customerEmailField.setText(customerEmail);
-        customerPhoneField.setText(customerPhone);
-        // ---- Payment Details ----
+        // Set field values
         totalAmountField.setText(String.format("%.2f", totalAmount));
+        paymentAmountField.setText(String.format("%.2f", payment));
+        paymentMethodField.setSelectedItem(paymentMethod);
+        discountCodeField.setText(discountCode);
 
-        // Make table rows non-selectable
-        cartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        cartTable.setRowSelectionAllowed(false);
-        cartTable.setCellSelectionEnabled(false);
-        cartTable.getTableHeader().setReorderingAllowed(false);
-        cartTable.setFocusable(false);
-    }
+        // Make fields non-editable
+        paymentMethodField.setFocusable(false);
+        paymentMethodField.setEnabled(false);
+        totalAmountField.setEditable(false);
+        paymentAmountField.setEditable(false);
+        discountCodeField.setEditable(false);
 
-    private void cancel(ActionEvent e) {
-        SwingUtilities.getWindowAncestor(this).dispose(); // Close Payment Confirmation Form
-    }
-
-    private void cancelDiscountButton(ActionEvent e) {
-        if (!discountApplied) {
-            JOptionPane.showMessageDialog(this,
-                    "No discount is currently applied.",
-                    "No Discount",
-                    JOptionPane.INFORMATION_MESSAGE);
-            return;
+        // Disable CVV field if payment method is not Card
+        if (!"Card".equals(paymentMethod)) {
+            cvvField.setEditable(false);
         }
 
-        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-            // Get the current discount code from the field
-            String code = discountCodeField.getText().trim().toUpperCase();
-
-            // Update the discount code usage in the database (decrement)
-            String updateSql = "UPDATE discount_codes SET current_uses = current_uses - 1 WHERE code = ?";
-            PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-            updateStmt.setString(1, code);
-            updateStmt.executeUpdate();
-
-            // Reset the UI
-            totalAmountField.setText(String.format("%.2f", originalAmount));
-
-            if (paymentMethodField.getSelectedItem().equals("Card")) {
-
-                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.035);
-                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-
-            } else if (paymentMethodField.getSelectedItem().equals("GCash")) {
-
-                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.030);
-                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-
-            }
-
-            discountApplied = false;
-            discountCodeField.setEnabled(true);
-            discountCodeField.setText("");
-            applyDiscountButton.setEnabled(true);
-
-            JOptionPane.showMessageDialog(this,
-                    "Discount removed. Original price restored.",
-                    "Discount Removed",
-                    JOptionPane.INFORMATION_MESSAGE);
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Database error: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        setupCartTable(cartData);
     }
 
     private void confirm(ActionEvent e) {
@@ -166,11 +108,35 @@ public class PaymentConfirmationForm extends JPanel {
 
             String paymentStr = paymentAmountField.getText().trim().replaceAll("[^\\d.]", "");
             String paymentMethod = (String) paymentMethodField.getSelectedItem();
+            String accountHolder = accountHolderField.getText().trim();
+            String bankAccount = bankAccountField.getText().trim();
+            String cvv = cvvField.getText().trim();
 
-            if (totalStr.isEmpty() || paymentStr.isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Payment amount and total must not be empty.");
+            if (accountHolder.isEmpty() || bankAccount.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Fill in all bank account fields.");
                 return;
             }
+
+            if ("Card".equals(paymentMethod)) {
+                // Validate card number (Luhn algorithm for VISA/Mastercard)
+                if (!bankAccount.matches("\\d{13,19}") || !isValidCardNumber(bankAccount)) {
+                    JOptionPane.showMessageDialog(null, "Invalid card number. Please enter a valid VISA/Mastercard number.");
+                    return;
+                }
+
+                // Validate CVV (3 or 4 digits)
+                if (!cvv.matches("\\d{3,4}")) {
+                    JOptionPane.showMessageDialog(null, "Invalid CVV. Please enter a 3 or 4 digit CVV.");
+                    return;
+                }
+            } else if ("GCash".equals(paymentMethod)) {
+                // Validate GCash account number
+                if (!bankAccount.matches("^(09|\\+639)\\d{9}$")) {
+                    JOptionPane.showMessageDialog(null, "Invalid GCash account number. Please enter a valid mobile number.");
+                    return;
+                }
+            }
+
 
             double total = Double.parseDouble(totalStr);
             double payment = Double.parseDouble(paymentStr);
@@ -184,42 +150,6 @@ public class PaymentConfirmationForm extends JPanel {
 
             if (change > 1000) {
                 JOptionPane.showMessageDialog(null, "Change is too large. Please enter a lower payment amount.");
-                return;
-            }
-
-            // Forward to BankDetailsForm if payment method is Card or GCash
-            if (paymentMethod.equals("Card") || paymentMethod.equals("GCash")) {
-                // Convert table model to Object[][]
-                Object[][] cartData = new Object[cartTableModel.getRowCount()][cartTableModel.getColumnCount()];
-                for (int i = 0; i < cartTableModel.getRowCount(); i++) {
-                    for (int j = 0; j < cartTableModel.getColumnCount(); j++) {
-                        cartData[i][j] = cartTableModel.getValueAt(i, j);
-                    }
-                }
-
-                BankDetailsForm bankDetailsForm = new BankDetailsForm(
-                        sales,
-                        cartData,
-                        total,
-                        customerNameField.getText().trim(),
-                        customerAddressField.getText().trim(),
-                        customerEmailField.getText().trim(),
-                        customerPhoneField.getText().trim(),
-                        paymentMethod,
-                        payment,
-                        discountCodeField.getText().trim(),
-                        discountApplied,
-                        cartTableModel
-                );
-
-                JFrame frame = new JFrame("Bank Details");
-                frame.setContentPane(bankDetailsForm);
-                frame.pack();
-                frame.setLocationRelativeTo(null);
-                frame.setResizable(false);
-                frame.setVisible(true);
-
-                SwingUtilities.getWindowAncestor(this).dispose();
                 return;
             }
 
@@ -241,10 +171,10 @@ public class PaymentConfirmationForm extends JPanel {
                     stmt.setString(1, transactionID);
                     stmt.setDouble(2, total);
                     stmt.setString(3, date);
-                    stmt.setString(4, customerNameField.getText().trim());
-                    stmt.setString(5, customerAddressField.getText().trim());
-                    stmt.setString(6, customerEmailField.getText().trim());
-                    stmt.setString(7, customerPhoneField.getText().trim());
+                    stmt.setString(4, customerName);
+                    stmt.setString(5, customerAddress);
+                    stmt.setString(6, customerEmail);
+                    stmt.setString(7, customerPhone);
                     stmt.setDouble(8, payment);
                     stmt.setString(9, paymentMethod);
                     stmt.setString(10, discountApplied ? discountCodeField.getText().trim() : null);
@@ -313,153 +243,12 @@ public class PaymentConfirmationForm extends JPanel {
         }
     }
 
-    private void applyDiscountButton(ActionEvent e) {
-        if (discountApplied) {
-            JOptionPane.showMessageDialog(this,
-                    "A discount is already applied. Remove current discount first.",
-                    "Discount Error",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        String code = discountCodeField.getText().trim().toUpperCase();
-        if (code.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Please enter a discount code.",
-                    "Invalid Input",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-            // Updated SQL query to include minimum_purchase check
-            String sql = "SELECT discount_percentage, current_uses, max_uses, minimum_purchase " +
-                    "FROM discount_codes " +
-                    "WHERE code = ? AND is_active = TRUE " +
-                    "AND archived = FALSE " +
-                    "AND valid_from <= CURRENT_DATE " +
-                    "AND valid_until >= CURRENT_DATE";
-
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, code);
-            ResultSet rs = stmt.executeQuery();
-
-            if (!rs.next()) {
-                JOptionPane.showMessageDialog(this,
-                        "Invalid or expired discount code.",
-                        "Invalid Code",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            double discountPercentage = rs.getDouble("discount_percentage");
-            int currentUses = rs.getInt("current_uses");
-            int maxUses = rs.getInt("max_uses");
-            double minimumPurchase = rs.getDouble("minimum_purchase");
-
-            // Check if current total meets minimum purchase requirement
-            double currentTotal = Double.parseDouble(totalAmountField.getText().trim());
-            if (currentTotal < minimumPurchase) {
-                JOptionPane.showMessageDialog(this,
-                        String.format("This discount code requires a minimum purchase of ₱%.2f",
-                                minimumPurchase),
-                        "Minimum Purchase Required",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (currentUses >= maxUses) {
-                JOptionPane.showMessageDialog(this,
-                        "This discount code has reached its maximum uses.",
-                        "Code Expired",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try {
-
-                originalAmount = Double.parseDouble(totalAmountField.getText());
-                double discountRate = discountPercentage / 100.0;
-                double discountAmount = originalAmount * discountRate;
-                discountedTotal = originalAmount - discountAmount;
-
-                if (paymentMethodField.getSelectedItem().equals("Card")) {
-
-                    paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.035);
-                    paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-
-                } else if (paymentMethodField.getSelectedItem().equals("GCash")) {
-
-                    paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.030);
-                    paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-
-                }
-
-                // Update the discount code usage in the database
-                String updateSql = "UPDATE discount_codes SET current_uses = current_uses + 1 WHERE code = ?";
-                PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-                updateStmt.setString(1, code);
-                updateStmt.executeUpdate();
-
-                totalAmountField.setText(String.format("%.2f", discountedTotal));
-                discountApplied = true;
-                discountCodeField.setEnabled(false);
-                applyDiscountButton.setEnabled(false);
-
-                JOptionPane.showMessageDialog(this,
-                        String.format("Discount applied!\nOriginal amount: ₱%.2f\nDiscount amount: ₱%.2f (%.0f%%)\nDiscounted total: ₱%.2f",
-                                originalAmount, discountAmount, discountPercentage, discountedTotal),
-                        "Discount Applied",
-                        JOptionPane.INFORMATION_MESSAGE);
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "Error processing discount. Please try again.",
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Database error: " + ex.getMessage(),
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+    private void cancel(ActionEvent e) {
+        SwingUtilities.getWindowAncestor(this).dispose(); // Close Payment Confirmation Form
     }
 
-    // Change Payment Amount to same as Total Amount when Payment Method is Card or GCash
     private void paymentMethodFieldItemStateChanged(ItemEvent e) {
-        // Service Fees:
-        // 3.5% + 15 for Card
-        // 3.0% + 15 for GCash
-        if (paymentMethodField.getSelectedItem().equals("Card")) {
-            if (discountApplied) {
-                paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.035);
-                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-
-            } else {
-                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.035);
-                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-                paymentAmountField.setEditable(false);
-                paymentAmountField.setFocusable(false);
-            }
-
-        } else if (paymentMethodField.getSelectedItem().equals("GCash")) {
-            if (discountApplied) {
-                paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.030);
-                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-
-            } else {
-                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.030);
-                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
-                paymentAmountField.setEditable(false);
-                paymentAmountField.setFocusable(false);
-            }
-
-        } else {
-            paymentAmountField.setText("");
-            paymentAmountField.setEditable(true);
-            paymentAmountField.setFocusable(true);
-        }
+        // DISABLED - FIXED
     }
 
     private void initComponents() {
@@ -470,14 +259,12 @@ public class PaymentConfirmationForm extends JPanel {
         panel1 = new JPanel();
         confirmButton = new JButton();
         cancelButton = new JButton();
-        customerNameField = new JTextField();
-        customeNameLabel = new JTextField();
-        customerAddressLabel = new JTextField();
-        customerAddressField = new JTextField();
-        customerEmailLabel = new JTextField();
-        customerEmailField = new JTextField();
-        customerPhoneField = new JTextField();
-        customerPhoneLabel = new JTextField();
+        accountHolderField = new JTextField();
+        accountHolderLabel = new JTextField();
+        bankAccountLabel = new JTextField();
+        bankAccountField = new JTextField();
+        cvvLabel = new JTextField();
+        cvvField = new JTextField();
         customerInformationLabel = new JTextField();
         paymentDetailsLabel = new JTextField();
         totalAmountLabel = new JTextField();
@@ -492,8 +279,6 @@ public class PaymentConfirmationForm extends JPanel {
         cartTable = new JTable();
         discountCodeLabel = new JTextField();
         discountCodeField = new JTextField();
-        applyDiscountButton = new JButton();
-        cancelDiscountButton = new JButton();
 
         //======== this ========
         setBackground(new Color(0xe8e7f4));
@@ -523,7 +308,7 @@ public class PaymentConfirmationForm extends JPanel {
             windowTitleContainer.setBackground(new Color(0xfcf8ff));
 
             //---- dashboardLabel ----
-            dashboardLabel.setText("Payment Confirmation");
+            dashboardLabel.setText("Bank Account Information");
             dashboardLabel.setFont(new Font("Segoe UI", Font.BOLD, 18));
             dashboardLabel.setBackground(new Color(0xfcf8ff));
             dashboardLabel.setForeground(new Color(0x251779));
@@ -569,72 +354,50 @@ public class PaymentConfirmationForm extends JPanel {
             cancelButton.setFocusable(false);
             cancelButton.addActionListener(e -> cancel(e));
 
-            //---- customerNameField ----
-            customerNameField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            customerNameField.setBackground(new Color(0xe8e7f4));
-            customerNameField.setEditable(false);
-            customerNameField.setFocusable(false);
-            customerNameField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            //---- accountHolderField ----
+            accountHolderField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
+            accountHolderField.setBackground(new Color(0xe8e7f4));
+            accountHolderField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-            //---- customeNameLabel ----
-            customeNameLabel.setText("Customer Name:");
-            customeNameLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            customeNameLabel.setBackground(new Color(0xfcf8ff));
-            customeNameLabel.setForeground(new Color(0x897cce));
-            customeNameLabel.setBorder(null);
-            customeNameLabel.setFocusable(false);
-            customeNameLabel.setEditable(false);
+            //---- accountHolderLabel ----
+            accountHolderLabel.setText("Account Holder Name:");
+            accountHolderLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+            accountHolderLabel.setBackground(new Color(0xfcf8ff));
+            accountHolderLabel.setForeground(new Color(0x897cce));
+            accountHolderLabel.setBorder(null);
+            accountHolderLabel.setFocusable(false);
+            accountHolderLabel.setEditable(false);
 
-            //---- customerAddressLabel ----
-            customerAddressLabel.setText("Customer Address: (Optional)");
-            customerAddressLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            customerAddressLabel.setBackground(new Color(0xfcf8ff));
-            customerAddressLabel.setForeground(new Color(0x897cce));
-            customerAddressLabel.setBorder(null);
-            customerAddressLabel.setFocusable(false);
-            customerAddressLabel.setEditable(false);
+            //---- bankAccountLabel ----
+            bankAccountLabel.setText("Bank Account Number:");
+            bankAccountLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+            bankAccountLabel.setBackground(new Color(0xfcf8ff));
+            bankAccountLabel.setForeground(new Color(0x897cce));
+            bankAccountLabel.setBorder(null);
+            bankAccountLabel.setFocusable(false);
+            bankAccountLabel.setEditable(false);
 
-            //---- customerAddressField ----
-            customerAddressField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            customerAddressField.setBackground(new Color(0xe8e7f4));
-            customerAddressField.setEditable(false);
-            customerAddressField.setFocusable(false);
-            customerAddressField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            //---- bankAccountField ----
+            bankAccountField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
+            bankAccountField.setBackground(new Color(0xe8e7f4));
+            bankAccountField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-            //---- customerEmailLabel ----
-            customerEmailLabel.setText("Customer Email: (Optional)");
-            customerEmailLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            customerEmailLabel.setBackground(new Color(0xfcf8ff));
-            customerEmailLabel.setForeground(new Color(0x897cce));
-            customerEmailLabel.setBorder(null);
-            customerEmailLabel.setFocusable(false);
-            customerEmailLabel.setEditable(false);
+            //---- cvvLabel ----
+            cvvLabel.setText("CVV:");
+            cvvLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
+            cvvLabel.setBackground(new Color(0xfcf8ff));
+            cvvLabel.setForeground(new Color(0x897cce));
+            cvvLabel.setBorder(null);
+            cvvLabel.setFocusable(false);
+            cvvLabel.setEditable(false);
 
-            //---- customerEmailField ----
-            customerEmailField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            customerEmailField.setBackground(new Color(0xe8e7f4));
-            customerEmailField.setEditable(false);
-            customerEmailField.setFocusable(false);
-            customerEmailField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            //---- customerPhoneField ----
-            customerPhoneField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
-            customerPhoneField.setBackground(new Color(0xe8e7f4));
-            customerPhoneField.setEditable(false);
-            customerPhoneField.setFocusable(false);
-            customerPhoneField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
-            //---- customerPhoneLabel ----
-            customerPhoneLabel.setText("Customer Phone Number: (Optional)");
-            customerPhoneLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
-            customerPhoneLabel.setBackground(new Color(0xfcf8ff));
-            customerPhoneLabel.setForeground(new Color(0x897cce));
-            customerPhoneLabel.setBorder(null);
-            customerPhoneLabel.setFocusable(false);
-            customerPhoneLabel.setEditable(false);
+            //---- cvvField ----
+            cvvField.setBorder(new MatteBorder(0, 0, 1, 0, Color.black));
+            cvvField.setBackground(new Color(0xe8e7f4));
+            cvvField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
             //---- customerInformationLabel ----
-            customerInformationLabel.setText("Customer Information");
+            customerInformationLabel.setText("Bank Account Information");
             customerInformationLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
             customerInformationLabel.setBackground(new Color(0xfcf8ff));
             customerInformationLabel.setForeground(new Color(0x251779));
@@ -655,7 +418,7 @@ public class PaymentConfirmationForm extends JPanel {
             totalAmountLabel.setText("Total Amount:");
             totalAmountLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             totalAmountLabel.setBackground(new Color(0xfcf8ff));
-            totalAmountLabel.setForeground(new Color(0x897cce));
+            totalAmountLabel.setForeground(new Color(0x251779));
             totalAmountLabel.setBorder(null);
             totalAmountLabel.setFocusable(false);
             totalAmountLabel.setEditable(false);
@@ -671,7 +434,7 @@ public class PaymentConfirmationForm extends JPanel {
             paymentAmountLabel.setText("Payment Amount:");
             paymentAmountLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             paymentAmountLabel.setBackground(new Color(0xfcf8ff));
-            paymentAmountLabel.setForeground(new Color(0x897cce));
+            paymentAmountLabel.setForeground(new Color(0x251779));
             paymentAmountLabel.setBorder(null);
             paymentAmountLabel.setFocusable(false);
             paymentAmountLabel.setEditable(false);
@@ -685,7 +448,7 @@ public class PaymentConfirmationForm extends JPanel {
             paymentMethodLabel.setText("Payment Method:");
             paymentMethodLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             paymentMethodLabel.setBackground(new Color(0xfcf8ff));
-            paymentMethodLabel.setForeground(new Color(0x897cce));
+            paymentMethodLabel.setForeground(new Color(0x251779));
             paymentMethodLabel.setBorder(null);
             paymentMethodLabel.setFocusable(false);
             paymentMethodLabel.setEditable(false);
@@ -712,10 +475,10 @@ public class PaymentConfirmationForm extends JPanel {
                             .addGroup(panel1Layout.createSequentialGroup()
                                 .addGroup(panel1Layout.createParallelGroup()
                                     .addComponent(customerInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(customerAddressLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(customeNameLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(customerNameField, GroupLayout.PREFERRED_SIZE, 720, GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(customerAddressField, GroupLayout.PREFERRED_SIZE, 720, GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(bankAccountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(accountHolderLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(accountHolderField, GroupLayout.PREFERRED_SIZE, 720, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(bankAccountField, GroupLayout.PREFERRED_SIZE, 720, GroupLayout.PREFERRED_SIZE))
                                 .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(panel1Layout.createSequentialGroup()
                                 .addGroup(panel1Layout.createParallelGroup()
@@ -734,14 +497,8 @@ public class PaymentConfirmationForm extends JPanel {
                                                 .addGap(20, 20, 20)
                                                 .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE))))
                                     .addComponent(paymentDetailsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(panel1Layout.createSequentialGroup()
-                                        .addGroup(panel1Layout.createParallelGroup()
-                                            .addComponent(customerEmailLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(customerEmailField, GroupLayout.PREFERRED_SIZE, 345, GroupLayout.PREFERRED_SIZE))
-                                        .addGap(30, 30, 30)
-                                        .addGroup(panel1Layout.createParallelGroup()
-                                            .addComponent(customerPhoneLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(customerPhoneField, GroupLayout.PREFERRED_SIZE, 345, GroupLayout.PREFERRED_SIZE))))
+                                    .addComponent(cvvLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cvvField, GroupLayout.PREFERRED_SIZE, 345, GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 20, Short.MAX_VALUE))))
             );
             panel1Layout.setVerticalGroup(
@@ -750,23 +507,17 @@ public class PaymentConfirmationForm extends JPanel {
                         .addGap(21, 21, 21)
                         .addComponent(customerInformationLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(customeNameLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(accountHolderLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(customerNameField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(accountHolderField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(customerAddressLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(bankAccountLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(customerAddressField, GroupLayout.PREFERRED_SIZE, 105, GroupLayout.PREFERRED_SIZE)
+                        .addComponent(bankAccountField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(panel1Layout.createParallelGroup()
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(customerEmailLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(customerEmailField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
-                            .addGroup(panel1Layout.createSequentialGroup()
-                                .addComponent(customerPhoneLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addGap(6, 6, 6)
-                                .addComponent(customerPhoneField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(cvvLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cvvField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
                         .addGap(43, 43, 43)
                         .addComponent(paymentDetailsLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
@@ -784,7 +535,7 @@ public class PaymentConfirmationForm extends JPanel {
                             .addComponent(paymentAmountField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
                             .addComponent(cancelButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
                             .addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(17, Short.MAX_VALUE))
+                        .addContainerGap(87, Short.MAX_VALUE))
             );
         }
 
@@ -821,22 +572,6 @@ public class PaymentConfirmationForm extends JPanel {
             discountCodeField.setBackground(new Color(0xe8e7f4));
             discountCodeField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-            //---- applyDiscountButton ----
-            applyDiscountButton.setText("APPLY");
-            applyDiscountButton.setBackground(new Color(0x6c39c1));
-            applyDiscountButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            applyDiscountButton.setForeground(new Color(0xfcf8ff));
-            applyDiscountButton.setFocusable(false);
-            applyDiscountButton.addActionListener(e -> applyDiscountButton(e));
-
-            //---- cancelDiscountButton ----
-            cancelDiscountButton.setText("REMOVE");
-            cancelDiscountButton.setBackground(new Color(0x6c39c1));
-            cancelDiscountButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            cancelDiscountButton.setForeground(new Color(0xfcf8ff));
-            cancelDiscountButton.setFocusable(false);
-            cancelDiscountButton.addActionListener(e -> cancelDiscountButton(e));
-
             GroupLayout panel2Layout = new GroupLayout(panel2);
             panel2.setLayout(panel2Layout);
             panel2Layout.setHorizontalGroup(
@@ -850,12 +585,7 @@ public class PaymentConfirmationForm extends JPanel {
                                     .addComponent(discountCodeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                                     .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 394, Short.MAX_VALUE))
-                            .addGroup(panel2Layout.createSequentialGroup()
-                                .addComponent(discountCodeField, GroupLayout.DEFAULT_SIZE, 265, Short.MAX_VALUE)
-                                .addGap(20, 20, 20)
-                                .addComponent(applyDiscountButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
-                                .addGap(20, 20, 20)
-                                .addComponent(cancelDiscountButton, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(discountCodeField, GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE))
                         .addGap(20, 20, 20))
             );
             panel2Layout.setVerticalGroup(
@@ -864,15 +594,12 @@ public class PaymentConfirmationForm extends JPanel {
                         .addGap(21, 21, 21)
                         .addComponent(cartLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
+                        .addComponent(scrollPane1, GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
                         .addGap(20, 20, 20)
                         .addComponent(discountCodeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(panel2Layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                            .addComponent(cancelDiscountButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(applyDiscountButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
-                            .addComponent(discountCodeField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE))
-                        .addGap(21, 21, 21))
+                        .addComponent(discountCodeField, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+                        .addGap(22, 22, 22))
             );
         }
 
@@ -912,14 +639,12 @@ public class PaymentConfirmationForm extends JPanel {
     private JPanel panel1;
     private JButton confirmButton;
     private JButton cancelButton;
-    private JTextField customerNameField;
-    private JTextField customeNameLabel;
-    private JTextField customerAddressLabel;
-    private JTextField customerAddressField;
-    private JTextField customerEmailLabel;
-    private JTextField customerEmailField;
-    private JTextField customerPhoneField;
-    private JTextField customerPhoneLabel;
+    private JTextField accountHolderField;
+    private JTextField accountHolderLabel;
+    private JTextField bankAccountLabel;
+    private JTextField bankAccountField;
+    private JTextField cvvLabel;
+    private JTextField cvvField;
     private JTextField customerInformationLabel;
     private JTextField paymentDetailsLabel;
     private JTextField totalAmountLabel;
@@ -934,8 +659,6 @@ public class PaymentConfirmationForm extends JPanel {
     private JTable cartTable;
     private JTextField discountCodeLabel;
     private JTextField discountCodeField;
-    private JButton applyDiscountButton;
-    private JButton cancelDiscountButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     private void setupCartTable(Object[][] cartData) {
@@ -1068,5 +791,20 @@ public class PaymentConfirmationForm extends JPanel {
                 }
             }
         }
+    }
+
+    private boolean isValidCardNumber(String cardNumber) {
+        int sum = 0;
+        boolean alternate = false;
+        for (int i = cardNumber.length() - 1; i >= 0; i--) {
+            int n = Integer.parseInt(cardNumber.substring(i, i + 1));
+            if (alternate) {
+                n *= 2;
+                if (n > 9) n -= 9;
+            }
+            sum += n;
+            alternate = !alternate;
+        }
+        return (sum % 10 == 0);
     }
 }

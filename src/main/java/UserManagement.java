@@ -19,7 +19,9 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class UserManagement extends JPanel {
+    private boolean isArchived = false;
     private String currentLoggedInUser;
+
     public UserManagement() {
         // Use Custom Background Images for Side Panel Buttons
         //---- dashboardButton ----
@@ -78,6 +80,10 @@ public class UserManagement extends JPanel {
         //---- restoreDatabaseButton ----
         Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButton.png")).getImage();
         restoreDatabaseButton = new ImageButton(restoreDatabaseBg, "");
+
+        //---- archivedButton ----
+        Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+        archivedButton = new ImageButton(archivedBg, "");
 
         initComponents();
         populateTable();
@@ -396,22 +402,41 @@ public class UserManagement extends JPanel {
     //
     // Action Listener Method
     private void delete(ActionEvent e) {
-        deleteSelectedUser();
+        if (isArchived) {
+            restoreSelectedUser();
+        } else {
+            deleteSelectedUser();
+        }
     }
     // Hover Effects - Mouse Enter
     private void deleteButtonMouseEntered(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonActive.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        if (isArchived) {
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButtonActive.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+        } else {
+            Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonActive.png"))).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        }
     }
     // Hover Effects - Mouse Exit
     private void deleteButtonMouseExited(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButton.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        if (isArchived) {
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+        } else {
+            Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButton.png"))).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        }
     }
     // Hover Effects - Mouse Press
     private void deleteButtonMousePressed(MouseEvent e) {
-        Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonPressed.png"))).getImage();
-        ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        if (isArchived) {
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButtonPressed.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+        } else {
+            Image deleteItemBg = new ImageIcon(Objects.requireNonNull(getClass().getResource("/assets/images/deleteItemButtonPressed.png"))).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteItemBg);
+        }
     }
 
     //
@@ -634,6 +659,62 @@ public class UserManagement extends JPanel {
     private void restoreDatabaseButtonMousePressed(MouseEvent e) {
         Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButtonPressed.png")).getImage();
         ((ImageButton) restoreDatabaseButton).setBackgroundImage(restoreDatabaseBg);
+    }
+
+    //
+    // Archived Button Event Listener Methods
+    //
+    // Action Listener Method
+    private void archived(ActionEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+
+            Image deleteBg = new ImageIcon(getClass().getResource("/assets/images/deleteItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteBg);
+
+            populateTable(); // Populate Active Table
+            isArchived = false;
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+
+            populateArchivedTable(); // Populate Archived Table
+            isArchived = true;
+        }
+    }
+
+    private void archivedButtonMouseEntered(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
+    private void archivedButtonMouseExited(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
+    private void archivedButtonMousePressed(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonPressed.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
     }
 
     private void initComponents() {
@@ -1087,6 +1168,24 @@ public class UserManagement extends JPanel {
                 }
             });
 
+            //---- archivedButton ----
+            archivedButton.setFocusable(false);
+            archivedButton.addActionListener(e -> archived(e));
+            archivedButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    archivedButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    archivedButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    archivedButtonMousePressed(e);
+                }
+            });
+
             GroupLayout controlsPanelLayout = new GroupLayout(controlsPanel);
             controlsPanel.setLayout(controlsPanelLayout);
             controlsPanelLayout.setHorizontalGroup(
@@ -1094,7 +1193,9 @@ public class UserManagement extends JPanel {
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(archivedButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 259, Short.MAX_VALUE)
                         .addComponent(createButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
@@ -1116,8 +1217,10 @@ public class UserManagement extends JPanel {
                         .addGap(10, 10, 10))
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(12, 12, 12)
-                        .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(12, Short.MAX_VALUE))
+                        .addGroup(controlsPanelLayout.createParallelGroup()
+                            .addComponent(archivedButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(8, Short.MAX_VALUE))
             );
         }
 
@@ -1183,6 +1286,7 @@ public class UserManagement extends JPanel {
     private JButton editButton;
     private JButton deleteButton;
     private JButton createButton;
+    private JButton archivedButton;
     private JScrollPane scrollPane1;
     private JTable usersTable;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
@@ -1200,6 +1304,67 @@ public class UserManagement extends JPanel {
         String sql = "SELECT id, employee_name, username, role, email, contact_number " +
                 "FROM users " +
                 "WHERE (archived = FALSE OR archived IS NULL) AND " +
+                "(employee_name LIKE ? OR username LIKE ? OR role LIKE ? OR email LIKE ? OR contact_number LIKE ?) " +
+                "ORDER BY id";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+            String wildcardQuery = "%" + searchQuery + "%";
+            pst.setString(1, wildcardQuery);
+            pst.setString(2, wildcardQuery);
+            pst.setString(3, wildcardQuery);
+            pst.setString(4, wildcardQuery);
+            pst.setString(5, wildcardQuery);
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            };
+
+            model.setColumnIdentifiers(new String[]{"ID", "Employee Name", "Username", "Role", "Email", "Contact Number"});
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getInt("id"),
+                        rs.getString("employee_name"),
+                        rs.getString("username"),
+                        rs.getString("role"),
+                        rs.getString("email"),
+                        rs.getString("contact_number")
+                });
+            }
+
+            usersTable.setModel(model);
+
+            // Add custom selection model to prevent selecting current user's row
+            usersTable.setSelectionModel(new DefaultListSelectionModel() {
+                @Override
+                public void setSelectionInterval(int index0, int index1) {
+                    String username = (String) usersTable.getValueAt(index0, 2);
+                    if (!username.equals(currentLoggedInUser) && !username.equals("admin")) {
+                        super.setSelectionInterval(index0, index1);
+                    }
+                }
+            });
+
+            setTableTheme();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error loading users: " + ex.getMessage());
+        }
+    }
+
+    void populateArchivedTable() {
+        populateArchivedTable("");
+    }
+
+    void populateArchivedTable(String searchQuery) {
+        String sql = "SELECT id, employee_name, username, role, email, contact_number " +
+                "FROM users " +
+                "WHERE (archived = TRUE) AND " +
                 "(employee_name LIKE ? OR username LIKE ? OR role LIKE ? OR email LIKE ? OR contact_number LIKE ?) " +
                 "ORDER BY id";
 
@@ -1297,6 +1462,54 @@ public class UserManagement extends JPanel {
                 }
             } catch (SQLException ex) {
                 JOptionPane.showMessageDialog(this, "Error archiving user: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Restore User
+    private void restoreSelectedUser() {
+        int selectedRow = usersTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a user to restore.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String username = (String) usersTable.getValueAt(selectedRow, 2);
+
+        if (username.equals(currentLoggedInUser)) {
+            JOptionPane.showMessageDialog(this, "You cannot restore your own account.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (username.equals("admin")) {
+            JOptionPane.showMessageDialog(this, "The admin account cannot be archived.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int userId = (int) usersTable.getValueAt(selectedRow, 0);
+
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to restore this user?\nRestored users can be archived later.",
+                "Confirm Restore",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            String sql = "UPDATE users SET archived = FALSE WHERE id = ?";
+
+            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, userId);
+                int affectedRows = pstmt.executeUpdate();
+
+                if (affectedRows > 0) {
+                    JOptionPane.showMessageDialog(this, "User restored successfully.");
+                    populateArchivedTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "User could not be restored. Please try again.");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error restoring user: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

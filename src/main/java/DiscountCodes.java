@@ -21,6 +21,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 
 public class DiscountCodes extends JPanel {
+    private boolean isArchived;
+
     public DiscountCodes() {
         // Use Custom Background Images for Side Panel Buttons
         //---- dashboardButton ----
@@ -79,6 +81,10 @@ public class DiscountCodes extends JPanel {
         //---- restoreDatabaseButton ----
         Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButton.png")).getImage();
         restoreDatabaseButton = new ImageButton(restoreDatabaseBg, "");
+
+        //---- archivedButton ----
+        Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+        archivedButton = new ImageButton(archivedBg, "");
 
         initComponents();
         populateTable();
@@ -396,37 +402,10 @@ public class DiscountCodes extends JPanel {
     //
     // Action Listener Method
     private void delete(ActionEvent e) {
-        int selectedRow = discountCodesTable.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a discount code to archive.");
-            return;
-        }
-
-        String code = discountCodesTable.getValueAt(selectedRow, 0).toString();
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to archive discount code '" + code + "'?\nArchived codes can be restored later.",
-                "Confirm Archive",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm == JOptionPane.YES_OPTION) {
-            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-                String sql = "UPDATE discount_codes SET archived = TRUE WHERE code = ?";
-                PreparedStatement pst = conn.prepareStatement(sql);
-                pst.setString(1, code);
-
-                int rowsAffected = pst.executeUpdate();
-                if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(this, "Discount code archived successfully.");
-                    populateTable();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to archive discount code.");
-                }
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error archiving discount code: " + ex.getMessage());
-            }
+        if (isArchived) {
+            restoreSelectedCode();
+        } else {
+            archiveSelectedCode();
         }
     }
     // Hover Effects - Mouse Enter
@@ -655,7 +634,63 @@ public class DiscountCodes extends JPanel {
         Image restoreDatabaseBg = new ImageIcon(getClass().getResource("/assets/images/importDatabaseButtonPressed.png")).getImage();
         ((ImageButton) restoreDatabaseButton).setBackgroundImage(restoreDatabaseBg);
     }
-    
+
+    //
+    // Archived Button Event Listener Methods
+    //
+    // Action Listener Method
+    private void archived(ActionEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+
+            Image deleteBg = new ImageIcon(getClass().getResource("/assets/images/deleteItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(deleteBg);
+
+            populateTable(); // Populate Active Table
+            isArchived = false;
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+
+            Image restoreBg = new ImageIcon(getClass().getResource("/assets/images/restoreItemButton.png")).getImage();
+            ((ImageButton) deleteButton).setBackgroundImage(restoreBg);
+
+            populateArchivedTable(); // Populate Archived Table
+            isArchived = true;
+        }
+    }
+
+    private void archivedButtonMouseEntered(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
+    private void archivedButtonMouseExited(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButton.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
+    private void archivedButtonMousePressed(MouseEvent e) {
+        if (isArchived) {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonActive.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        } else {
+            Image archivedBg = new ImageIcon(getClass().getResource("/assets/images/archiveButtonPressed.png")).getImage();
+            ((ImageButton) archivedButton).setBackgroundImage(archivedBg);
+        }
+    }
+
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off
         sidePanel = new JPanel();
@@ -1107,6 +1142,24 @@ public class DiscountCodes extends JPanel {
                 }
             });
 
+            //---- archivedButton ----
+            archivedButton.setFocusable(false);
+            archivedButton.addActionListener(e -> archived(e));
+            archivedButton.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    archivedButtonMouseEntered(e);
+                }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    archivedButtonMouseExited(e);
+                }
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    archivedButtonMousePressed(e);
+                }
+            });
+
             GroupLayout controlsPanelLayout = new GroupLayout(controlsPanel);
             controlsPanel.setLayout(controlsPanelLayout);
             controlsPanelLayout.setHorizontalGroup(
@@ -1114,7 +1167,9 @@ public class DiscountCodes extends JPanel {
                     .addGroup(controlsPanelLayout.createSequentialGroup()
                         .addGap(18, 18, 18)
                         .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 400, GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 315, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(archivedButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 259, Short.MAX_VALUE)
                         .addComponent(createButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton, GroupLayout.PREFERRED_SIZE, 115, GroupLayout.PREFERRED_SIZE)
@@ -1135,8 +1190,10 @@ public class DiscountCodes extends JPanel {
                             .addComponent(createButton, GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE))
                         .addGap(10, 10, 10))
                     .addGroup(controlsPanelLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE)
+                        .addGap(8, 8, 8)
+                        .addGroup(controlsPanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                            .addComponent(archivedButton, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchField, GroupLayout.PREFERRED_SIZE, 34, GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(12, Short.MAX_VALUE))
             );
         }
@@ -1203,6 +1260,7 @@ public class DiscountCodes extends JPanel {
     private JButton editButton;
     private JButton deleteButton;
     private JButton createButton;
+    private JButton archivedButton;
     private JScrollPane scrollPane1;
     private JTable discountCodesTable;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
@@ -1276,6 +1334,145 @@ public class DiscountCodes extends JPanel {
 
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error loading discount codes: " + ex.getMessage());
+        }
+    }
+
+    // Refresh/Populate Archived Table
+    void populateArchivedTable() {
+        populateArchivedTable("");
+    }
+
+    void populateArchivedTable(String searchQuery) {
+        String sql = "SELECT code, discount_percentage, valid_from, valid_until, " +
+                "max_uses, current_uses, is_active, minimum_purchase " +
+                "FROM discount_codes " +
+                "WHERE (archived = TRUE) AND " +
+                "(code LIKE ? OR CAST(discount_percentage AS CHAR) LIKE ? OR CAST(minimum_purchase AS CHAR) LIKE ?) " +
+                "ORDER BY valid_until DESC";
+
+        try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            String wildcardQuery = "%" + searchQuery + "%";
+            pst.setString(1, wildcardQuery);
+            pst.setString(2, wildcardQuery);
+            pst.setString(3, wildcardQuery);
+
+            ResultSet rs = pst.executeQuery();
+
+            DefaultTableModel model = new DefaultTableModel() {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+
+                // Define column types for proper rendering
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    switch (columnIndex) {
+                        case 1: return Double.class; // discount_percentage
+                        case 4: return Integer.class; // max_uses
+                        case 5: return Integer.class; // current_uses
+                        case 6: return Boolean.class; // is_active
+                        case 7: return Double.class; // minimum_purchase
+                        default: return String.class;
+                    }
+                }
+            };
+
+            model.setColumnIdentifiers(new String[]{
+                    "Code", "Discount %", "Valid From", "Valid Until",
+                    "Max Uses", "Current Uses", "Active", "Min. Purchase"
+            });
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getString("code"),
+                        rs.getDouble("discount_percentage"),
+                        rs.getDate("valid_from"),
+                        rs.getDate("valid_until"),
+                        rs.getInt("max_uses"),
+                        rs.getInt("current_uses"),
+                        rs.getBoolean("is_active"),
+                        rs.getDouble("minimum_purchase")
+                });
+            }
+
+            discountCodesTable.setModel(model);
+            setTableTheme();
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error loading discount codes: " + ex.getMessage());
+        }
+    }
+
+    private void archiveSelectedCode() {
+        int selectedRow = discountCodesTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a discount code to archive.");
+            return;
+        }
+
+        String code = discountCodesTable.getValueAt(selectedRow, 0).toString();
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to archive discount code '" + code + "'?\nArchived codes can be restored later.",
+                "Confirm Archive",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
+                String sql = "UPDATE discount_codes SET archived = TRUE WHERE code = ?";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setString(1, code);
+
+                int rowsAffected = pst.executeUpdate();
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this, "Discount code archived successfully.");
+                    populateTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to archive discount code.");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error archiving discount code: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void restoreSelectedCode() {
+        int selectedRow = discountCodesTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a discount code to restore.");
+            return;
+        }
+
+        String code = discountCodesTable.getValueAt(selectedRow, 0).toString();
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to restore discount code '" + code + "'?\nRestored codes can be archived later.",
+                "Confirm Restore",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
+                String sql = "UPDATE discount_codes SET archived = TRUE WHERE code = ?";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setString(1, code);
+
+                int rowsAffected = pst.executeUpdate();
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this, "Discount code restored successfully.");
+                    populateArchivedTable();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to restore discount code.");
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error restoring discount code: " + ex.getMessage());
+            }
         }
     }
 

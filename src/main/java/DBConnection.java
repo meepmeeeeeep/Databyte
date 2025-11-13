@@ -222,7 +222,7 @@ public class DBConnection {
 
     public static LoginResult validateLogin(String username, String password) {
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
-            PreparedStatement stmt = conn.prepareStatement("SELECT password FROM users WHERE username = ?");
+            PreparedStatement stmt = conn.prepareStatement("SELECT password FROM users WHERE username = ? AND archived = FALSE");
             stmt.setString(1, username);
             ResultSet rs = stmt.executeQuery();
 
@@ -256,14 +256,14 @@ public class DBConnection {
 
             if (rs.next()) {
                 String lastID = rs.getString("transaction_id");
-                String numberPart = lastID.substring(8); // After MMDDYYYY
+                String numberPart = lastID.substring(datePrefix.length()); // After MMDDYYYY
                 nextNumber = Integer.parseInt(numberPart) + 1;
             }
         } catch (SQLException e) {
             System.out.println("Error generating transaction ID: " + e.getMessage());
         }
 
-        return datePrefix + String.format("%04d", nextNumber); // e.g., 051320250001
+        return datePrefix + String.format("%03d", nextNumber); // e.g., 05132025001
     }
 
     public static String getUserRole(String username) {
