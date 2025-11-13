@@ -1023,13 +1023,15 @@ public class CreateOrderForm extends JPanel {
     private void showSuggestions(String input, JTextField targetField) {
         suggestionMenu.removeAll();
 
-        String sql = "SELECT item_id, item_name FROM inventory WHERE item_id LIKE ? OR item_name LIKE ? AND archived = FALSE";
+        String sql = "SELECT item_id, item_name FROM inventory WHERE (item_id LIKE ? OR item_name LIKE ? OR category LIKE ?) " +
+                "AND archived = FALSE";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, input + "%");
-            stmt.setString(2, input + "%");
+            stmt.setString(1, "%" + input + "%");
+            stmt.setString(2, "%" + input + "%");
+            stmt.setString(3, "%" + input + "%");
             ResultSet rs = stmt.executeQuery();
 
             boolean foundAny = false;
@@ -1052,6 +1054,7 @@ public class CreateOrderForm extends JPanel {
             rs.close();
 
             if (foundAny) {
+                suggestionMenu.pack();
                 suggestionMenu.show(targetField, 0, targetField.getHeight());
                 suggestionMenu.revalidate();
                 suggestionMenu.repaint();
