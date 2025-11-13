@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 
 public class PaymentDetails extends JPanel {
     private final Sales sales;
+    private double currentZoom = 1.0;
+    private Point dragStart = null;
 
     public PaymentDetails(String totalAmount, String paymentAmount, String paymentMethod, double change, Sales sales) {
         this.sales = sales;
@@ -634,6 +636,8 @@ public class PaymentDetails extends JPanel {
                 addLabel(receiptPlaceholder, "Thank you for shopping!", Font.PLAIN, 9, JLabel.CENTER);
             }
 
+            addZoomAndPanToReceipt();
+
             receiptPlaceholder.revalidate();
             receiptPlaceholder.repaint();
         } catch (Exception ex) {
@@ -773,6 +777,87 @@ public class PaymentDetails extends JPanel {
         }
 
         document.add(new Paragraph("\nThank you for shopping!", smallFont));
+    }
+
+    private void addZoomAndPanToReceipt() {
+        // Mouse wheel zoom
+        scrollPane1.addMouseWheelListener(e -> {
+            if (e.isControlDown()) {
+                double zoomFactor = e.getWheelRotation() < 0 ? 1.1 : 0.9;
+                currentZoom *= zoomFactor;
+
+                // Limit zoom range
+                currentZoom = Math.max(0.5, Math.min(currentZoom, 3.0));
+
+                applyZoom();
+                e.consume();
+            }
+        });
+
+        // Drag to pan
+        receiptPlaceholder.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    dragStart = e.getPoint();
+                    receiptPlaceholder.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    dragStart = null;
+                    receiptPlaceholder.setCursor(Cursor.getDefaultCursor());
+                }
+            }
+        });
+
+        receiptPlaceholder.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (dragStart != null && SwingUtilities.isLeftMouseButton(e)) {
+                    JViewport viewport = scrollPane1.getViewport();
+                    Point viewPos = viewport.getViewPosition();
+
+                    int deltaX = dragStart.x - e.getX();
+                    int deltaY = dragStart.y - e.getY();
+
+                    viewPos.translate(deltaX, deltaY);
+                    receiptPlaceholder.scrollRectToVisible(new Rectangle(viewPos, viewport.getSize()));
+                }
+            }
+        });
+    }
+
+    private void applyZoom() {
+        Component[] components = receiptPlaceholder.getComponents();
+
+        for (Component comp : components) {
+            if (comp instanceof JLabel) {
+                JLabel label = (JLabel) comp;
+                Font currentFont = label.getFont();
+                int newSize = (int) (currentFont.getSize() * currentZoom / getPreviousZoom(label));
+                label.setFont(currentFont.deriveFont((float) newSize));
+            } else if (comp instanceof Box.Filler) {
+                // Handle spacers
+                Dimension size = comp.getPreferredSize();
+                int newHeight = (int) (size.height * currentZoom / getPreviousZoom(comp));
+                comp.setPreferredSize(new Dimension(size.width, newHeight));
+                comp.setMaximumSize(new Dimension(size.width, newHeight));
+            }
+        }
+
+        // Store current zoom for next calculation
+        receiptPlaceholder.putClientProperty("previousZoom", currentZoom);
+
+        receiptPlaceholder.revalidate();
+        receiptPlaceholder.repaint();
+    }
+
+    private double getPreviousZoom(Component comp) {
+        Object prevZoom = receiptPlaceholder.getClientProperty("previousZoom");
+        return prevZoom != null ? (Double) prevZoom : 1.0;
     }
 
 }

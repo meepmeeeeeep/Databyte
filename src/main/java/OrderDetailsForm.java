@@ -127,128 +127,44 @@ public class OrderDetailsForm extends JPanel {
 
     private void printReceipt(ActionEvent e) {
         try {
-            Document document = new Document(com.itextpdf.text.PageSize.A4);
-            document.setPageSize(new com.itextpdf.text.Rectangle(226.772f, 842f)); // 80mm width
+            String appData = System.getenv("APPDATA");
 
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Save Receipt");
-            fileChooser.setFileFilter(new FileNameExtensionFilter("PDF Files", "pdf"));
+            // Extract transaction ID from the dashboard label
+            String transactionId = dashboardLabel.getText().split(":")[1].split("\\|")[0].trim();
 
-            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-                String filePath = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!filePath.toLowerCase().endsWith(".pdf")) {
-                    filePath += ".pdf";
-                }
+            // Extract date to build the path
+            String dateStr = dashboardLabel.getText().split("Date:")[1].trim();
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            java.util.Date date = inputFormat.parse(dateStr);
 
-                PdfWriter.getInstance(document, new FileOutputStream(filePath));
-                document.open();
+            java.time.LocalDate localDate = date.toInstant()
+                    .atZone(java.time.ZoneId.systemDefault())
+                    .toLocalDate();
 
-                // Define consistent fonts
-                com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.COURIER, 8, com.itextpdf.text.Font.BOLD);
-                com.itextpdf.text.Font normalFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.COURIER, 7, com.itextpdf.text.Font.NORMAL);
-                com.itextpdf.text.Font smallFont = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.COURIER, 6, com.itextpdf.text.Font.NORMAL);
+            String year = String.format("%04d", localDate.getYear());
+            String month = String.format("%02d", localDate.getMonthValue());
 
-                // Store header
-                Paragraph header = new Paragraph();
-                header.setAlignment(Element.ALIGN_CENTER);
-                header.add(new Chunk("Databyte\n", titleFont));
-                header.add(new Chunk("123 Main Street\n", smallFont));
-                header.add(new Chunk("Tel: (123) 456-7890\n\n", smallFont));
-                document.add(header);
+            // Build the file path
+            String filePath = appData + "\\Databyte\\Receipts\\" + year + "\\" + month + "\\" + transactionId + ".pdf";
+            java.io.File pdfFile = new java.io.File(filePath);
 
-                // Transaction details
-                document.add(new Paragraph("Transaction ID: " + dashboardLabel.getText().split(":")[1].split("\\|")[0].trim(), normalFont));
-                document.add(new Paragraph("Date: " + dashboardLabel.getText().split("Date:")[1].trim(), normalFont));
-                document.add(new Paragraph("Cashier Name: " + employeeName, normalFont));
-                document.add(new Paragraph("\nCustomer Information:", titleFont));
-                document.add(new Paragraph("Name: " + customerNameField.getText(), normalFont));
-
-                if (!customerPhoneField.getText().isEmpty()) {
-                    document.add(new Paragraph("Contact: " + customerPhoneField.getText(), normalFont));
-                }
-                if (!customerAddressField.getText().isEmpty()) {
-                    document.add(new Paragraph("Address: " + customerAddressField.getText(), normalFont));
-                }
-
-                // Payment Method and Discount Code in Order Details
-                document.add(new Paragraph("\nOrder Details", titleFont));
-                document.add(new Paragraph("Payment Method: " + paymentMethodField.getText(), normalFont));
-
-                document.add(new Paragraph("", normalFont)); // Empty line for spacing
-
-                // Items from cart table
-                DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
-
-                double originalTotal = 0.0;  // Track the original total before discount
-
-                for (int i = 0; i < model.getRowCount(); i++) {
-                    String itemId = model.getValueAt(i, 0).toString();
-                    String itemName = model.getValueAt(i, 1).toString();
-                    int quantity = Integer.parseInt(model.getValueAt(i, 6).toString());
-                    double unitPrice = Double.parseDouble(model.getValueAt(i, 3).toString());
-                    double vatPrice = Double.parseDouble(model.getValueAt(i, 5).toString());
-
-                    // Calculate subtotal using VAT inclusive price
-                    double subtotal = unitPrice * quantity;
-                    originalTotal += subtotal;
-
-                    // Item details with aligned prices
-                    document.add(new Paragraph(itemId + " - " +
-                            (itemName.length() > 20 ? itemName.substring(0, 17) + "..." : itemName), normalFont));
-
-                    Paragraph priceDetails = new Paragraph();
-                    priceDetails.setIndentationLeft(10);
-                    priceDetails.add(new Chunk(String.format("x%d @ %8.2f\n", quantity, unitPrice), smallFont));
-                    priceDetails.add(new Chunk(String.format("VAT excl.: %8.2f\n", vatPrice), smallFont));
-                    priceDetails.add(new Chunk(String.format("Sub: %8.2f\n", subtotal), smallFont));
-                    document.add(priceDetails);
-                }
-
-                // Totals section
-                document.add(new Paragraph("\n", normalFont));
-                double total = Double.parseDouble(totalAmountField.getText());
-                double payment = Double.parseDouble(paymentAmountField.getText());
-                double change = payment - total;
-
-                double finalTotal = Double.parseDouble(totalAmountField.getText());
-
-                if (!discountCodeField.getText().isEmpty()) {
-                    double discountAmount = originalTotal - finalTotal;
-
-                    Paragraph discountInfo = new Paragraph();
-                    discountInfo.setAlignment(Element.ALIGN_RIGHT);
-                    discountInfo.add(new Chunk(String.format("Original Total: %8.2f\n", originalTotal), normalFont));
-                    discountInfo.add(new Chunk(String.format("Discount (%s): %8.2f\n", discountCodeField.getText(), discountAmount), normalFont));
-                    document.add(discountInfo);
-                }
-
-                Paragraph totals = new Paragraph();
-                totals.setAlignment(Element.ALIGN_RIGHT);
-                totals.add(new Chunk(String.format("Total: %8.2f\n", finalTotal), titleFont));
-                totals.add(new Chunk(String.format("Paid: %8.2f\n", payment), normalFont));
-
-                // Display Change if Payment Method is CASH
-                if (paymentMethodField.getText().equalsIgnoreCase("CASH")) {
-                    totals.add(new Chunk(String.format("Change: %8.2f\n", change), normalFont));
-                }
-
-                document.add(totals);
-
-                document.add(new Paragraph("\nThank you for shopping!", smallFont));
-                document.close();
-
+            if (pdfFile.exists()) {
+                Desktop.getDesktop().open(pdfFile);
+            } else {
                 JOptionPane.showMessageDialog(this,
-                        "Receipt saved successfully!",
-                        "Success",
-                        JOptionPane.INFORMATION_MESSAGE);
+                        "Receipt file not found: " + filePath,
+                        "File Not Found",
+                        JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
-                    "Error generating receipt: " + ex.getMessage(),
+                    "Error opening receipt: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
         }
     }
+
 
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents  @formatter:off

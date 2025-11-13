@@ -1585,7 +1585,7 @@ public class Dashboard extends JPanel {
         lowStockTable.setModel(model);
         lowStockTable.setShowGrid(false);
 
-// Custom cell renderer for low stock items
+        // Custom cell renderer for low stock items
         DefaultTableCellRenderer lowStockRenderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,

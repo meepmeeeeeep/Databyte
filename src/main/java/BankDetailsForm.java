@@ -90,6 +90,11 @@ public class BankDetailsForm extends JPanel {
         // Disable CVV field if payment method is not Card
         if (!"Card".equals(paymentMethod)) {
             cvvField.setEditable(false);
+            bankAccountLabel.setText("GCash Number: ");
+            dashboardLabel.setText("GCash Information");
+            customerInformationLabel.setText("GCash Information");
+            cvvLabel.setVisible(false);
+            cvvField.setVisible(false);
         }
 
         setupCartTable(cartData);
@@ -109,7 +114,7 @@ public class BankDetailsForm extends JPanel {
             String paymentStr = paymentAmountField.getText().trim().replaceAll("[^\\d.]", "");
             String paymentMethod = (String) paymentMethodField.getSelectedItem();
             String accountHolder = accountHolderField.getText().trim();
-            String bankAccount = bankAccountField.getText().trim();
+            String bankAccount = bankAccountField.getText().trim().replaceAll("\\s+", "");
             String cvv = cvvField.getText().trim();
 
             if (accountHolder.isEmpty() || bankAccount.isEmpty()) {
