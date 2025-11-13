@@ -234,7 +234,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "vatPriceLabel"
-					"text": "VAT Inc. Price:"
+					"text": "VAT Excl. Price:"
 					"font": #Font0
 					"background": #Color0
 					"foreground": #Color1
@@ -255,13 +255,13 @@ new FormModel {
 					"model": new javax.swing.DefaultComboBoxModel {
 						selectedItem: "VATABLE"
 						addElement( "VATABLE" )
-						addElement( "ZERO-RATED" )
 						addElement( "VAT EXEMPT" )
 					}
 					"focusable": false
 					"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					"background": new java.awt.Color( 232, 231, 244, 255 )
 					"font": new java.awt.Font( "Segoe UI", 0, 14 )
+					"requestFocusEnabled": false
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "vatableLabel"

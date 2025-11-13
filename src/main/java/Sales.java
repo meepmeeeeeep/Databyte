@@ -314,7 +314,7 @@ public class Sales extends JPanel {
                             cartRs.getString("category"),
                             cartRs.getDouble("price"),
                             cartRs.getString("vat_type"),
-                            cartRs.getDouble("vat_inclusive_price"),
+                            cartRs.getDouble("vat_exclusive_price"),
                             cartRs.getInt("quantity"),
                             cartRs.getDouble("price") * cartRs.getInt("quantity")
                     };
@@ -325,6 +325,7 @@ public class Sales extends JPanel {
                 OrderDetailsForm detailsForm = new OrderDetailsForm(
                         transactionId,
                         transactionRs.getTimestamp("date"),
+                        transactionRs.getString("employee_name"),
                         transactionRs.getString("customer_name"),
                         transactionRs.getString("customer_address"),
                         transactionRs.getString("customer_email"),

@@ -275,7 +275,6 @@ public class AddItemForm extends JPanel {
             //---- vatableField ----
             vatableField.setModel(new DefaultComboBoxModel<>(new String[] {
                 "VATABLE",
-                "ZERO-RATED",
                 "VAT EXEMPT"
             }));
             vatableField.setFocusable(false);

@@ -398,7 +398,7 @@ public class DiscountCodes extends JPanel {
     private void delete(ActionEvent e) {
         int selectedRow = discountCodesTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a discount code to delete.");
+            JOptionPane.showMessageDialog(this, "Please select a discount code to archive.");
             return;
         }
 
@@ -406,26 +406,26 @@ public class DiscountCodes extends JPanel {
 
         int confirm = JOptionPane.showConfirmDialog(
                 this,
-                "Are you sure you want to delete discount code '" + code + "'?",
-                "Confirm Deletion",
+                "Are you sure you want to archive discount code '" + code + "'?\nArchived codes can be restored later.",
+                "Confirm Archive",
                 JOptionPane.YES_NO_OPTION
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
             try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
-                String sql = "DELETE FROM discount_codes WHERE code = ?";
+                String sql = "UPDATE discount_codes SET archived = TRUE WHERE code = ?";
                 PreparedStatement pst = conn.prepareStatement(sql);
                 pst.setString(1, code);
 
                 int rowsAffected = pst.executeUpdate();
                 if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(this, "Discount code deleted successfully.");
-                    populateTable(); // Refresh the table
+                    JOptionPane.showMessageDialog(this, "Discount code archived successfully.");
+                    populateTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Failed to delete discount code.");
+                    JOptionPane.showMessageDialog(this, "Failed to archive discount code.");
                 }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error deleting discount code: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Error archiving discount code: " + ex.getMessage());
             }
         }
     }
@@ -1219,9 +1219,8 @@ public class DiscountCodes extends JPanel {
         String sql = "SELECT code, discount_percentage, valid_from, valid_until, " +
                 "max_uses, current_uses, is_active, minimum_purchase " +
                 "FROM discount_codes " +
-                "WHERE code LIKE ? OR " +
-                "CAST(discount_percentage AS CHAR) LIKE ? OR " +
-                "CAST(minimum_purchase AS CHAR) LIKE ? " +
+                "WHERE (archived = FALSE OR archived IS NULL) AND " +
+                "(code LIKE ? OR CAST(discount_percentage AS CHAR) LIKE ? OR CAST(minimum_purchase AS CHAR) LIKE ?) " +
                 "ORDER BY valid_until DESC";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);

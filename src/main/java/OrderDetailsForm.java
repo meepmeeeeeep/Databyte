@@ -19,8 +19,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class OrderDetailsForm extends JPanel {
 
+    private final String employeeName;
+
     public OrderDetailsForm(String transactionId,
                             Timestamp date,
+                            String employeeName,
                             String customerName,
                             String customerAddress,
                             String customerEmail,
@@ -78,6 +81,9 @@ public class OrderDetailsForm extends JPanel {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dashboardLabel.setText("Order Details - Transaction ID: " + transactionId + " | Date: " + sdf.format(date));
 
+        // Set employee name
+        this.employeeName = employeeName;
+        
         // Set customer information
         customerNameField.setText(customerName);
         customerAddressField.setText(customerAddress);
@@ -153,6 +159,7 @@ public class OrderDetailsForm extends JPanel {
                 // Transaction details
                 document.add(new Paragraph("Transaction ID: " + dashboardLabel.getText().split(":")[1].split("\\|")[0].trim(), normalFont));
                 document.add(new Paragraph("Date: " + dashboardLabel.getText().split("Date:")[1].trim(), normalFont));
+                document.add(new Paragraph("Cashier Name: " + employeeName, normalFont));
                 document.add(new Paragraph("\nCustomer Information:", titleFont));
                 document.add(new Paragraph("Name: " + customerNameField.getText(), normalFont));
 
@@ -182,7 +189,7 @@ public class OrderDetailsForm extends JPanel {
                     double vatPrice = Double.parseDouble(model.getValueAt(i, 5).toString());
 
                     // Calculate subtotal using VAT inclusive price
-                    double subtotal = vatPrice * quantity;
+                    double subtotal = unitPrice * quantity;
                     originalTotal += subtotal;
 
                     // Item details with aligned prices
@@ -192,7 +199,7 @@ public class OrderDetailsForm extends JPanel {
                     Paragraph priceDetails = new Paragraph();
                     priceDetails.setIndentationLeft(10);
                     priceDetails.add(new Chunk(String.format("x%d @ %8.2f\n", quantity, unitPrice), smallFont));
-                    priceDetails.add(new Chunk(String.format("VAT incl.: %8.2f\n", vatPrice), smallFont));
+                    priceDetails.add(new Chunk(String.format("VAT excl.: %8.2f\n", vatPrice), smallFont));
                     priceDetails.add(new Chunk(String.format("Sub: %8.2f\n", subtotal), smallFont));
                     document.add(priceDetails);
                 }
@@ -219,7 +226,12 @@ public class OrderDetailsForm extends JPanel {
                 totals.setAlignment(Element.ALIGN_RIGHT);
                 totals.add(new Chunk(String.format("Total: %8.2f\n", finalTotal), titleFont));
                 totals.add(new Chunk(String.format("Paid: %8.2f\n", payment), normalFont));
-                totals.add(new Chunk(String.format("Change: %8.2f\n", change), normalFont));
+
+                // Display Change if Payment Method is CASH
+                if (paymentMethodField.getText().equalsIgnoreCase("CASH")) {
+                    totals.add(new Chunk(String.format("Change: %8.2f\n", change), normalFont));
+                }
+
                 document.add(totals);
 
                 document.add(new Paragraph("\nThank you for shopping!", smallFont));
@@ -697,7 +709,7 @@ public class OrderDetailsForm extends JPanel {
         // Add the cart data
         for (Object[] row : cartData) {
             // Get the necessary values
-            double vatPrice = Double.parseDouble(row[5].toString());
+            double vatPrice = Double.parseDouble(row[3].toString());
             int quantity = Integer.parseInt(row[6].toString());
 
             // Calculate VAT inclusive subtotal

@@ -6,7 +6,6 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-import java.util.Timer;
 import javax.swing.*;
 import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle;
@@ -1198,9 +1197,10 @@ public class UserManagement extends JPanel {
     }
 
     void populateTable(String searchQuery) {
-        String sql = "SELECT id, username, role, email, contact_number " +
+        String sql = "SELECT id, employee_name, username, role, email, contact_number " +
                 "FROM users " +
-                "WHERE username LIKE ? OR role LIKE ? OR email LIKE ? OR contact_number LIKE ? " +
+                "WHERE (archived = FALSE OR archived IS NULL) AND " +
+                "(employee_name LIKE ? OR username LIKE ? OR role LIKE ? OR email LIKE ? OR contact_number LIKE ?) " +
                 "ORDER BY id";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
@@ -1210,6 +1210,7 @@ public class UserManagement extends JPanel {
             pst.setString(2, wildcardQuery);
             pst.setString(3, wildcardQuery);
             pst.setString(4, wildcardQuery);
+            pst.setString(5, wildcardQuery);
 
             ResultSet rs = pst.executeQuery();
 
@@ -1220,11 +1221,12 @@ public class UserManagement extends JPanel {
                 }
             };
 
-            model.setColumnIdentifiers(new String[]{"ID", "Username", "Role", "Email", "Contact Number"});
+            model.setColumnIdentifiers(new String[]{"ID", "Employee Name", "Username", "Role", "Email", "Contact Number"});
 
             while (rs.next()) {
                 model.addRow(new Object[]{
                         rs.getInt("id"),
+                        rs.getString("employee_name"),
                         rs.getString("username"),
                         rs.getString("role"),
                         rs.getString("email"),
@@ -1238,7 +1240,7 @@ public class UserManagement extends JPanel {
             usersTable.setSelectionModel(new DefaultListSelectionModel() {
                 @Override
                 public void setSelectionInterval(int index0, int index1) {
-                    String username = (String) usersTable.getValueAt(index0, 1);
+                    String username = (String) usersTable.getValueAt(index0, 2);
                     if (!username.equals(currentLoggedInUser) && !username.equals("admin")) {
                         super.setSelectionInterval(index0, index1);
                     }
@@ -1256,33 +1258,31 @@ public class UserManagement extends JPanel {
         int selectedRow = usersTable.getSelectedRow();
 
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a user to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select a user to archive.", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        String username = (String) usersTable.getValueAt(selectedRow, 1);
+        String username = (String) usersTable.getValueAt(selectedRow, 2);
 
-        // Additional checks for current user and admin
         if (username.equals(currentLoggedInUser)) {
-            JOptionPane.showMessageDialog(this, "You cannot delete your own account.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "You cannot archive your own account.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (username.equals("admin")) {
-            JOptionPane.showMessageDialog(this, "The admin account cannot be deleted.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "The admin account cannot be archived.", "Operation Not Allowed", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Get the user id from the selected row
         int userId = (int) usersTable.getValueAt(selectedRow, 0);
 
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete this user?",
-                "Confirm Deletion",
+                "Are you sure you want to archive this user?\nArchived users can be restored later.",
+                "Confirm Archive",
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            String sql = "DELETE FROM users WHERE id = ?";
+            String sql = "UPDATE users SET archived = TRUE WHERE id = ?";
 
             try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1290,20 +1290,20 @@ public class UserManagement extends JPanel {
                 int affectedRows = pstmt.executeUpdate();
 
                 if (affectedRows > 0) {
-                    JOptionPane.showMessageDialog(this, "User deleted successfully.");
-                    populateTable(); // Refresh table
+                    JOptionPane.showMessageDialog(this, "User archived successfully.");
+                    populateTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "User could not be deleted. Please try again.");
+                    JOptionPane.showMessageDialog(this, "User could not be archived. Please try again.");
                 }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error deleting user: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error archiving user: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
     //
-// Set Table Theme/Layout
-//
+    // Set Table Theme/Layout
+    //
     private void setTableTheme() {
         // Use Custom Theme for Users Table
         usersTable.setShowGrid(false);
@@ -1360,14 +1360,15 @@ public class UserManagement extends JPanel {
         // Set Table Column Size
         TableColumn[] columns = {
                 usersTable.getColumnModel().getColumn(0), // ID
-                usersTable.getColumnModel().getColumn(1), // Username
-                usersTable.getColumnModel().getColumn(2), // Role
-                usersTable.getColumnModel().getColumn(3), // Email
-                usersTable.getColumnModel().getColumn(4)  // Contact Number
+                usersTable.getColumnModel().getColumn(1), // Employee Name
+                usersTable.getColumnModel().getColumn(2), // Username
+                usersTable.getColumnModel().getColumn(3), // Role
+                usersTable.getColumnModel().getColumn(4), // Email
+                usersTable.getColumnModel().getColumn(5)  // Contact Number
         };
 
-        int[] preferredWidths = {50, 200, 150, 250, 150};
-        int[] minWidths = {50, 150, 100, 200, 150};
+        int[] preferredWidths = {50, 175, 125, 100, 200, 150};
+        int[] minWidths = {50, 175, 125, 75, 150, 150};
 
         for (int i = 0; i < columns.length; i++) {
             columns[i].setPreferredWidth(preferredWidths[i]);

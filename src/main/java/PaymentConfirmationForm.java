@@ -1,5 +1,6 @@
 // PaymentConfirmationForm.java
 
+import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.*;
@@ -23,6 +24,9 @@ public class PaymentConfirmationForm extends JPanel {
     private boolean discountApplied = false;
     private DefaultTableModel cartTableModel;
     private Map<String, Integer> itemQuantityMap;
+    private double discountedTotal;
+    private double paymentWithServiceFee;
+
     public PaymentConfirmationForm(Sales sales, String transactionId, Object[][] cartData, double totalAmount,
                                    String customerName, String customerAddress, String customerEmail, String customerPhone) {
         this.sales = sales;
@@ -118,6 +122,19 @@ public class PaymentConfirmationForm extends JPanel {
 
             // Reset the UI
             totalAmountField.setText(String.format("%.2f", originalAmount));
+
+            if (paymentMethodField.getSelectedItem().equals("Card")) {
+
+                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.035);
+                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+
+            } else if (paymentMethodField.getSelectedItem().equals("GCash")) {
+
+                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.030);
+                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+
+            }
+
             discountApplied = false;
             discountCodeField.setEnabled(true);
             discountCodeField.setText("");
@@ -140,6 +157,13 @@ public class PaymentConfirmationForm extends JPanel {
         try {
             // Get the values and remove any currency symbols, spaces, and commas
             String totalStr = totalAmountField.getText().trim().replaceAll("[^\\d.]", "");
+
+            if (paymentMethodField.getSelectedItem().equals("Card") ||
+                    paymentMethodField.getSelectedItem().equals("GCash")) {
+                totalStr = String.format("%.2f", paymentWithServiceFee).replaceAll("[^\\d.]", "");
+
+            }
+
             String paymentStr = paymentAmountField.getText().trim().replaceAll("[^\\d.]", "");
             String paymentMethod = (String) paymentMethodField.getSelectedItem();
 
@@ -169,8 +193,8 @@ public class PaymentConfirmationForm extends JPanel {
                 try {
                     // Insert transaction record
                     String sql = "INSERT INTO transaction_history (transaction_id, total_price, date, customer_name, " +
-                            "customer_address, customer_email, customer_phone, payment_amount, payment_method, discount_code) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                            "customer_address, customer_email, customer_phone, payment_amount, payment_method, discount_code, employee_name) " +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement stmt = conn.prepareStatement(sql);
 
                     stmt.setString(1, transactionID);
@@ -183,12 +207,13 @@ public class PaymentConfirmationForm extends JPanel {
                     stmt.setDouble(8, payment);
                     stmt.setString(9, paymentMethod);
                     stmt.setString(10, discountApplied ? discountCodeField.getText().trim() : null);
+                    stmt.setString(11, UserSession.getEmployeeName());
 
                     stmt.executeUpdate();
 
                     // Insert cart items
                     String cartSql = "INSERT INTO cart_items (transaction_id, item_id, item_name, category, " +
-                            "price, vat_type, vat_inclusive_price, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                            "price, vat_type, vat_exclusive_price, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     PreparedStatement cartStmt = conn.prepareStatement(cartSql);
 
                     for (int i = 0; i < cartTableModel.getRowCount(); i++) {
@@ -198,7 +223,7 @@ public class PaymentConfirmationForm extends JPanel {
                         cartStmt.setString(4, cartTableModel.getValueAt(i, 2).toString()); // category
                         cartStmt.setDouble(5, Double.parseDouble(cartTableModel.getValueAt(i, 3).toString())); // price
                         cartStmt.setString(6, cartTableModel.getValueAt(i, 4).toString()); // vat_type
-                        cartStmt.setDouble(7, Double.parseDouble(cartTableModel.getValueAt(i, 5).toString())); // vat_inclusive_price
+                        cartStmt.setDouble(7, Double.parseDouble(cartTableModel.getValueAt(i, 5).toString())); // vat_exclusive_price
                         cartStmt.setInt(8, Integer.parseInt(cartTableModel.getValueAt(i, 6).toString())); // quantity
                         cartStmt.executeUpdate();
                     }
@@ -310,10 +335,23 @@ public class PaymentConfirmationForm extends JPanel {
             }
 
             try {
+
                 originalAmount = Double.parseDouble(totalAmountField.getText());
                 double discountRate = discountPercentage / 100.0;
                 double discountAmount = originalAmount * discountRate;
-                double discountedTotal = originalAmount - discountAmount;
+                discountedTotal = originalAmount - discountAmount;
+
+                if (paymentMethodField.getSelectedItem().equals("Card")) {
+
+                    paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.035);
+                    paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+
+                } else if (paymentMethodField.getSelectedItem().equals("GCash")) {
+
+                    paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.030);
+                    paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+
+                }
 
                 // Update the discount code usage in the database
                 String updateSql = "UPDATE discount_codes SET current_uses = current_uses + 1 WHERE code = ?";
@@ -343,6 +381,42 @@ public class PaymentConfirmationForm extends JPanel {
                     "Database error: " + ex.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Change Payment Amount to same as Total Amount when Payment Method is Card or GCash
+    private void paymentMethodFieldItemStateChanged(ItemEvent e) {
+        // Service Fees:
+        // 3.5% + 15 for Card
+        // 3.0% + 15 for GCash
+        if (paymentMethodField.getSelectedItem().equals("Card")) {
+            if (discountApplied) {
+                paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.035);
+                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+
+            } else {
+                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.035);
+                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+                paymentAmountField.setEditable(false);
+                paymentAmountField.setFocusable(false);
+            }
+
+        } else if (paymentMethodField.getSelectedItem().equals("GCash")) {
+            if (discountApplied) {
+                paymentWithServiceFee = discountedTotal + 15 + (discountedTotal * 0.030);
+                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+
+            } else {
+                paymentWithServiceFee = totalAmount + 15 + (totalAmount * 0.030);
+                paymentAmountField.setText(String.format("%.2f", paymentWithServiceFee));
+                paymentAmountField.setEditable(false);
+                paymentAmountField.setFocusable(false);
+            }
+
+        } else {
+            paymentAmountField.setText("");
+            paymentAmountField.setEditable(true);
+            paymentAmountField.setFocusable(true);
         }
     }
 
@@ -576,12 +650,15 @@ public class PaymentConfirmationForm extends JPanel {
 
             //---- paymentMethodField ----
             paymentMethodField.setModel(new DefaultComboBoxModel<>(new String[] {
-                "Cash"
+                "Cash",
+                "Card",
+                "GCash"
             }));
             paymentMethodField.setFocusable(false);
             paymentMethodField.setBorder(null);
             paymentMethodField.setBackground(new Color(0xe8e7f4));
             paymentMethodField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            paymentMethodField.addItemListener(e -> paymentMethodFieldItemStateChanged(e));
 
             GroupLayout panel1Layout = new GroupLayout(panel1);
             panel1.setLayout(panel1Layout);

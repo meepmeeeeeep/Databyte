@@ -10,7 +10,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.FileOutputStream;
@@ -56,7 +55,12 @@ public class PaymentDetails extends JPanel {
         totalAmountField.setText(totalAmount);
         paymentAmountField.setText(paymentAmount);
         paymentMethodField.setText(paymentMethod);
-        changeField.setText(String.format("%.2f", change));
+        // Change is only applicable for CASH payment method
+        if (paymentMethodField.getText().equalsIgnoreCase("CASH")) {
+            changeField.setText(String.format("%.2f", change));
+        } else {
+            changeField.setText("0.0");
+        }
     }
 
     private void cancel(ActionEvent e) {
@@ -104,7 +108,7 @@ public class PaymentDetails extends JPanel {
                 try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
                     String sql = "SELECT th.transaction_id, th.date, th.customer_name, th.customer_phone, " +
                             "th.customer_address, th.payment_method, th.payment_amount, th.total_price, " +
-                            "th.discount_code " +
+                            "th.discount_code, th.employee_name " +
                             "FROM transaction_history th " +
                             "ORDER BY th.date DESC LIMIT 1";
                     PreparedStatement stmt = conn.prepareStatement(sql);
@@ -114,6 +118,8 @@ public class PaymentDetails extends JPanel {
                         String transactionId = rs.getString("transaction_id");
                         document.add(new Paragraph("Transaction ID: " + transactionId, normalFont));
                         document.add(new Paragraph("Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(rs.getTimestamp("date")), normalFont));
+                        String employeeName = rs.getString("employee_name");
+                        document.add(new Paragraph("Cashier Name: " + employeeName, normalFont));
                         document.add(new Paragraph("\nCustomer Information:", titleFont));
                         document.add(new Paragraph("Name: " + rs.getString("customer_name"), normalFont));
 
@@ -144,9 +150,9 @@ public class PaymentDetails extends JPanel {
                             String itemName = itemsRs.getString("item_name");
                             int quantity = itemsRs.getInt("quantity");
                             double unitPrice = itemsRs.getDouble("price");
-                            double vatPrice = itemsRs.getDouble("vat_inclusive_price");
+                            double vatPrice = itemsRs.getDouble("vat_exclusive_price");
 
-                            double subtotal = vatPrice * quantity;
+                            double subtotal = unitPrice * quantity;
                             originalTotal += subtotal;
 
                             document.add(new Paragraph(itemId + " - " +
@@ -155,7 +161,7 @@ public class PaymentDetails extends JPanel {
                             Paragraph priceDetails = new Paragraph();
                             priceDetails.setIndentationLeft(10);
                             priceDetails.add(new Chunk(String.format("x%d @ %8.2f\n", quantity, unitPrice), smallFont));
-                            priceDetails.add(new Chunk(String.format("VAT incl.: %8.2f\n", vatPrice), smallFont));
+                            priceDetails.add(new Chunk(String.format("VAT excl.: %8.2f\n", vatPrice), smallFont));
                             priceDetails.add(new Chunk(String.format("Sub: %8.2f\n", subtotal), smallFont));
                             document.add(priceDetails);
                         }
@@ -180,7 +186,13 @@ public class PaymentDetails extends JPanel {
                         totals.setAlignment(Element.ALIGN_RIGHT);
                         totals.add(new Chunk(String.format("Total: %8.2f\n", finalTotal), titleFont));
                         totals.add(new Chunk(String.format("Paid: %8.2f\n", payment), normalFont));
-                        totals.add(new Chunk(String.format("Change: %8.2f\n", change), normalFont));
+
+                        // Display Change if Payment Method is CASH
+                        String paymentMethod = rs.getString("payment_method");
+                        if (paymentMethod.equalsIgnoreCase("CASH")) {
+                            totals.add(new Chunk(String.format("Change: %8.2f\n", change), normalFont));
+                        }
+
                         document.add(totals);
                     }
                 }

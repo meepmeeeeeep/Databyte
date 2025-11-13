@@ -104,15 +104,16 @@ public class CreateUserForm extends JPanel {
 
             // Continue with insert if username is unique
             // SQL query to insert new user
-            String sql = "INSERT INTO users (username, password, role, email, contact_number) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (employee_name, username, password, role, email, contact_number) VALUES (?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                pstmt.setString(1, username);
-                pstmt.setString(2, password);  // Consider hashing the password in production
-                pstmt.setString(3, role);
-                pstmt.setString(4, email);
-                pstmt.setString(5, contactNumber);
+                pstmt.setString(1, employeeName);
+                pstmt.setString(2, username);
+                pstmt.setString(3, password);  // Consider hashing the password in production
+                pstmt.setString(4, role);
+                pstmt.setString(5, email);
+                pstmt.setString(6, contactNumber);
 
                 int affectedRows = pstmt.executeUpdate();
 

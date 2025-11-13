@@ -1229,7 +1229,7 @@ public class Inventory extends JPanel {
                 inventoryTable.getColumnModel().getColumn(4), // Quantity
                 inventoryTable.getColumnModel().getColumn(5), // Price
                 inventoryTable.getColumnModel().getColumn(6), // VAT Type
-                inventoryTable.getColumnModel().getColumn(7)  // VAT Inclusive
+                inventoryTable.getColumnModel().getColumn(7)  // VAT Exclusive
         };
 
         int[] preferredWidths = {35, 60, 215, 50, 50, 50, 80, 80};
@@ -1257,9 +1257,10 @@ public class Inventory extends JPanel {
     }
 
     void populateTable(String searchQuery) {
-        String sql = "SELECT item_no, item_id, item_name, category, quantity, price, vat_type, vat_inclusive_price " +
+        String sql = "SELECT item_no, item_id, item_name, category, quantity, price, vat_type, vat_exclusive_price, archived " +
                 "FROM inventory " +
-                "WHERE item_id LIKE ? OR item_name LIKE ? OR category LIKE ? OR vat_type LIKE ? " +
+                "WHERE (archived = FALSE OR archived IS NULL) AND " +
+                "(item_no LIKE ? OR item_id LIKE ? OR item_name LIKE ? OR category LIKE ?) " +
                 "ORDER BY item_no";
 
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
@@ -1268,7 +1269,7 @@ public class Inventory extends JPanel {
             pst.setString(1, wildcardQuery);
             pst.setString(2, wildcardQuery);
             pst.setString(3, wildcardQuery);
-            pst.setString(4, wildcardQuery); // Add the missing parameter for vat_type search
+            pst.setString(4, wildcardQuery);
 
             ResultSet rs = pst.executeQuery();
 
@@ -1279,7 +1280,7 @@ public class Inventory extends JPanel {
                 }
             };
 
-            model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price", "VAT Type", "VAT Inclusive"});
+            model.setColumnIdentifiers(new String[]{"#", "Item ID", "Item Name", "Category", "Quantity", "Price", "VAT Type", "VAT Exclusive"});
 
             while (rs.next()) {
                 model.addRow(new Object[]{
@@ -1290,7 +1291,7 @@ public class Inventory extends JPanel {
                         rs.getInt("quantity"),
                         rs.getDouble("price"),
                         rs.getString("vat_type"),
-                        rs.getDouble("vat_inclusive_price")
+                        rs.getDouble("vat_exclusive_price")
                 });
             }
 
@@ -1306,20 +1307,20 @@ public class Inventory extends JPanel {
         int selectedRow = inventoryTable.getSelectedRow();
 
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an item to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Please select an item to archive.", "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Get the item_id from the selected row
-        String itemId = inventoryTable.getValueAt(selectedRow, 1).toString();
+        String itemId = (String) inventoryTable.getValueAt(selectedRow, 1);
+        String itemName = (String) inventoryTable.getValueAt(selectedRow, 2);
 
         int confirm = JOptionPane.showConfirmDialog(this,
-                "Are you sure you want to delete this item?",
-                "Confirm Deletion",
+                "Are you sure you want to archive '" + itemName + "'?\nArchived items can be restored later.",
+                "Confirm Archive",
                 JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            String sql = "DELETE FROM inventory WHERE item_id = ?";
+            String sql = "UPDATE inventory SET archived = TRUE WHERE item_id = ?";
 
             try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD);
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -1327,13 +1328,13 @@ public class Inventory extends JPanel {
                 int affectedRows = pstmt.executeUpdate();
 
                 if (affectedRows > 0) {
-                    JOptionPane.showMessageDialog(this, "Item deleted successfully.");
-                    populateTable(); // Refresh table
+                    JOptionPane.showMessageDialog(this, "Item archived successfully.");
+                    populateTable();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Item could not be deleted. Please try again.");
+                    JOptionPane.showMessageDialog(this, "Item could not be archived. Please try again.");
                 }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, "Error deleting item: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error archiving item: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

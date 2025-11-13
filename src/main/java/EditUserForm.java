@@ -65,7 +65,7 @@ public class EditUserForm extends JPanel {
             ResultSet rs = pst.executeQuery();
 
             if (rs.next()) {
-                employeeNameField.setText(rs.getString("username")); // Or employee_name if you add that column
+                employeeNameField.setText(rs.getString("employee_name"));
                 usernameField.setText(rs.getString("username"));
                 passwordField.setText(rs.getString("password"));
                 emailField.setText(rs.getString("email"));
@@ -138,16 +138,17 @@ public class EditUserForm extends JPanel {
             }
 
             // Update user in database
-            String sql = "UPDATE users SET username = ?, password = ?, role = ?, email = ?, contact_number = ? WHERE username = ?";
+            String sql = "UPDATE users SET employee_name = ?, username = ?, password = ?, role = ?, email = ?, contact_number = ? WHERE username = ?";
 
             try (PreparedStatement pst = conn.prepareStatement(sql)) {
 
-                pst.setString(1, usernameField.getText().trim());
-                pst.setString(2, passwordField.getText().trim());
-                pst.setString(3, roleField.getSelectedItem().toString());
-                pst.setString(4, emailField.getText().trim());
-                pst.setString(5, contactNumberField.getText().trim());
-                pst.setString(6, username); // Original username for WHERE clause
+                pst.setString(1, employeeNameField.getText().trim());
+                pst.setString(2, usernameField.getText().trim());
+                pst.setString(3, passwordField.getText().trim());
+                pst.setString(4, roleField.getSelectedItem().toString());
+                pst.setString(5, emailField.getText().trim());
+                pst.setString(6, contactNumberField.getText().trim());
+                pst.setString(7, username); // Original username for WHERE clause
 
                 int affectedRows = pst.executeUpdate();
 

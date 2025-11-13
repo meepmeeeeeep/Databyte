@@ -279,7 +279,7 @@ public class CreateOrderForm extends JPanel {
                 // Convert existing quantity from String to Integer
                 int existingQuantity = Integer.parseInt(cartTableModel.getValueAt(existingRow, 6).toString());
                 int newQuantity = quantity + existingQuantity;
-                double subtotal = vatPrice * newQuantity;
+                double subtotal = basePrice * newQuantity;
 
                 cartTableModel.setValueAt(newQuantity, existingRow, 6);
                 cartTableModel.setValueAt(Math.round(subtotal * 100.0) / 100.0, existingRow, 7);
@@ -287,7 +287,7 @@ public class CreateOrderForm extends JPanel {
             }
         } else {
             // Add new item to cart
-            double subtotal = vatPrice * quantity;
+            double subtotal = basePrice * quantity;
             // Format subtotal to 2 decimal places before adding to cart
             Object[] row = {itemId, itemName, category, basePrice, vatType, vatPrice, quantity,
                     Math.round(subtotal * 100.0) / 100.0}; // Round to 2 decimal places
@@ -610,7 +610,7 @@ public class CreateOrderForm extends JPanel {
             productInformationLabel.setEditable(false);
 
             //---- vatPriceLabel ----
-            vatPriceLabel.setText("VAT Inc. Price:");
+            vatPriceLabel.setText("VAT Excl. Price:");
             vatPriceLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 16));
             vatPriceLabel.setBackground(new Color(0xfcf8ff));
             vatPriceLabel.setForeground(new Color(0x897cce));
@@ -628,13 +628,13 @@ public class CreateOrderForm extends JPanel {
             //---- vatTypeField ----
             vatTypeField.setModel(new DefaultComboBoxModel<>(new String[] {
                 "VATABLE",
-                "ZERO-RATED",
                 "VAT EXEMPT"
             }));
             vatTypeField.setFocusable(false);
             vatTypeField.setBorder(null);
             vatTypeField.setBackground(new Color(0xe8e7f4));
             vatTypeField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            vatTypeField.setRequestFocusEnabled(false);
 
             //---- vatableLabel ----
             vatableLabel.setText("VAT Type:");
@@ -1079,7 +1079,7 @@ public class CreateOrderForm extends JPanel {
                 double basePrice = rs.getDouble("price");
                 String vatType = rs.getString("vat_type");
                 vatTypeField.setSelectedItem(vatType);
-                double vatPrice = rs.getDouble("vat_inclusive_price");
+                double vatPrice = rs.getDouble("vat_exclusive_price");
 
                 priceField.setText(String.format("%.2f", basePrice));
                 vatPriceField.setText(String.format("%.2f", vatPrice));
@@ -1108,12 +1108,12 @@ public class CreateOrderForm extends JPanel {
             int quantity = (int) cartTableModel.getValueAt(i, 6);
 
             totalBasePrice += basePrice * quantity;
-            totalVatAmount += (vatPrice - basePrice) * quantity;
+            totalVatAmount += (basePrice - vatPrice) * quantity;
         }
 
         totalAmountField.setText(String.format("%.2f", totalBasePrice));
         vatAmountField.setText(String.format("%.2f", totalVatAmount));
-        grandTotalField.setText(String.format("%.2f", totalBasePrice + totalVatAmount));
+        grandTotalField.setText(String.format("%.2f", totalBasePrice));
 
     }
 
@@ -1313,7 +1313,7 @@ public class CreateOrderForm extends JPanel {
                                 categoryField.getText().equals(rs.getString("category")) &&
                                 String.format("%.2f", Double.parseDouble(priceField.getText())).equals(String.format("%.2f", rs.getDouble("price"))) &&
                                 vatTypeField.getSelectedItem().toString().equals(rs.getString("vat_type")) &&
-                                String.format("%.2f", Double.parseDouble(vatPriceField.getText())).equals(String.format("%.2f", rs.getDouble("vat_inclusive_price")));
+                                String.format("%.2f", Double.parseDouble(vatPriceField.getText())).equals(String.format("%.2f", rs.getDouble("vat_exclusive_price")));
 
                 if (!isValid) {
                     JOptionPane.showMessageDialog(this,

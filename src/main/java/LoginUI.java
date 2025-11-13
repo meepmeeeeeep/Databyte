@@ -70,8 +70,9 @@ public class LoginUI extends JPanel {
 
         switch (result) {
             case SUCCESS:
+                String employee_name = DBConnection.getEmployeeName(username);
                 String role = DBConnection.getUserRole(username);
-                UserSession.setSession(username, role);
+                UserSession.setSession(employee_name, username, role);
 
                 SwingUtilities.getWindowAncestor(this).dispose();
                 JFrame frame = null;

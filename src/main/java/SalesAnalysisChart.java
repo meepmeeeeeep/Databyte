@@ -149,7 +149,7 @@ public class SalesAnalysisChart {
         try (Connection conn = DriverManager.getConnection(DBConnection.DB_URL, DBConnection.DB_USER, DBConnection.DB_PASSWORD)) {
             DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 
-            String query = "SELECT i.category, SUM(c.quantity * c.price) as total_sales " +
+            String query = "SELECT i.category, SUM(c.quantity * c.vat_exclusive_price) as total_sales " +
                     "FROM cart_items c " +
                     "JOIN inventory i ON c.item_id = i.item_id " +
                     "GROUP BY i.category " +

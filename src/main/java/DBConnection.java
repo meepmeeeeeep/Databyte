@@ -23,6 +23,7 @@ public class DBConnection {
 
     public void initDatabase() {
         createDatabaseSchema(); // Create database schema if not exists
+
         createUsersTable(); // Ensure users table exists at startup
         createInventoryTable(); // Ensure inventory table exists at startup
         createTransactionTable(); // Ensure sales table exists at startup
@@ -31,6 +32,7 @@ public class DBConnection {
         createDiscountCodesTable(); // Ensure discount codes table exists at startup
     }
 
+    // Create Database Schema
     private void createDatabaseSchema() {
         try (Connection conn = DriverManager.getConnection(ROOT_DB_URL, DB_USER, DB_PASSWORD);
              Statement stmt = conn.createStatement()) {
@@ -60,14 +62,17 @@ public class DBConnection {
         }
     }
 
+    // Create Users Table
     private void createUsersTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS users ("
                 + "id INT AUTO_INCREMENT PRIMARY KEY, "
+                + "employee_name VARCHAR(255) NOT NULL, "
                 + "username VARCHAR(50) NOT NULL UNIQUE, "
                 + "password VARCHAR(100) NOT NULL, "
                 + "email VARCHAR(100), "
                 + "contact_number VARCHAR(20), "
-                + "role ENUM('ADMIN', 'MANAGER', 'CASHIER', 'STOCK CLERK') NOT NULL"
+                + "role ENUM('ADMIN', 'MANAGER', 'CASHIER', 'STOCK CLERK') NOT NULL, "
+                + "archived BOOLEAN DEFAULT FALSE"
                 + ")";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -82,8 +87,8 @@ public class DBConnection {
 
             // Only insert if admin doesn't exist
             if (count == 0) {
-                String insertAdminSQL = "INSERT INTO users (username, password, email, role) "
-                        + "VALUES ('admin', 'admin', 'admin@databyte.com', 'ADMIN')";
+                String insertAdminSQL = "INSERT INTO users (employee_name, username, password, email, role) "
+                        + "VALUES ('Joe', 'admin', 'admin', 'admin@databyte.com', 'ADMIN')";
                 stmt.executeUpdate(insertAdminSQL);
             }
         } catch (SQLException e) {
@@ -91,6 +96,7 @@ public class DBConnection {
         }
     }
 
+    // Create Inventory Table
     private void createInventoryTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS inventory ("
                 + "item_no INT AUTO_INCREMENT, "
@@ -99,12 +105,13 @@ public class DBConnection {
                 + "category VARCHAR(50), "
                 + "quantity INT NOT NULL, "
                 + "price DECIMAL(10, 2) NOT NULL, "
-                + "vat_type ENUM('VATABLE', 'ZERO-RATED', 'VAT EXEMPT') DEFAULT 'VATABLE', "
+                + "vat_type ENUM('VATABLE', 'VAT EXEMPT') DEFAULT 'VATABLE', "
                 + "vat_inclusive_price DECIMAL(10, 2) GENERATED ALWAYS AS ("
                 + "    CASE WHEN vat_type = 'VATABLE' THEN price * 1.12 ELSE price END"
                 + ") STORED, "
                 + "PRIMARY KEY (item_id), "
-                + "UNIQUE (item_no)"
+                + "UNIQUE (item_no), "
+                + "archived BOOLEAN DEFAULT FALSE"
                 + ")";
 
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -115,6 +122,7 @@ public class DBConnection {
         }
     }
 
+    // Create Transaction History Table
     private void createTransactionTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS transaction_history ("
                 + "transaction_id VARCHAR(20) PRIMARY KEY, "
@@ -141,6 +149,7 @@ public class DBConnection {
         }
     }
 
+    // Create Cart Table
     private void createCartTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS cart_items ("
                 + "id int(11) NOT NULL, "
@@ -171,7 +180,8 @@ public class DBConnection {
                 + "max_uses int(11) NOT NULL, "
                 + "current_uses int(11) DEFAULT 0, "
                 + "is_active tinyint(1) DEFAULT 1, "
-                + "minimum_purchase decimal(10,2) NOT NULL DEFAULT 0.00"
+                + "minimum_purchase decimal(10,2) NOT NULL DEFAULT 0.00, "
+                + "archived BOOLEAN DEFAULT FALSE"
                 + ")";
         try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                 Statement stmt = conn.createStatement()) {
@@ -181,6 +191,7 @@ public class DBConnection {
         }
     }
 
+    // Create Resupply History Table
     private void createResupplyHistoryTable() {
         String createTableSQL = "CREATE TABLE IF NOT EXISTS resupply_history ("
                 + "resupply_id INT AUTO_INCREMENT PRIMARY KEY, "
@@ -268,6 +279,21 @@ public class DBConnection {
             System.out.println(e.getMessage());
         }
         return role;
+    }
+
+    public static String getEmployeeName(String username) {
+        String employee_name = "";
+        try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD)) {
+            PreparedStatement stmt = conn.prepareStatement("SELECT employee_name FROM users WHERE username = ?");
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                employee_name = rs.getString("employee_name");
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return employee_name;
     }
 
     public static String getBackupDirectory() throws IOException {

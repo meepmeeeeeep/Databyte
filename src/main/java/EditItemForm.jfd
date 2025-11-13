@@ -151,7 +151,6 @@ new FormModel {
 					"model": new javax.swing.DefaultComboBoxModel {
 						selectedItem: "VATABLE"
 						addElement( "VATABLE" )
-						addElement( "ZERO-RATED" )
 						addElement( "VAT EXEMPT" )
 					}
 					"focusable": false
